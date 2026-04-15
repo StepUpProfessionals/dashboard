@@ -982,7 +982,7 @@
         </div>
         <div class="topbar-actions">
           <button class="ghost-btn" id="dateChip">15 abr 2026</button>
-          <button class="primary-btn" id="syncBtn">Sincronizar demo</button>
+          <button class="primary-btn" id="syncBtn">Sincronizar</button>
         </div>
       </header>
 
@@ -1264,6 +1264,10 @@
     function pendingForProject(project){
       return Math.max(0, project.soldValue - sumPaymentsForProject(project.id, true));
     }
+	
+	function isReceivedPayment(status){
+		return status === "Pagado" || status === "Abono parcial";
+	}
 
     function statusTone(type, status){
       const maps = {

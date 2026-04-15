@@ -1,1626 +1,2335 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Aura Spa Medellín — Sistema de Gestión</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SBS Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* =========================
+       VARIABLES / BASE
+    ========================== */
+    :root{
+      --navy:#00274D;
+      --navy-2:#0A3966;
+      --navy-soft:#EAF1F8;
+      --teal:#008080;
+      --teal-soft:#E6F6F6;
+      --bg:#F6F8FB;
+      --surface:#FFFFFF;
+      --surface-2:#FBFCFE;
+      --text:#152235;
+      --muted:#66768A;
+      --line:#E6EBF2;
+      --green:#2FA66A;
+      --green-soft:#EAF8F0;
+      --red:#D85C5C;
+      --red-soft:#FDEEEE;
+      --amber:#C98A1D;
+      --amber-soft:#FFF4DE;
+      --violet:#6C63FF;
+      --violet-soft:#EFEFFF;
+      --shadow:0 14px 34px rgba(0, 39, 77, 0.08);
+      --radius:20px;
+      --radius-sm:14px;
+      --sidebar-width:258px;
+      --transition:.22s ease;
+    }
 
-<!-- ═══════════════════════════════════════════════════════════
-     FUENTES
-     ═══════════════════════════════════════════════════════ -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:linear-gradient(180deg,#F7FAFD 0%, #F4F7FB 100%);
+      color:var(--text);
+      min-height:100vh;
+    }
+    button,input,select{
+      font:inherit;
+    }
+    button{
+      cursor:pointer;
+      border:none;
+      background:none;
+    }
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+    .muted{color:var(--muted)}
+    .nowrap{white-space:nowrap}
 
-<!-- Librería SheetJS para leer/escribir archivos Excel -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    /* =========================
+       APP LAYOUT
+    ========================== */
+    .app-shell{
+      display:flex;
+      min-height:100vh;
+    }
+    .sidebar{
+      position:fixed;
+      inset:0 auto 0 0;
+      width:var(--sidebar-width);
+      background:
+        radial-gradient(circle at top right, rgba(0,128,128,.22), transparent 35%),
+        linear-gradient(180deg, #032E58 0%, #00274D 100%);
+      color:#fff;
+      padding:22px 16px 20px;
+      display:flex;
+      flex-direction:column;
+      z-index:40;
+      border-right:1px solid rgba(255,255,255,.08);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px 10px 18px;
+      border-bottom:1px solid rgba(255,255,255,.1);
+      margin-bottom:18px;
+    }
+    .brand-mark{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      background:linear-gradient(135deg, #0E4A84 0%, #0A9E9E 100%);
+      position:relative;
+      box-shadow:0 10px 24px rgba(0,0,0,.16);
+      flex:0 0 auto;
+    }
+    .brand-mark::before,
+    .brand-mark::after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      background:#fff;
+      opacity:.95;
+    }
+    .brand-mark::before{
+      width:18px;height:6px;left:12px;top:11px;
+    }
+    .brand-mark::after{
+      width:10px;height:10px;left:16px;top:22px;
+    }
+    .brand h2{
+      margin:0;
+      font-size:1rem;
+      letter-spacing:.01em;
+      font-weight:800;
+    }
+    .brand p{
+      margin:.15rem 0 0;
+      font-size:.78rem;
+      color:rgba(255,255,255,.68);
+    }
 
-<!-- ═══════════════════════════════════════════════════════════
-     CSS — ESTILOS
-     Sección 1: Variables y Reset
-     Sección 2: Layout Principal
-     Sección 3: Sidebar / Navegación
-     Sección 4: Componentes Reutilizables
-     Sección 5: Dashboard
-     Sección 6: Tablas y Tarjetas
-     Sección 7: Modales / Formularios
-     Sección 8: Responsive (Mobile/Tablet)
-     ═══════════════════════════════════════════════════════ -->
-<style>
+    .nav-list{
+      display:grid;
+      gap:8px;
+      margin-top:4px;
+    }
+    .nav-item{
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:13px 14px;
+      border-radius:16px;
+      color:rgba(255,255,255,.78);
+      transition:var(--transition);
+      font-weight:600;
+      text-align:left;
+    }
+    .nav-item:hover{
+      background:rgba(255,255,255,.08);
+      color:#fff;
+    }
+    .nav-item.active{
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .nav-icon{
+      width:22px;
+      text-align:center;
+      font-size:1rem;
+      opacity:.95;
+    }
+    .sidebar-foot{
+      margin-top:auto;
+      padding:14px 12px 10px;
+      border-top:1px solid rgba(255,255,255,.1);
+      color:rgba(255,255,255,.68);
+      font-size:.82rem;
+      line-height:1.45;
+    }
 
-/* ────────────────────────────────────────────
-   SECCIÓN 1: Variables y Reset
-   ──────────────────────────────────────────── */
-:root {
-  --verde: #7c9a92;
-  --verde-oscuro: #5a7d74;
-  --crema: #faf8f5;
-  --crema-oscuro: #f0ebe4;
-  --cafe: #3a302b;
-  --cafe-medio: #5a4a42;
-  --cafe-claro: #8a7a70;
-  --cafe-suave: #a89888;
-  --borde: #e0d6cc;
-  --terracota: #a67c6d;
-  --morado: #8b7da8;
-  --dorado: #c4956a;
-  --rojo: #c62828;
-  --rojo-bg: #fce4ec;
-  --naranja: #e65100;
-  --naranja-bg: #fff3e0;
-  --verde-estado: #2e7d32;
-  --verde-estado-bg: #e8f5e9;
-  --azul: #1565c0;
-  --azul-bg: #e3f2fd;
-  --vip-bg: #f3e5f5;
-  --vip-text: #6a1b9a;
-  --frecuente-bg: #e0f2f1;
-  --frecuente-text: #00695c;
-  --nuevo-bg: #e3f2fd;
-  --nuevo-text: #1565c0;
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow: 0 2px 12px rgba(90,74,66,0.06);
-  --sidebar-width: 240px;
-}
+    .main{
+      margin-left:var(--sidebar-width);
+      width:calc(100% - var(--sidebar-width));
+      padding:26px 28px 110px;
+    }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: var(--font-body);
-  background: linear-gradient(160deg, var(--crema) 0%, var(--crema-oscuro) 50%, #e8e0d8 100%);
-  color: var(--cafe);
-  min-height: 100vh;
-}
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb { background: #c4b5a8; border-radius: 3px; }
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:22px;
+      padding:6px 0 16px;
+      backdrop-filter:blur(10px);
+      background:linear-gradient(180deg, rgba(246,248,251,.95) 0%, rgba(246,248,251,.78) 70%, rgba(246,248,251,0) 100%);
+    }
+    .eyebrow{
+      margin:0 0 6px;
+      font-size:.8rem;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--teal);
+      font-weight:700;
+    }
+    .topbar h1{
+      margin:0;
+      font-size:clamp(1.6rem, 2vw, 2rem);
+      letter-spacing:-.03em;
+    }
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .ghost-btn,
+    .primary-btn,
+    .soft-btn{
+      border-radius:14px;
+      padding:11px 14px;
+      font-weight:700;
+      transition:var(--transition);
+      white-space:nowrap;
+    }
+    .ghost-btn{
+      background:#fff;
+      color:var(--navy);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+    .ghost-btn:hover{transform:translateY(-1px)}
+    .primary-btn{
+      color:#fff;
+      background:linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
+      box-shadow:0 10px 24px rgba(0, 39, 77, .18);
+    }
+    .primary-btn:hover{transform:translateY(-1px)}
+    .soft-btn{
+      background:var(--navy-soft);
+      color:var(--navy);
+      border:1px solid transparent;
+    }
+    .soft-btn:hover{
+      background:#fff;
+      border-color:var(--line);
+    }
 
-/* ────────────────────────────────────────────
-   SECCIÓN 2: Layout Principal
-   ──────────────────────────────────────────── */
-.app-layout {
-  display: flex;
-  min-height: 100vh;
-}
-.main-content {
-  flex: 1;
-  margin-left: var(--sidebar-width);
-  padding: 24px;
-  min-height: 100vh;
-}
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.page-header h1 {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--cafe);
-}
-.page-header .subtitle {
-  font-size: 13px;
-  color: var(--cafe-suave);
-  margin-top: 4px;
-}
+    /* =========================
+       CARDS / BLOCKS
+    ========================== */
+    .view{display:none}
+    .view.active{display:block}
 
-/* ────────────────────────────────────────────
-   SECCIÓN 3: Sidebar / Navegación
-   ──────────────────────────────────────────── */
-.sidebar {
-  position: fixed;
-  left: 0; top: 0; bottom: 0;
-  width: var(--sidebar-width);
-  background: white;
-  border-right: 1px solid #e8e0d8;
-  padding: 24px 16px;
-  display: flex;
-  flex-direction: column;
-  z-index: 800;
-}
-.sidebar-logo {
-  text-align: center;
-  margin-bottom: 28px;
-}
-.sidebar-logo .icon { font-size: 28px; margin-bottom: 4px; }
-.sidebar-logo .brand {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--cafe-medio);
-  letter-spacing: 1px;
-}
-.sidebar-logo .city {
-  font-size: 11px;
-  color: var(--cafe-suave);
-  letter-spacing: 2px;
-  margin-top: 2px;
-}
-.sidebar nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.nav-item {
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  transition: all 0.15s;
-  border: none;
-  background: none;
-  color: var(--cafe);
-  width: 100%;
-  text-align: left;
-  font-family: var(--font-body);
-}
-.nav-item:hover { background: rgba(124,154,146,0.1); }
-.nav-item.active { background: rgba(124,154,146,0.15); color: var(--verde-oscuro); font-weight: 600; }
-.sidebar-footer {
-  font-size: 11px;
-  color: #b0a090;
-  text-align: center;
-  padding: 12px 0;
-  border-top: 1px solid var(--crema-oscuro);
-}
+    .kpi-grid,
+    .stats-grid,
+    .cards-grid,
+    .content-grid,
+    .dashboard-grid{
+      display:grid;
+      gap:16px;
+    }
+    .kpi-grid{
+      grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
+      margin-bottom:16px;
+    }
+    .stats-grid{
+      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    }
+    .dashboard-grid{
+      grid-template-columns:1.3fr .9fr;
+      margin-bottom:16px;
+    }
+    .content-grid{
+      grid-template-columns:1.15fr .85fr;
+      margin-bottom:16px;
+    }
+    .cards-grid{
+      grid-template-columns:repeat(auto-fit, minmax(285px, 1fr));
+    }
 
-/* Mobile bottom bar */
-.mobile-bar {
-  display: none;
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: white;
-  border-top: 1px solid var(--borde);
-  z-index: 900;
-  padding: 6px 0 max(6px, env(safe-area-inset-bottom));
-  justify-content: space-around;
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
-}
-.mobile-bar button {
-  background: none;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  font-size: 10px;
-  color: var(--cafe-claro);
-  padding: 6px 8px;
-  font-family: var(--font-body);
-  cursor: pointer;
-}
-.mobile-bar button.active { color: var(--verde-oscuro); font-weight: 600; }
-.mobile-bar button .nav-icon { font-size: 20px; }
+    .card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card-body{
+      padding:18px;
+    }
+    .metric-card{
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:130px;
+      background:
+        radial-gradient(circle at top right, rgba(0,128,128,.07), transparent 38%),
+        linear-gradient(180deg, #FFFFFF 0%, #FCFDFE 100%);
+    }
+    .metric-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color:var(--muted);
+      font-weight:600;
+      font-size:.92rem;
+    }
+    .metric-icon{
+      width:36px;height:36px;border-radius:12px;
+      display:grid;place-items:center;
+      background:var(--navy-soft);
+      color:var(--navy);
+      font-size:1rem;
+      flex:0 0 auto;
+    }
+    .metric-value{
+      margin:0;
+      font-size:1.8rem;
+      font-weight:800;
+      letter-spacing:-.03em;
+      color:var(--navy);
+    }
+    .metric-foot{
+      margin-top:auto;
+      color:var(--muted);
+      font-size:.86rem;
+      line-height:1.45;
+    }
 
-/* ────────────────────────────────────────────
-   SECCIÓN 4: Componentes Reutilizables
-   ──────────────────────────────────────────── */
-.card {
-  background: white;
-  border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(90,74,66,0.06);
-  animation: fadeIn 0.3s ease;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.2s;
-  font-family: var(--font-body);
-}
-.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-.btn-primary { background: linear-gradient(135deg, var(--verde), var(--verde-oscuro)); color: white; }
-.btn-secondary { background: #f5f0eb; color: var(--cafe-medio); }
-.btn-sm { font-size: 12px; padding: 6px 12px; }
-.input {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--borde);
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  background: #fefdfb;
-  transition: border-color 0.2s;
-  outline: none;
-  font-family: var(--font-body);
-}
-.input:focus { border-color: var(--verde); }
-select.input {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a4a42' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
-}
-.badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-}
-.badge-vip { background: var(--vip-bg); color: var(--vip-text); }
-.badge-frecuente { background: var(--frecuente-bg); color: var(--frecuente-text); }
-.badge-nuevo { background: var(--nuevo-bg); color: var(--nuevo-text); }
-.badge-activo { background: var(--verde-estado-bg); color: var(--verde-estado); }
-.badge-inactivo { background: var(--rojo-bg); color: var(--rojo); }
-.badge-seguimiento { background: var(--naranja-bg); color: var(--naranja); }
-.badge-completado { background: var(--verde-estado-bg); color: var(--verde-estado); }
-.badge-cancelado { background: var(--rojo-bg); color: var(--rojo); }
-.badge-noasistio { background: var(--naranja-bg); color: var(--naranja); }
-.badge-pendiente { background: var(--azul-bg); color: var(--azul); }
-.section-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  color: var(--cafe-medio);
-  margin-bottom: 16px;
-}
-.grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
-.grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
-.grid-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-.field { margin-bottom: 12px; }
-.field label { font-size: 12px; font-weight: 500; color: var(--cafe-medio); display: block; margin-bottom: 4px; }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.progress-bar {
-  height: 6px;
-  background: var(--crema-oscuro);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 4px;
-}
-.progress-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.6s ease;
-}
-.hidden { display: none !important; }
+    .section-card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+    .section-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .section-title{
+      margin:0;
+      font-size:1.06rem;
+      font-weight:800;
+      letter-spacing:-.02em;
+      color:var(--navy);
+    }
+    .section-subtitle{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.45;
+    }
 
-/* Data management toolbar */
-.data-toolbar {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 12px 16px;
-  background: white;
-  border-bottom: 1px solid var(--borde);
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 700;
-  margin: -24px -24px 24px -24px;
-}
-.data-toolbar .toolbar-label {
-  font-size: 12px;
-  color: var(--cafe-suave);
-  font-weight: 500;
-  margin-right: 4px;
-}
-.btn-toolbar {
-  padding: 7px 14px;
-  border: 1.5px solid var(--borde);
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  font-family: var(--font-body);
-  background: white;
-  color: var(--cafe-medio);
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.btn-toolbar:hover { border-color: var(--verde); color: var(--verde-oscuro); background: var(--verde-estado-bg); }
-.btn-toolbar-primary { background: var(--verde-estado-bg); border-color: var(--verde); color: var(--verde-oscuro); }
-.toolbar-divider { width: 1px; height: 24px; background: var(--borde); margin: 0 4px; }
-.toolbar-status {
-  font-size: 11px;
-  color: var(--verde-estado);
-  background: var(--verde-estado-bg);
-  padding: 4px 10px;
-  border-radius: 12px;
-  animation: fadeIn 0.3s ease;
-}
-#file-input-hidden { display: none; }
+    .summary-strip{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:16px;
+    }
+    .summary-chip{
+      padding:10px 12px;
+      border-radius:14px;
+      background:#fff;
+      border:1px solid var(--line);
+      color:var(--navy);
+      font-size:.88rem;
+      font-weight:700;
+      box-shadow:var(--shadow);
+    }
+    .summary-chip span{
+      color:var(--muted);
+      font-weight:600;
+      margin-right:8px;
+    }
 
-/* ────────────────────────────────────────────
-   SECCIÓN 5: Dashboard
-   ──────────────────────────────────────────── */
-.stat-card {
-  background: white;
-  border-radius: 14px;
-  padding: 18px;
-  border: 1px solid rgba(90,74,66,0.06);
-  box-shadow: 0 2px 8px rgba(90,74,66,0.04);
-}
-.stat-card .stat-label {
-  font-size: 11px;
-  color: var(--cafe-suave);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
-}
-.stat-card .stat-value {
-  font-size: 22px;
-  font-weight: 700;
-  font-family: var(--font-display);
-}
+    /* =========================
+       BADGES / STATUS
+    ========================== */
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:.78rem;
+      font-weight:800;
+      line-height:1;
+      white-space:nowrap;
+      letter-spacing:.01em;
+    }
+    .badge::before{
+      content:"";
+      width:7px;height:7px;
+      border-radius:50%;
+      background:currentColor;
+      opacity:.85;
+    }
+    .badge.green{background:var(--green-soft);color:var(--green)}
+    .badge.red{background:var(--red-soft);color:var(--red)}
+    .badge.teal{background:var(--teal-soft);color:var(--teal)}
+    .badge.amber{background:var(--amber-soft);color:var(--amber)}
+    .badge.navy{background:var(--navy-soft);color:var(--navy)}
+    .badge.violet{background:var(--violet-soft);color:var(--violet)}
+    .badge.gray{background:#F1F4F8;color:#7C8A9B}
 
-/* ────────────────────────────────────────────
-   SECCIÓN 6: Tablas y Tarjetas de datos
-   ──────────────────────────────────────────── */
-.data-table { width: 100%; border-collapse: collapse; }
-.data-table thead th {
-  padding: 12px 16px;
-  background: var(--crema);
-  border-bottom: 2px solid #e8e0d8;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--cafe-claro);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-align: left;
-}
-.data-table tbody td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--crema-oscuro);
-  font-size: 13px;
-  vertical-align: middle;
-}
-.data-table tbody tr:hover { background: var(--crema); }
-.client-card {
-  cursor: pointer;
-  transition: transform 0.15s;
-}
-.client-card:hover { transform: translateY(-2px); }
-.client-card .name { font-weight: 600; font-size: 15px; }
-.client-card .contact { font-size: 12px; color: var(--cafe-suave); margin-top: 2px; }
-.client-card .meta { display: flex; gap: 12px; font-size: 12px; color: var(--cafe-claro); flex-wrap: wrap; margin-top: 8px; }
-.client-card .notes { font-size: 12px; color: var(--cafe-suave); margin-top: 8px; font-style: italic; line-height: 1.4; }
+    /* =========================
+       LISTS / ROWS
+    ========================== */
+    .list-stack{
+      display:grid;
+      gap:12px;
+    }
+    .list-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 14px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface-2);
+    }
+    .list-item strong{
+      display:block;
+      margin-bottom:4px;
+      color:var(--navy);
+    }
+    .list-item p{
+      margin:0;
+      color:var(--muted);
+      font-size:.88rem;
+      line-height:1.45;
+    }
+    .list-right{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:7px;
+      min-width:max-content;
+    }
 
-/* Service cards */
-.service-category-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.service-category-bar .dot {
-  width: 4px;
-  height: 20px;
-  border-radius: 2px;
-}
-.service-card { padding: 16px; }
-.service-card .svc-name { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
-.service-card .svc-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--cafe-claro); }
+    .progress-track{
+      width:100%;
+      height:8px;
+      border-radius:999px;
+      background:#ECF0F4;
+      overflow:hidden;
+      margin-top:10px;
+    }
+    .progress-fill{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg, var(--navy) 0%, var(--teal) 100%);
+    }
 
-/* Follow-up alerts */
-.alert-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.alert-card .alert-type { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-.alert-card .alert-msg { font-size: 13px; color: var(--cafe-medio); line-height: 1.4; }
-.alert-card .alert-contact { font-size: 12px; color: var(--cafe-suave); margin-top: 4px; }
-.banner-green {
-  background: linear-gradient(135deg, var(--verde), var(--verde-oscuro));
-  color: white;
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 16px;
-}
+    /* =========================
+       TOOLBAR / FILTERS
+    ========================== */
+    .toolbar{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:180px;
+      flex:1 1 180px;
+    }
+    .field label{
+      font-size:.8rem;
+      font-weight:700;
+      color:var(--muted);
+    }
+    .control{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      padding:12px 13px;
+      outline:none;
+      color:var(--text);
+      transition:var(--transition);
+      box-shadow:0 2px 0 rgba(0,0,0,0);
+    }
+    .control:focus{
+      border-color:rgba(0,128,128,.45);
+      box-shadow:0 0 0 4px rgba(0,128,128,.08);
+    }
 
-/* ────────────────────────────────────────────
-   SECCIÓN 7: Modales / Formularios
-   ──────────────────────────────────────────── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 16px;
-  backdrop-filter: blur(4px);
-}
-.modal-content {
-  background: white;
-  border-radius: 20px;
-  padding: 28px;
-  max-width: 520px;
-  width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
-  animation: fadeIn 0.25s ease;
-}
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-.modal-header h2 {
-  font-family: var(--font-display);
-  font-size: 22px;
-  color: var(--cafe);
-}
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
-  color: var(--cafe-suave);
-}
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 16px;
-}
+    /* =========================
+       TABLES
+    ========================== */
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:960px;
+    }
+    thead th{
+      position:sticky;
+      top:0;
+      background:#F8FAFD;
+      color:var(--muted);
+      font-size:.78rem;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+      text-align:left;
+      padding:13px 14px;
+      border-bottom:1px solid var(--line);
+      z-index:1;
+    }
+    tbody td{
+      padding:14px;
+      border-bottom:1px solid #EEF2F6;
+      font-size:.92rem;
+      vertical-align:top;
+    }
+    tbody tr:hover{
+      background:#FBFDFF;
+    }
+    tbody tr:last-child td{
+      border-bottom:none;
+    }
+    .cell-title{
+      font-weight:700;
+      color:var(--navy);
+    }
+    .cell-sub{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:.84rem;
+      line-height:1.45;
+    }
 
-/* Guide */
-.guide-section { max-width: 700px; }
-.guide-step {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 8px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--cafe-medio);
-}
-.guide-step .step-num {
-  flex-shrink: 0;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--crema-oscuro);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--verde);
-}
+    /* =========================
+       PIPELINE
+    ========================== */
+    .pipeline-board{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(230px, 1fr));
+      gap:16px;
+      margin-bottom:16px;
+    }
+    .pipeline-column{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+    .pipeline-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .pipeline-top h3{
+      margin:0;
+      font-size:.95rem;
+      color:var(--navy);
+    }
+    .pipeline-count{
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:.78rem;
+      font-weight:800;
+      background:#F3F6FA;
+      color:var(--navy);
+    }
+    .mini-stack{
+      display:grid;
+      gap:10px;
+    }
+    .mini-card{
+      padding:12px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:var(--surface-2);
+    }
+    .mini-card strong{
+      display:block;
+      font-size:.92rem;
+      color:var(--navy);
+      margin-bottom:4px;
+    }
+    .mini-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:.82rem;
+      line-height:1.45;
+    }
+    .mini-meta{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:8px;
+      margin-top:10px;
+    }
 
-/* ────────────────────────────────────────────
-   SECCIÓN 8: Responsive (Mobile/Tablet)
-   ──────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .sidebar { display: none !important; }
-  .mobile-bar { display: flex !important; }
-  .main-content {
-    margin-left: 0 !important;
-    padding: 16px;
-    padding-bottom: 80px;
-  }
-  .data-toolbar { margin: -16px -16px 16px -16px; }
-  .toolbar-divider { display: none; }
-  .page-header h1 { font-size: 22px; }
-  .grid-cards { grid-template-columns: 1fr; }
-  .grid-2col { grid-template-columns: 1fr; }
-  .field-row { grid-template-columns: 1fr; }
-  .data-table { font-size: 12px; }
-  .data-table thead th, .data-table tbody td { padding: 8px 10px; }
-  /* Hide less important columns on mobile */
-  .hide-mobile { display: none; }
-}
-@media (min-width: 769px) and (max-width: 1024px) {
-  :root { --sidebar-width: 200px; }
-  .grid-cards { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-}
-</style>
+    /* =========================
+       CONTACT / PROJECT CARDS
+    ========================== */
+    .contact-card,
+    .project-card{
+      padding:18px;
+      border-radius:22px;
+      border:1px solid var(--line);
+      background:
+        radial-gradient(circle at top right, rgba(0,39,77,.035), transparent 30%),
+        linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%);
+      box-shadow:var(--shadow);
+    }
+    .card-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .card-title{
+      margin:0;
+      font-size:1.02rem;
+      font-weight:800;
+      letter-spacing:-.02em;
+      color:var(--navy);
+    }
+    .card-kicker{
+      color:var(--muted);
+      font-size:.86rem;
+      margin-top:5px;
+      line-height:1.45;
+    }
+    .meta-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:12px;
+      margin:16px 0;
+    }
+    .meta-box{
+      padding:12px 13px;
+      border-radius:16px;
+      background:#F8FAFD;
+      border:1px solid var(--line);
+    }
+    .meta-box .label{
+      font-size:.76rem;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      color:var(--muted);
+      font-weight:700;
+      margin-bottom:6px;
+    }
+    .meta-box .value{
+      font-size:.92rem;
+      font-weight:700;
+      color:var(--navy);
+      line-height:1.4;
+    }
+    .tag-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:16px 0 0;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:#F3F6FA;
+      color:var(--muted);
+      font-weight:700;
+      font-size:.8rem;
+      border:1px solid var(--line);
+    }
+    .actions-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+
+    /* =========================
+       DISTRIBUTION / RING
+    ========================== */
+    .distribution-stack{
+      display:grid;
+      gap:14px;
+    }
+    .distribution-row{
+      display:grid;
+      gap:7px;
+    }
+    .distribution-head{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      font-size:.9rem;
+    }
+    .distribution-head strong{
+      color:var(--navy);
+    }
+    .distribution-bar{
+      width:100%;
+      height:10px;
+      border-radius:999px;
+      background:#EDF2F7;
+      overflow:hidden;
+    }
+    .distribution-bar span{
+      display:block;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg, var(--navy) 0%, var(--teal) 100%);
+    }
+
+    .performance-wrap{
+      display:grid;
+      grid-template-columns:170px 1fr;
+      gap:16px;
+      align-items:center;
+      min-height:100%;
+    }
+    .performance-ring{
+      width:150px;
+      height:150px;
+      border-radius:50%;
+      position:relative;
+      display:grid;
+      place-items:center;
+      background:
+        conic-gradient(var(--teal) 0 var(--pct), #E9EEF4 var(--pct) 100%);
+      margin:auto;
+    }
+    .performance-ring::after{
+      content:"";
+      position:absolute;
+      width:102px;
+      height:102px;
+      border-radius:50%;
+      background:#fff;
+      box-shadow:inset 0 0 0 1px var(--line);
+    }
+    .performance-inner{
+      position:relative;
+      z-index:1;
+      text-align:center;
+    }
+    .performance-value{
+      font-size:1.65rem;
+      font-weight:800;
+      color:var(--navy);
+      letter-spacing:-.04em;
+    }
+    .performance-label{
+      font-size:.82rem;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    /* =========================
+       EMPTY STATES / MODAL / TOAST
+    ========================== */
+    .empty-state{
+      display:grid;
+      place-items:center;
+      text-align:center;
+      gap:10px;
+      padding:28px 18px;
+      color:var(--muted);
+      background:#FAFCFF;
+      border:1px dashed #D7E1EC;
+      border-radius:18px;
+    }
+    .empty-state .empty-icon{
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      border-radius:14px;
+      background:#EEF4FA;
+      color:var(--navy);
+      font-weight:800;
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(5, 22, 40, .5);
+      padding:20px;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:80;
+      backdrop-filter:blur(8px);
+    }
+    .modal-backdrop.show{display:flex}
+    .modal{
+      width:min(880px, 100%);
+      max-height:86vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.35);
+      box-shadow:0 28px 70px rgba(0,0,0,.18);
+    }
+    .modal-header{
+      position:sticky;
+      top:0;
+      z-index:2;
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:flex-start;
+      padding:18px 18px 14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 100%);
+      border-bottom:1px solid var(--line);
+    }
+    .modal-close{
+      width:40px;height:40px;border-radius:14px;
+      background:#F3F6FA;color:var(--navy);font-size:1.2rem;font-weight:800;
+      flex:0 0 auto;
+    }
+    .modal-body{
+      padding:18px;
+      display:grid;
+      gap:16px;
+    }
+
+    .toast{
+      position:fixed;
+      right:22px;
+      bottom:96px;
+      background:#082F57;
+      color:#fff;
+      padding:14px 16px;
+      border-radius:16px;
+      box-shadow:0 18px 40px rgba(0,0,0,.22);
+      font-weight:700;
+      opacity:0;
+      transform:translateY(12px);
+      pointer-events:none;
+      transition:var(--transition);
+      z-index:95;
+      max-width:min(420px, calc(100vw - 32px));
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    /* =========================
+       MOBILE NAV
+    ========================== */
+    .mobile-nav{
+      position:fixed;
+      left:14px;
+      right:14px;
+      bottom:14px;
+      z-index:60;
+      display:none;
+      grid-template-columns:repeat(5, 1fr);
+      gap:8px;
+      padding:8px;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(14px);
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:22px;
+      box-shadow:0 18px 40px rgba(0,39,77,.14);
+    }
+    .mobile-nav-item{
+      border-radius:16px;
+      padding:10px 8px;
+      display:grid;
+      gap:4px;
+      place-items:center;
+      color:var(--muted);
+      font-size:.73rem;
+      font-weight:700;
+      transition:var(--transition);
+    }
+    .mobile-nav-item.active{
+      background:var(--navy);
+      color:#fff;
+    }
+    .mobile-nav-item span:first-child{
+      font-size:1rem;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+    @media (max-width: 1120px){
+      .dashboard-grid,
+      .content-grid,
+      .performance-wrap{
+        grid-template-columns:1fr;
+      }
+      .pipeline-board{
+        overflow:auto;
+      }
+    }
+
+    @media (max-width: 920px){
+      .sidebar{display:none}
+      .main{
+        margin-left:0;
+        width:100%;
+        padding:20px 16px 118px;
+      }
+      .mobile-nav{display:grid}
+      .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .topbar-actions{
+        width:100%;
+        justify-content:flex-start;
+      }
+      .pipeline-board{
+        grid-auto-flow:column;
+        grid-auto-columns:minmax(260px, 1fr);
+      }
+    }
+
+    @media (max-width: 620px){
+      .metric-value{font-size:1.55rem}
+      .meta-grid{grid-template-columns:1fr}
+      .card-top,
+      .list-item{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .list-right{align-items:flex-start}
+      .performance-ring{
+        width:135px;height:135px;
+      }
+      .performance-ring::after{
+        width:92px;height:92px;
+      }
+    }
+  </style>
 </head>
-
-<!-- ═══════════════════════════════════════════════════════════
-     HTML — ESTRUCTURA
-     ═══════════════════════════════════════════════════════ -->
 <body>
-<div class="app-layout">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h2>Step Up Business Solutions</h2>
+          <p>CRM ligero · Dashboard comercial</p>
+        </div>
+      </div>
 
-  <!-- ── Sidebar (Desktop) ── -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="icon">🌿</div>
-      <div class="brand">AURA SPA</div>
-      <div class="city">MEDELLÍN</div>
-    </div>
-    <nav id="sidebar-nav"></nav>
-    <div class="sidebar-footer">
-      Sistema de Gestión v1.0<br>Step Up Business Solutions
-    </div>
-  </aside>
+      <nav class="nav-list">
+        <button class="nav-item active" data-view="dashboard"><span class="nav-icon">▣</span><span>Dashboard</span></button>
+        <button class="nav-item" data-view="contacts"><span class="nav-icon">◉</span><span>Contactos</span></button>
+        <button class="nav-item" data-view="opportunities"><span class="nav-icon">◇</span><span>Oportunidades</span></button>
+        <button class="nav-item" data-view="projects"><span class="nav-icon">▤</span><span>Proyectos</span></button>
+        <button class="nav-item" data-view="payments"><span class="nav-icon">◎</span><span>Pagos</span></button>
+      </nav>
 
-  <!-- ── Mobile Bottom Bar ── -->
-  <div class="mobile-bar" id="mobile-nav"></div>
+      <div class="sidebar-foot">
+        Visual pensado para operación comercial diaria, seguimiento ejecutivo y futura conexión con Google Sheets.
+      </div>
+    </aside>
 
-  <!-- ── Main Content ── -->
-  <main class="main-content" id="main-content">
-    <!-- Barra de datos: Sincronización con Google Sheets -->
-    <div class="data-toolbar">
-      <span class="toolbar-label">☁️ Google Sheets:</span>
-      <button class="btn-toolbar btn-toolbar-primary" onclick="syncFromSheets()">
-        🔄 Sincronizar
-      </button>
-      <div class="toolbar-divider"></div>
-      <button class="btn-toolbar" onclick="triggerImport()">
-        📥 Importar Excel
-      </button>
-      <button class="btn-toolbar" onclick="exportToExcel()">
-        📤 Exportar Excel
-      </button>
-      <span id="toolbar-status"></span>
-      <span id="connection-status"></span>
-    </div>
-    <input type="file" id="file-input-hidden" accept=".xlsx,.xls" onchange="handleFileImport(event)">
-    <!-- Contenedor de páginas (renderPage escribe aquí) -->
-    <div id="page-wrapper"></div>
-  </main>
-</div>
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="topbarEyebrow">Step Up Business Solutions</p>
+          <h1 id="viewTitle">Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-btn" id="dateChip">15 abr 2026</button>
+          <button class="primary-btn" id="syncBtn">Sincronizar demo</button>
+        </div>
+      </header>
 
-<!-- ── Modal Container ── -->
-<div id="modal-container"></div>
+      <section class="view active" id="dashboardView"></section>
+      <section class="view" id="contactsView"></section>
+      <section class="view" id="opportunitiesView"></section>
+      <section class="view" id="projectsView"></section>
+      <section class="view" id="paymentsView"></section>
+    </main>
+  </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     JAVASCRIPT — LÓGICA
-     Sección A: Datos y Estado
-     Sección B: Utilidades
-     Sección C: Navegación
-     Sección D: Dashboard
-     Sección E: Clientes
-     Sección F: Servicios
-     Sección G: Citas
-     Sección H: Seguimiento
-     Sección I: Guía
-     Sección J: Modales / Formularios
-     Sección K: Inicialización
-     ═══════════════════════════════════════════════════════ -->
-<script>
+  <nav class="mobile-nav">
+    <button class="mobile-nav-item active" data-view="dashboard"><span>▣</span><span>Inicio</span></button>
+    <button class="mobile-nav-item" data-view="contacts"><span>◉</span><span>Contactos</span></button>
+    <button class="mobile-nav-item" data-view="opportunities"><span>◇</span><span>Oport.</span></button>
+    <button class="mobile-nav-item" data-view="projects"><span>▤</span><span>Proy.</span></button>
+    <button class="mobile-nav-item" data-view="payments"><span>◎</span><span>Pagos</span></button>
+  </nav>
 
-/* ────────────────────────────────────────────
-   SECCIÓN A: Datos y Estado
-   ──────────────────────────────────────────── */
-const STORAGE_KEY = "aura-spa-data-v2";
-const TODAY = "2026-03-31";
+  <div class="modal-backdrop" id="detailModal">
+    <div class="modal" id="modalContent"></div>
+  </div>
 
-const DEFAULT_DATA = {
-  clients: [
-    { id:"C001", name:"María Fernanda López", phone:"3001234567", email:"maria@email.com", registered:"2025-11-15", type:"VIP", lastVisit:"2026-03-25", status:"Activo", notes:"Prefiere horario AM. Alergia a frutos secos." },
-    { id:"C002", name:"Camila Restrepo", phone:"3109876543", email:"camila.r@email.com", registered:"2026-01-10", type:"Frecuente", lastVisit:"2026-03-20", status:"Activo", notes:"Piel sensible. Usa protector solar orgánico." },
-    { id:"C003", name:"Andrés Mejía", phone:"3205551234", email:"andres.m@email.com", registered:"2026-02-28", type:"Nuevo", lastVisit:"2026-02-28", status:"Seguimiento", notes:"Primera visita por regalo. Interesado en paquete mensual." },
-    { id:"C004", name:"Laura Gómez Ochoa", phone:"3157778899", email:"laura.go@email.com", registered:"2025-09-05", type:"VIP", lastVisit:"2026-01-15", status:"Inactivo", notes:"No ha vuelto desde enero. Llamar para ofrecer promo." },
-    { id:"C005", name:"Juliana Cardona", phone:"3183334455", email:"juli.card@email.com", registered:"2026-03-01", type:"Frecuente", lastVisit:"2026-03-28", status:"Activo", notes:"Viene cada 2 semanas. Masaje descontracturante." },
-  ],
-  services: [
-    { id:"S001", name:"Limpieza Facial Profunda", category:"Facial", price:120000, duration:60 },
-    { id:"S002", name:"Masaje Relajante Full Body", category:"Masaje", price:150000, duration:90 },
-    { id:"S003", name:"Tratamiento Antiedad", category:"Facial", price:180000, duration:75 },
-    { id:"S004", name:"Exfoliación Corporal", category:"Corporal", price:130000, duration:60 },
-    { id:"S005", name:"Paquete Relax Total", category:"Paquete", price:280000, duration:120 },
-    { id:"S006", name:"Masaje Descontracturante", category:"Masaje", price:140000, duration:60 },
-    { id:"S007", name:"Hidratación Facial Express", category:"Facial", price:80000, duration:30 },
-  ],
-  appointments: [
-    { id:"A001", date:"2026-03-25", clientId:"C001", serviceId:"S003", value:180000, professional:"Andrea M.", status:"Completado" },
-    { id:"A002", date:"2026-03-20", clientId:"C002", serviceId:"S002", value:150000, professional:"Carolina P.", status:"Completado" },
-    { id:"A003", date:"2026-03-28", clientId:"C005", serviceId:"S006", value:140000, professional:"Andrea M.", status:"Completado" },
-    { id:"A004", date:"2026-03-28", clientId:"C001", serviceId:"S005", value:280000, professional:"Carolina P.", status:"Completado" },
-    { id:"A005", date:"2026-02-28", clientId:"C003", serviceId:"S002", value:150000, professional:"Andrea M.", status:"Completado" },
-    { id:"A006", date:"2026-01-15", clientId:"C004", serviceId:"S001", value:120000, professional:"Carolina P.", status:"Completado" },
-    { id:"A007", date:"2026-04-02", clientId:"C002", serviceId:"S007", value:80000, professional:"Andrea M.", status:"Pendiente" },
-    { id:"A008", date:"2026-04-03", clientId:"C001", serviceId:"S001", value:120000, professional:"Carolina P.", status:"Pendiente" },
-  ]
-};
+  <div class="toast" id="toast"></div>
 
-let appData = null;
-let currentView = "dashboard";
-let searchText = "";
-let filterType = "Todos";
-let filterStatus = "Todos";
-let filterApptStatus = "Todos";
+  <script>
+    /* =========================
+       DATA SIMULADA
+    ========================== */
+    const today = new Date(2026, 3, 15);
 
-/* ────────────────────────────────────────────
-   SECCIÓN B: Utilidades
-   ──────────────────────────────────────────── */
-function fmt(n) {
-  return new Intl.NumberFormat("es-CO", { style:"currency", currency:"COP", minimumFractionDigits:0 }).format(n);
-}
-function daysBetween(d1, d2) {
-  return Math.floor((new Date(d2) - new Date(d1)) / 86400000);
-}
-function getClient(id) { return appData.clients.find(c => c.id === id); }
-function getService(id) { return appData.services.find(s => s.id === id); }
+    const contacts = [
+      { id: "CT-001", name: "Dra. Laura Sánchez", specialty: "Odontología estética", city: "Manizales", channel: "LinkedIn" },
+      { id: "CT-002", name: "Patricia Gómez", specialty: "Spa & bienestar", city: "Pereira", channel: "Referido" },
+      { id: "CT-003", name: "Carlos Mejía", specialty: "Cirugía plástica", city: "Medellín", channel: "Landing" },
+      { id: "CT-004", name: "Valentina Ruiz", specialty: "Dermatología", city: "Bogotá", channel: "Instagram" },
+      { id: "CT-005", name: "Andrés Villegas", specialty: "Arquitectura interior", city: "Cali", channel: "WhatsApp" },
+      { id: "CT-006", name: "Juliana Ocampo", specialty: "Consultoría legal", city: "Medellín", channel: "Facebook Ads" },
+      { id: "CT-007", name: "Mateo Cárdenas", specialty: "Clínica capilar", city: "Bogotá", channel: "LinkedIn" },
+      { id: "CT-008", name: "Andrea Henao", specialty: "Coaching ejecutivo", city: "Manizales", channel: "Landing" },
+      { id: "CT-009", name: "Santiago Rojas", specialty: "Medicina funcional", city: "Barranquilla", channel: "Referido" },
+      { id: "CT-010", name: "Isabella Torres", specialty: "Real estate boutique", city: "Miami", channel: "LinkedIn" }
+    ];
 
-function typeBadge(type) {
-  const cls = { VIP:"badge-vip", Frecuente:"badge-frecuente", Nuevo:"badge-nuevo" };
-  return `<span class="badge ${cls[type] || ''}">${type}</span>`;
-}
-function statusBadge(st) {
-  const cls = { Activo:"badge-activo", Inactivo:"badge-inactivo", Seguimiento:"badge-seguimiento",
-    Completado:"badge-completado", Cancelado:"badge-cancelado", "No asistió":"badge-noasistio", Pendiente:"badge-pendiente" };
-  return `<span class="badge ${cls[st] || ''}">${st}</span>`;
-}
-const CAT_COLORS = { Facial:"#7c9a92", Masaje:"#a67c6d", Corporal:"#8b7da8", Paquete:"#c4956a" };
+    const opportunities = [
+      { id: "OP-0996", contactId: "CT-001", service: "CRM de seguimiento", plan: "Basic", quotedValue: 1800000, quoteDate: "2026-02-24", dueDate: "2026-03-02", status: "Ganada", summary: "Sistema ligero para seguimiento comercial y control de leads." },
+      { id: "OP-0997", contactId: "CT-006", service: "Automatización de leads", plan: "Growth", quotedValue: 2600000, quoteDate: "2026-03-08", dueDate: "2026-03-15", status: "Ganada", summary: "Captura desde landing + organización inicial en Google Sheets." },
+      { id: "OP-0998", contactId: "CT-002", service: "Landing comercial", plan: "Premium", quotedValue: 2100000, quoteDate: "2026-03-10", dueDate: "2026-03-18", status: "Ganada", summary: "Landing con enfoque en captación y formulario de contacto." },
+      { id: "OP-1001", contactId: "CT-001", service: "Landing One Page", plan: "Essential", quotedValue: 1500000, quoteDate: "2026-04-07", dueDate: "2026-04-18", status: "Negociación", summary: "Landing estética con CTA a WhatsApp y agendamiento." },
+      { id: "OP-1002", contactId: "CT-002", service: "CRM ligero", plan: "Growth", quotedValue: 2400000, quoteDate: "2026-04-03", dueDate: "2026-04-16", status: "En seguimiento", summary: "Dashboard simple de clientes, sesiones y pagos." },
+      { id: "OP-1003", contactId: "CT-003", service: "Landing + Automatización", plan: "Commercial", quotedValue: 3200000, quoteDate: "2026-03-26", dueDate: "2026-04-06", status: "Ganada", summary: "Landing comercial con conexión operativa para leads." },
+      { id: "OP-1004", contactId: "CT-004", service: "Sitio web", plan: "Premium", quotedValue: 4200000, quoteDate: "2026-03-18", dueDate: "2026-03-30", status: "Perdida", summary: "Proyecto completo de presencia digital y fichas de servicios." },
+      { id: "OP-1005", contactId: "CT-005", service: "Landing One Page", plan: "Essential", quotedValue: 1300000, quoteDate: "2026-04-10", dueDate: "2026-04-20", status: "En seguimiento", summary: "Página de captación para estudio boutique." },
+      { id: "OP-1006", contactId: "CT-006", service: "Sistema de reservas", plan: "Custom", quotedValue: 3800000, quoteDate: "2026-04-02", dueDate: "2026-04-17", status: "Negociación", summary: "Formulario avanzado con disponibilidad y gestión de solicitudes." },
+      { id: "OP-1007", contactId: "CT-007", service: "Mantenimiento web", plan: "Retainer", quotedValue: 900000, quoteDate: "2026-03-28", dueDate: "2026-04-08", status: "Ganada", summary: "Soporte mensual y ajustes de conversión." },
+      { id: "OP-1008", contactId: "CT-008", service: "Landing + CRM", plan: "Commercial", quotedValue: 2800000, quoteDate: "2026-04-11", dueDate: "2026-04-25", status: "En seguimiento", summary: "Página de registro + tablero operativo básico." },
+      { id: "OP-1009", contactId: "CT-009", service: "Dashboard operativo", plan: "Custom", quotedValue: 3500000, quoteDate: "2026-04-01", dueDate: "2026-04-14", status: "Perdida", summary: "Panel interno para control de pacientes y pagos." },
+      { id: "OP-1010", contactId: "CT-010", service: "Landing internacional", plan: "Premium", quotedValue: 4600000, quoteDate: "2026-04-12", dueDate: "2026-04-22", status: "Negociación", summary: "Landing bilingüe con enfoque en autoridad y generación de leads." }
+    ];
 
-// ─────────────────────────────────────────────────
-// CONEXIÓN CON GOOGLE SHEETS (Apps Script API)
-// ─────────────────────────────────────────────────
-const API_URL = "https://script.google.com/macros/s/AKfycbzHbba9HR4JfC4Mxb5lrjH4g0fw8yq9YyhAUuU3ErMyjsDzPEDYwBhIgHt0Ql25wUZu9g/exec";
+    const projects = [
+      { id: "PR-5001", contactId: "CT-003", opportunityId: "OP-1003", service: "Landing + Automatización", plan: "Commercial", status: "En ejecución", soldValue: 3200000 },
+      { id: "PR-5002", contactId: "CT-007", opportunityId: "OP-1007", service: "Mantenimiento web", plan: "Retainer", status: "En revisión", soldValue: 900000 },
+      { id: "PR-5003", contactId: "CT-002", opportunityId: "OP-0998", service: "Landing comercial", plan: "Premium", status: "Pendiente cliente", soldValue: 2100000 },
+      { id: "PR-5004", contactId: "CT-006", opportunityId: "OP-0997", service: "Automatización de leads", plan: "Growth", status: "Entregado", soldValue: 2600000 },
+      { id: "PR-5005", contactId: "CT-001", opportunityId: "OP-0996", service: "CRM de seguimiento", plan: "Basic", status: "Por iniciar", soldValue: 1800000 }
+    ];
 
-let isOnline = true; // Indica si la conexión con Google Sheets está activa
+    const payments = [
+      { id: "PY-9001", contactId: "CT-003", projectId: "PR-5001", type: "Abono inicial", amount: 1200000, date: "2026-04-07", method: "Transferencia", status: "Confirmado" },
+      { id: "PY-9002", contactId: "CT-003", projectId: "PR-5001", type: "Segundo pago", amount: 800000, date: "2026-04-12", method: "Wompi", status: "Confirmado" },
+      { id: "PY-9003", contactId: "CT-007", projectId: "PR-5002", type: "Pago único", amount: 900000, date: "2026-04-09", method: "Transferencia", status: "Confirmado" },
+      { id: "PY-9004", contactId: "CT-002", projectId: "PR-5003", type: "Abono inicial", amount: 700000, date: "2026-03-20", method: "Wompi", status: "Confirmado" },
+      { id: "PY-9005", contactId: "CT-006", projectId: "PR-5004", type: "Abono inicial", amount: 1300000, date: "2026-03-18", method: "Transferencia", status: "Confirmado" },
+      { id: "PY-9006", contactId: "CT-006", projectId: "PR-5004", type: "Pago final", amount: 1300000, date: "2026-03-28", method: "Transferencia", status: "Confirmado" },
+      { id: "PY-9007", contactId: "CT-001", projectId: "PR-5005", type: "Abono inicial", amount: 600000, date: "2026-04-11", method: "PayPal", status: "Confirmado" },
+      { id: "PY-9008", contactId: "CT-001", projectId: "PR-5005", type: "Segundo pago", amount: 600000, date: "2026-04-18", method: "Transferencia", status: "Pendiente" },
+      { id: "PY-9009", contactId: "CT-002", projectId: "PR-5003", type: "Pago final", amount: 1400000, date: "2026-04-22", method: "Wompi", status: "Programado" },
+      { id: "PY-9010", contactId: "CT-003", projectId: "PR-5001", type: "Pago final", amount: 1200000, date: "2026-04-25", method: "Transferencia", status: "Programado" }
+    ];
 
-// Mostrar estado de conexión en la barra
-function showConnectionStatus(online) {
-  isOnline = online;
-  const el = $("#connection-status");
-  if (!el) return;
-  if (online) {
-    el.innerHTML = '<span class="toolbar-status" style="background:#e8f5e9;color:#2e7d32">🟢 Conectado</span>';
-  } else {
-    el.innerHTML = '<span class="toolbar-status" style="background:#fff3e0;color:#e65100">🟡 Modo local</span>';
-  }
-}
-
-// ── LEER datos desde Google Sheets ──
-async function fetchSheet(sheetName) {
-  const res = await fetch(`${API_URL}?action=getAll&sheet=${sheetName}`);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-  const json = await res.json();
-  if (!json.success) throw new Error(json.error || "Error desconocido");
-  return json.data;
-}
-
-// ── CARGAR todos los datos ──
-async function loadData() {
-  // Intentar cargar desde Google Sheets
-  try {
-    const [clients, services, appointments] = await Promise.all([
-      fetchSheet("Clientes"),
-      fetchSheet("Servicios"),
-      fetchSheet("Citas"),
-    ]);
-
-    appData = {
-      clients: clients.map(c => ({
-        id: String(c.id), name: c.nombre, phone: String(c.telefono),
-        email: c.email || "", registered: String(c.fechaRegistro),
-        type: c.tipoCliente || "Nuevo", lastVisit: String(c.ultimaVisita),
-        status: c.estado || "Activo", notes: c.observaciones || ""
-      })),
-      services: services.map(s => ({
-        id: String(s.id), name: s.nombre, category: s.categoria || "Facial",
-        price: Number(s.precio) || 0, duration: Number(s.duracion) || 0
-      })),
-      appointments: appointments.map(a => ({
-        id: String(a.id), date: String(a.fecha), clientId: String(a.clienteId),
-        serviceId: String(a.servicioId), value: Number(a.valor) || 0,
-        professional: a.profesional || "", status: a.estado || "Pendiente"
-      })),
+    /* =========================
+       STATE
+    ========================== */
+    const state = {
+      activeView: "dashboard",
+      contactSearch: "",
+      contactCity: "Todos",
+      contactChannel: "Todos",
+      oppSearch: "",
+      oppStatus: "Todos",
+      projectSearch: "",
+      projectStatus: "Todos",
+      paymentSearch: "",
+      paymentStatus: "Todos",
+      modalContactId: null
     };
 
-    // Guardar en localStorage como cache
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-    showConnectionStatus(true);
+    const viewTitles = {
+      dashboard: "Dashboard",
+      contacts: "Contactos",
+      opportunities: "Oportunidades",
+      projects: "Proyectos",
+      payments: "Pagos"
+    };
 
-  } catch (err) {
-    console.warn("No se pudo conectar a Google Sheets, usando datos locales:", err);
-    // Fallback a localStorage
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) appData = JSON.parse(saved);
-      else appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    } catch {
-      appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    /* =========================
+       HELPERS
+    ========================== */
+    const money = new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      maximumFractionDigits: 0
+    });
+
+    const dateFmt = new Intl.DateTimeFormat("es-CO", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+
+    function parseDate(str){
+      const [y,m,d] = str.split("-").map(Number);
+      return new Date(y, m - 1, d);
     }
-    showConnectionStatus(false);
-  }
-}
 
-// ── GUARDAR un registro en Google Sheets ──
-async function apiSave(sheetName, registro) {
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" }, // Apps Script requiere text/plain para evitar preflight CORS
-      body: JSON.stringify({ action: "save", sheet: sheetName, data: registro }),
-    });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    showConnectionStatus(true);
-    return true;
-  } catch (err) {
-    console.warn("Error guardando en Sheets:", err);
-    showConnectionStatus(false);
-    return false;
-  }
-}
+    function normalize(value = ""){
+      return String(value)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+    }
 
-// ── GUARDAR toda una hoja completa ──
-async function apiSaveAll(sheetName, registros) {
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action: "saveAll", sheet: sheetName, data: registros }),
-    });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    showConnectionStatus(true);
-    return true;
-  } catch (err) {
-    console.warn("Error guardando hoja completa:", err);
-    showConnectionStatus(false);
-    return false;
-  }
-}
+    function formatCurrency(value){
+      return money.format(value || 0);
+    }
 
-// ── Convertir formato app → formato Google Sheets ──
-function clientToSheet(c) {
-  return { id:c.id, nombre:c.name, telefono:c.phone, email:c.email,
-    fechaRegistro:c.registered, tipoCliente:c.type, ultimaVisita:c.lastVisit,
-    estado:c.status, observaciones:c.notes };
-}
-function serviceToSheet(s) {
-  return { id:s.id, nombre:s.name, categoria:s.category, precio:s.price, duracion:s.duration };
-}
-function appointmentToSheet(a) {
-  return { id:a.id, fecha:a.date, clienteId:a.clientId, servicioId:a.serviceId,
-    valor:a.value, profesional:a.professional, estado:a.status };
-}
+    function formatDate(value){
+      return dateFmt.format(parseDate(value));
+    }
 
-// ── Cache local (siempre se guarda como respaldo) ──
-async function saveData() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch {}
-}
+    function daysBetween(baseDate, targetDate){
+      const start = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+      const end = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+      return Math.round((end - start) / 86400000);
+    }
 
-// ── Sincronizar manualmente desde Google Sheets ──
-async function syncFromSheets() {
-  showToolbarStatus("⏳ Sincronizando con Google Sheets...");
-  await loadData();
-  renderPage();
-  if (isOnline) {
-    showToolbarStatus("✅ Datos sincronizados desde Google Sheets");
-  } else {
-    showToolbarStatus("⚠️ No se pudo conectar. Mostrando datos locales.");
-  }
-}
+    function isOpenOpportunity(status){
+      return status === "En seguimiento" || status === "Negociación";
+    }
 
-function $(sel) { return document.querySelector(sel); }
-function $$(sel) { return document.querySelectorAll(sel); }
+    function getContact(contactId){
+      return contacts.find(c => c.id === contactId);
+    }
 
-/* ────────────────────────────────────────────
-   SECCIÓN C: Navegación
-   ──────────────────────────────────────────── */
-const NAV_ITEMS = [
-  { key:"dashboard", icon:"📊", label:"Dashboard" },
-  { key:"clients",   icon:"👤", label:"Clientes" },
-  { key:"services",  icon:"✨", label:"Servicios" },
-  { key:"appointments", icon:"📅", label:"Citas" },
-  { key:"followup",  icon:"🔔", label:"Seguimiento" },
-  { key:"guide",     icon:"📖", label:"Guía" },
-];
+    function getOpportunity(opportunityId){
+      return opportunities.find(o => o.id === opportunityId);
+    }
 
-function buildNav() {
-  const sidebarNav = $("#sidebar-nav");
-  const mobileNav = $("#mobile-nav");
-  sidebarNav.innerHTML = NAV_ITEMS.map(n =>
-    `<button class="nav-item ${currentView===n.key?'active':''}" data-view="${n.key}">
-      <span>${n.icon}</span> ${n.label}
-    </button>`
-  ).join("");
+    function getProject(projectId){
+      return projects.find(p => p.id === projectId);
+    }
 
-  // Mobile: show first 5
-  mobileNav.innerHTML = NAV_ITEMS.slice(0,5).map(n =>
-    `<button class="${currentView===n.key?'active':''}" data-view="${n.key}">
-      <span class="nav-icon">${n.icon}</span>${n.label}
-    </button>`
-  ).join("");
+    function sumPaymentsForProject(projectId, onlyConfirmed = true){
+      return payments
+        .filter(p => p.projectId === projectId && (!onlyConfirmed || p.status === "Confirmado"))
+        .reduce((sum, p) => sum + p.amount, 0);
+    }
 
-  // Click handlers
-  [...sidebarNav.querySelectorAll("[data-view]"), ...mobileNav.querySelectorAll("[data-view]")].forEach(btn => {
-    btn.addEventListener("click", () => navigate(btn.dataset.view));
-  });
-}
+    function pendingForProject(project){
+      return Math.max(0, project.soldValue - sumPaymentsForProject(project.id, true));
+    }
 
-function navigate(view) {
-  currentView = view;
-  searchText = "";
-  filterType = "Todos";
-  filterStatus = "Todos";
-  filterApptStatus = "Todos";
-  buildNav();
-  renderPage();
-}
+    function statusTone(type, status){
+      const maps = {
+        opportunity: {
+          "En seguimiento": "amber",
+          "Negociación": "teal",
+          "Ganada": "green",
+          "Perdida": "red"
+        },
+        project: {
+          "Por iniciar": "navy",
+          "En ejecución": "teal",
+          "Pendiente cliente": "amber",
+          "En revisión": "violet",
+          "Entregado": "green"
+        },
+        payment: {
+          "Confirmado": "green",
+          "Pendiente": "amber",
+          "Programado": "navy",
+          "Rechazado": "red"
+        }
+      };
+      return maps[type][status] || "gray";
+    }
 
-function renderPage() {
-  const wrapper = $("#page-wrapper");
-  const item = NAV_ITEMS.find(n => n.key === currentView);
-  const subtitles = {
-    dashboard: "Resumen general del negocio",
-    clients: `${appData.clients.length} clientes registrados`,
-    services: `${appData.services.length} servicios disponibles`,
-    appointments: `${appData.appointments.length} citas registradas`,
-    followup: "Clientes que necesitan atención",
-    guide: "Manual de uso del sistema"
-  };
+    function getOpportunityUrgency(opportunity){
+      if (!isOpenOpportunity(opportunity.status)) {
+        return { label: "Cerrada", tone: "gray" };
+      }
+      const days = daysBetween(today, parseDate(opportunity.dueDate));
+      if (days < 0) return { label: "Atrasada", tone: "red" };
+      if (days <= 2) return { label: "Urgente", tone: "red" };
+      if (days <= 7) return { label: "Próxima", tone: "amber" };
+      return { label: "En plazo", tone: "green" };
+    }
 
-  let actionBtn = "";
-  if (currentView === "clients") actionBtn = `<button class="btn btn-primary" onclick="openModal('newClient')">+ Nuevo Cliente</button>`;
-  if (currentView === "appointments") actionBtn = `<button class="btn btn-primary" onclick="openModal('newAppointment')">+ Nueva Cita</button>`;
-  if (currentView === "services") actionBtn = `<button class="btn btn-primary" onclick="openModal('newService')">+ Nuevo Servicio</button>`;
+    function projectProgress(status){
+      const map = {
+        "Por iniciar": 18,
+        "En ejecución": 55,
+        "Pendiente cliente": 70,
+        "En revisión": 88,
+        "Entregado": 100
+      };
+      return map[status] || 0;
+    }
 
-  wrapper.innerHTML = `
-    <div class="page-header">
-      <div>
-        <h1>${item.icon} ${item.label}</h1>
-        <div class="subtitle">${subtitles[currentView]}</div>
-      </div>
-      ${actionBtn}
-    </div>
-    <div id="page-content"></div>
-  `;
+    function getMetrics(){
+      const totalReceived = payments
+        .filter(p => p.status === "Confirmado")
+        .reduce((sum, p) => sum + p.amount, 0);
 
-  const renderers = {
-    dashboard: renderDashboard,
-    clients: renderClients,
-    services: renderServices,
-    appointments: renderAppointments,
-    followup: renderFollowUp,
-    guide: renderGuide,
-  };
-  renderers[currentView]();
-}
+      const pendingBalance = projects.reduce((sum, project) => sum + pendingForProject(project), 0);
 
-/* ────────────────────────────────────────────
-   SECCIÓN D: Dashboard
-   ──────────────────────────────────────────── */
-function renderDashboard() {
-  const el = $("#page-content");
-  const now = new Date(TODAY);
-  const thisMonth = (d) => { const dt = new Date(d); return dt.getMonth() === now.getMonth() && dt.getFullYear() === now.getFullYear(); };
+      const openOpportunities = opportunities.filter(o => isOpenOpportunity(o.status)).length;
+      const activeProjects = projects.filter(p => p.status !== "Entregado").length;
 
-  const totalClients = appData.clients.length;
-  const newThisMonth = appData.clients.filter(c => thisMonth(c.registered)).length;
-  const active = appData.clients.filter(c => c.status === "Activo").length;
-  const completed = appData.appointments.filter(a => a.status === "Completado");
-  const monthRevenue = completed.filter(a => thisMonth(a.date)).reduce((s,a) => s + a.value, 0);
-  const totalRevenue = completed.reduce((s,a) => s + a.value, 0);
-  const needFollowUp = appData.clients.filter(c => daysBetween(c.lastVisit, TODAY) > 30).length;
+      const won = opportunities.filter(o => o.status === "Ganada").length;
+      const lost = opportunities.filter(o => o.status === "Perdida").length;
+      const closeRate = won + lost === 0 ? 0 : (won / (won + lost)) * 100;
 
-  // Top services
-  const svcCount = {};
-  completed.forEach(a => { svcCount[a.serviceId] = (svcCount[a.serviceId]||0)+1; });
-  const topSvcs = Object.entries(svcCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const maxCount = Math.max(...topSvcs.map(t=>t[1]),1);
+      return {
+        totalReceived,
+        pendingBalance,
+        openOpportunities,
+        activeProjects,
+        closeRate,
+        won,
+        lost
+      };
+    }
 
-  // Upcoming
-  const upcoming = appData.appointments
-    .filter(a => a.date >= TODAY && a.status === "Pendiente")
-    .sort((a,b) => a.date.localeCompare(b.date))
-    .slice(0,5);
+    function getDueOpportunities(){
+      return opportunities
+        .filter(o => isOpenOpportunity(o.status))
+        .filter(o => daysBetween(today, parseDate(o.dueDate)) <= 7)
+        .sort((a,b) => parseDate(a.dueDate) - parseDate(b.dueDate));
+    }
 
-  el.innerHTML = `
-    <div class="grid-stats" style="margin-bottom:16px">
-      ${[
-        { label:"Total Clientes", value:totalClients, icon:"👤", color:"var(--verde)" },
-        { label:"Nuevos (mes)", value:newThisMonth, icon:"🆕", color:"var(--terracota)" },
-        { label:"Activos", value:active, icon:"✅", color:"var(--verde-estado)" },
-        { label:"Ingresos (mes)", value:fmt(monthRevenue), icon:"💰", color:"var(--dorado)" },
-        { label:"Seguimiento", value:needFollowUp, icon:"🔔", color:"#d4756a" },
-        { label:"Ingresos totales", value:fmt(totalRevenue), icon:"📈", color:"#6a8ba6" },
-      ].map(s => `
-        <div class="stat-card">
-          <div class="stat-label">${s.label}</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:22px">${s.icon}</span>
-            <span class="stat-value" style="color:${s.color}">${s.value}</span>
+    function getLatestPayments(limit = 5){
+      return [...payments]
+        .sort((a,b) => parseDate(b.date) - parseDate(a.date))
+        .slice(0, limit);
+    }
+
+    function getServiceDistribution(){
+      const bucket = {};
+      opportunities.forEach(item => {
+        if (!bucket[item.service]) {
+          bucket[item.service] = { service: item.service, total: 0, count: 0 };
+        }
+        bucket[item.service].total += item.quotedValue;
+        bucket[item.service].count += 1;
+      });
+      return Object.values(bucket).sort((a,b) => b.total - a.total);
+    }
+
+    function getTopChannel(){
+      const counts = {};
+      contacts.forEach(c => {
+        counts[c.channel] = (counts[c.channel] || 0) + 1;
+      });
+      return Object.entries(counts).sort((a,b) => b[1] - a[1])[0]?.[0] || "—";
+    }
+
+    function getMonthlyConfirmedTotal(){
+      return payments
+        .filter(p => p.status === "Confirmado")
+        .filter(p => parseDate(p.date).getMonth() === today.getMonth() && parseDate(p.date).getFullYear() === today.getFullYear())
+        .reduce((sum, p) => sum + p.amount, 0);
+    }
+
+    function getAverageTicket(){
+      const confirmed = payments.filter(p => p.status === "Confirmado");
+      if (!confirmed.length) return 0;
+      return confirmed.reduce((sum, p) => sum + p.amount, 0) / confirmed.length;
+    }
+
+    function getPendingScheduledTotal(){
+      return payments
+        .filter(p => p.status !== "Confirmado")
+        .reduce((sum, p) => sum + p.amount, 0);
+    }
+
+    function uniqueValues(items, key){
+      return ["Todos", ...new Set(items.map(i => i[key]))];
+    }
+
+    function emptyState(message){
+      return `
+        <div class="empty-state">
+          <div class="empty-icon">◇</div>
+          <div>${message}</div>
+        </div>
+      `;
+    }
+
+    /* =========================
+       FILTERS
+    ========================== */
+    function filteredContacts(){
+      return contacts.filter(contact => {
+        const search = normalize(state.contactSearch);
+        const haystack = normalize([contact.name, contact.specialty, contact.city, contact.channel].join(" "));
+        const matchesSearch = !search || haystack.includes(search);
+        const matchesCity = state.contactCity === "Todos" || contact.city === state.contactCity;
+        const matchesChannel = state.contactChannel === "Todos" || contact.channel === state.contactChannel;
+        return matchesSearch && matchesCity && matchesChannel;
+      });
+    }
+
+    function filteredOpportunities(){
+      return opportunities.filter(opp => {
+        const contact = getContact(opp.contactId);
+        const search = normalize(state.oppSearch);
+        const haystack = normalize([
+          opp.id,
+          contact?.name || "",
+          opp.service,
+          opp.plan,
+          opp.summary,
+          opp.status
+        ].join(" "));
+        const matchesSearch = !search || haystack.includes(search);
+        const matchesStatus = state.oppStatus === "Todos" || opp.status === state.oppStatus;
+        return matchesSearch && matchesStatus;
+      }).sort((a,b) => parseDate(a.dueDate) - parseDate(b.dueDate));
+    }
+
+    function filteredProjects(){
+      return projects.filter(project => {
+        const contact = getContact(project.contactId);
+        const search = normalize(state.projectSearch);
+        const haystack = normalize([
+          project.id,
+          project.opportunityId,
+          contact?.name || "",
+          project.service,
+          project.plan,
+          project.status
+        ].join(" "));
+        const matchesSearch = !search || haystack.includes(search);
+        const matchesStatus = state.projectStatus === "Todos" || project.status === state.projectStatus;
+        return matchesSearch && matchesStatus;
+      });
+    }
+
+    function filteredPayments(){
+      return payments.filter(payment => {
+        const contact = getContact(payment.contactId);
+        const search = normalize(state.paymentSearch);
+        const haystack = normalize([
+          payment.id,
+          payment.projectId,
+          contact?.name || "",
+          payment.type,
+          payment.method,
+          payment.status
+        ].join(" "));
+        const matchesSearch = !search || haystack.includes(search);
+        const matchesStatus = state.paymentStatus === "Todos" || payment.status === state.paymentStatus;
+        return matchesSearch && matchesStatus;
+      }).sort((a,b) => parseDate(b.date) - parseDate(a.date));
+    }
+
+    /* =========================
+       RENDER: DASHBOARD
+    ========================== */
+    function renderDashboard(){
+      const metrics = getMetrics();
+      const dueOpps = getDueOpportunities();
+      const recentPayments = getLatestPayments(5);
+      const activeProjects = projects
+        .filter(p => p.status !== "Entregado")
+        .sort((a,b) => pendingForProject(b) - pendingForProject(a));
+      const serviceDistribution = getServiceDistribution();
+      const maxDistribution = Math.max(...serviceDistribution.map(item => item.total), 1);
+
+      const openPipelineValue = opportunities
+        .filter(o => isOpenOpportunity(o.status))
+        .reduce((sum, o) => sum + o.quotedValue, 0);
+
+      const executingProjects = projects.filter(p => p.status === "En ejecución" || p.status === "En revisión").length;
+
+      return `
+        <div class="kpi-grid">
+          <div class="card metric-card">
+            <div class="metric-head">
+              <span>Ingresos recibidos</span>
+              <div class="metric-icon">↗</div>
+            </div>
+            <p class="metric-value">${formatCurrency(metrics.totalReceived)}</p>
+            <div class="metric-foot">Pagos confirmados registrados en proyectos activos y entregados.</div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-head">
+              <span>Saldo pendiente</span>
+              <div class="metric-icon">◎</div>
+            </div>
+            <p class="metric-value">${formatCurrency(metrics.pendingBalance)}</p>
+            <div class="metric-foot">Pendiente calculado por proyecto según valor vendido menos pagos confirmados.</div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-head">
+              <span>Oportunidades abiertas</span>
+              <div class="metric-icon">◇</div>
+            </div>
+            <p class="metric-value">${metrics.openOpportunities}</p>
+            <div class="metric-foot">Negocios en seguimiento o negociación con opción real de cierre.</div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-head">
+              <span>Proyectos activos</span>
+              <div class="metric-icon">▤</div>
+            </div>
+            <p class="metric-value">${metrics.activeProjects}</p>
+            <div class="metric-foot">Incluye proyectos por iniciar, en ejecución, revisión o pendientes del cliente.</div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-head">
+              <span>Tasa de cierre</span>
+              <div class="metric-icon">◍</div>
+            </div>
+            <p class="metric-value">${metrics.closeRate.toFixed(1)}%</p>
+            <div class="metric-foot">Relación entre oportunidades ganadas y perdidas cerradas comercialmente.</div>
           </div>
         </div>
-      `).join("")}
-    </div>
 
-    <div class="grid-2col">
-      <div class="card">
-        <h3 class="section-title">🏆 Servicios Más Vendidos</h3>
-        ${topSvcs.map(([id, count]) => {
-          const svc = getService(id);
-          return `<div style="margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-              <span style="font-weight:500">${svc?.name||"—"}</span>
-              <span style="color:var(--cafe-suave)">${count} ventas</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width:${(count/maxCount)*100}%;background:${CAT_COLORS[svc?.category]||'var(--verde)'}"></div>
-            </div>
-          </div>`;
-        }).join("")}
-      </div>
+        <div class="summary-strip">
+          <div class="summary-chip"><span>Pipeline abierto</span>${formatCurrency(openPipelineValue)}</div>
+          <div class="summary-chip"><span>Pagos del mes</span>${formatCurrency(getMonthlyConfirmedTotal())}</div>
+          <div class="summary-chip"><span>Canal principal</span>${getTopChannel()}</div>
+          <div class="summary-chip"><span>Proyectos en ejecución/revisión</span>${executingProjects}</div>
+        </div>
 
-      <div class="card">
-        <h3 class="section-title">📅 Próximas Citas</h3>
-        ${upcoming.length === 0 ? '<p style="color:var(--cafe-suave);font-size:13px">No hay citas pendientes</p>' :
-          upcoming.map((a,i) => {
-            const c = getClient(a.clientId);
-            const s = getService(a.serviceId);
-            return `<div style="padding:10px 0;${i<upcoming.length-1?'border-bottom:1px solid var(--crema-oscuro)':''};display:flex;justify-content:space-between;align-items:center;font-size:13px">
+        <div class="dashboard-grid">
+          <div class="section-card">
+            <div class="section-head">
               <div>
-                <div style="font-weight:500">${c?.name||"—"}</div>
-                <div style="color:var(--cafe-suave);font-size:12px">${s?.name||""} • ${a.professional||"—"}</div>
+                <h2 class="section-title">Oportunidades por vencer</h2>
+                <p class="section-subtitle">Prioridades comerciales con fecha límite cercana para acelerar decisión y seguimiento.</p>
               </div>
-              <div style="text-align:right">
-                <div style="font-weight:500;color:var(--verde)">${a.date}</div>
-                <div style="color:var(--cafe-suave);font-size:12px">${fmt(a.value)}</div>
-              </div>
-            </div>`;
-          }).join("")}
-      </div>
-
-      <div class="card">
-        <h3 class="section-title">👥 Distribución de Clientes</h3>
-        ${["VIP","Frecuente","Nuevo"].map(type => {
-          const count = appData.clients.filter(c=>c.type===type).length;
-          const pct = totalClients>0 ? ((count/totalClients)*100).toFixed(0) : 0;
-          return `<div style="margin-bottom:14px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              ${typeBadge(type)}
-              <span style="font-size:13px;color:var(--cafe-claro)">${count} (${pct}%)</span>
             </div>
-            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:var(--verde);opacity:0.6"></div></div>
-          </div>`;
-        }).join("")}
-        <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;font-size:12px">
-          ${["Activo","Inactivo","Seguimiento"].map(st => {
-            const cnt = appData.clients.filter(c=>c.status===st).length;
-            return `<span>${statusBadge(st)} ${cnt}</span>`;
-          }).join("")}
-        </div>
-      </div>
-    </div>
-  `;
-}
 
-/* ────────────────────────────────────────────
-   SECCIÓN E: Clientes
-   ──────────────────────────────────────────── */
-function renderClients() {
-  const el = $("#page-content");
-  const filtered = appData.clients.filter(c => {
-    const s = searchText.toLowerCase();
-    const matchSearch = !s || c.name.toLowerCase().includes(s) || c.phone.includes(s) || c.email.toLowerCase().includes(s);
-    const matchType = filterType === "Todos" || c.type === filterType;
-    const matchStatus = filterStatus === "Todos" || c.status === filterStatus;
-    return matchSearch && matchType && matchStatus;
-  });
-
-  el.innerHTML = `
-    <div class="card" style="margin-bottom:16px">
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <input class="input" id="client-search" placeholder="🔍 Buscar por nombre, teléfono o email..." value="${searchText}" style="flex:1 1 200px;max-width:350px">
-        <select class="input" id="filter-type" style="flex:0 0 auto;width:auto;min-width:130px">
-          <option ${filterType==="Todos"?"selected":""}>Todos</option>
-          <option ${filterType==="VIP"?"selected":""}>VIP</option>
-          <option ${filterType==="Frecuente"?"selected":""}>Frecuente</option>
-          <option ${filterType==="Nuevo"?"selected":""}>Nuevo</option>
-        </select>
-        <select class="input" id="filter-status" style="flex:0 0 auto;width:auto;min-width:150px">
-          <option ${filterStatus==="Todos"?"selected":""}>Todos</option>
-          <option ${filterStatus==="Activo"?"selected":""}>Activo</option>
-          <option ${filterStatus==="Inactivo"?"selected":""}>Inactivo</option>
-          <option ${filterStatus==="Seguimiento"?"selected":""}>Seguimiento</option>
-        </select>
-      </div>
-    </div>
-    <div class="grid-cards" id="clients-grid"></div>
-  `;
-
-  const grid = $("#clients-grid");
-  if (filtered.length === 0) {
-    grid.innerHTML = '<div class="card" style="text-align:center;padding:40px;color:var(--cafe-suave);grid-column:1/-1">No se encontraron clientes con estos filtros</div>';
-  } else {
-    grid.innerHTML = filtered.map(c => {
-      const days = daysBetween(c.lastVisit, TODAY);
-      const appts = appData.appointments.filter(a => a.clientId === c.id && a.status === "Completado").length;
-      return `<div class="card client-card" onclick="openModal('clientDetail','${c.id}')">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-          <div>
-            <div class="name">${c.name}</div>
-            <div class="contact">${c.phone} • ${c.email}</div>
+            ${
+              dueOpps.length
+                ? `<div class="list-stack">
+                    ${dueOpps.map(opp => {
+                      const contact = getContact(opp.contactId);
+                      const urgency = getOpportunityUrgency(opp);
+                      return `
+                        <div class="list-item">
+                          <div>
+                            <strong>${contact?.name || "Contacto"}</strong>
+                            <p>${opp.service} · ${opp.plan} · vence ${formatDate(opp.dueDate)}</p>
+                          </div>
+                          <div class="list-right">
+                            <strong>${formatCurrency(opp.quotedValue)}</strong>
+                            <span class="badge ${urgency.tone}">${urgency.label}</span>
+                          </div>
+                        </div>
+                      `;
+                    }).join("")}
+                  </div>`
+                : emptyState("No hay oportunidades abiertas con vencimiento cercano.")
+            }
           </div>
-          ${typeBadge(c.type)}
-        </div>
-        <div class="meta">
-          ${statusBadge(c.status)}
-          <span>📅 Hace ${days}d</span>
-          <span>🔄 ${appts} citas</span>
-        </div>
-        ${c.notes ? `<div class="notes">"${c.notes}"</div>` : ""}
-        <div style="margin-top:10px;display:flex;gap:8px">
-          <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openModal('editClient','${c.id}')">✏️ Editar</button>
-        </div>
-      </div>`;
-    }).join("");
-  }
 
-  // Event listeners
-  $("#client-search").addEventListener("input", e => { searchText = e.target.value; renderClients(); });
-  $("#filter-type").addEventListener("change", e => { filterType = e.target.value; renderClients(); });
-  $("#filter-status").addEventListener("change", e => { filterStatus = e.target.value; renderClients(); });
-}
+          <div class="section-card">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">Salud comercial</h2>
+                <p class="section-subtitle">Lectura rápida del rendimiento de cierre actual.</p>
+              </div>
+            </div>
 
-/* ────────────────────────────────────────────
-   SECCIÓN F: Servicios
-   ──────────────────────────────────────────── */
-function renderServices() {
-  const el = $("#page-content");
-  const categories = [...new Set(appData.services.map(s => s.category))];
+            <div class="performance-wrap">
+              <div class="performance-ring" style="--pct:${metrics.closeRate}%;">
+                <div class="performance-inner">
+                  <div class="performance-value">${metrics.closeRate.toFixed(0)}%</div>
+                  <div class="performance-label">Cierre</div>
+                </div>
+              </div>
 
-  el.innerHTML = categories.map(cat => `
-    <div style="margin-bottom:20px">
-      <div class="service-category-bar">
-        <div class="dot" style="background:${CAT_COLORS[cat]||'var(--verde)'}"></div>
-        <h3 class="section-title" style="margin-bottom:0">${cat}</h3>
-      </div>
-      <div class="grid-cards">
-        ${appData.services.filter(s=>s.category===cat).map(s => `
-          <div class="card service-card">
-            <div class="svc-name">${s.name}</div>
-            <div class="svc-info">
-              <span>${fmt(s.price)}</span>
-              <span>⏱ ${s.duration} min</span>
+              <div class="list-stack">
+                <div class="list-item">
+                  <div>
+                    <strong>Oportunidades ganadas</strong>
+                    <p>Negocios convertidos en proyecto</p>
+                  </div>
+                  <div class="list-right">
+                    <strong>${metrics.won}</strong>
+                  </div>
+                </div>
+                <div class="list-item">
+                  <div>
+                    <strong>Oportunidades perdidas</strong>
+                    <p>Casos cerrados sin conversión</p>
+                  </div>
+                  <div class="list-right">
+                    <strong>${metrics.lost}</strong>
+                  </div>
+                </div>
+                <div class="list-item">
+                  <div>
+                    <strong>Saldo pendiente activo</strong>
+                    <p>Dinero por cobrar en proyectos ya vendidos</p>
+                  </div>
+                  <div class="list-right">
+                    <strong>${formatCurrency(metrics.pendingBalance)}</strong>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        `).join("")}
-      </div>
-    </div>
-  `).join("");
-}
+        </div>
 
-/* ────────────────────────────────────────────
-   SECCIÓN G: Citas
-   ──────────────────────────────────────────── */
-function renderAppointments() {
-  const el = $("#page-content");
-  const sorted = [...appData.appointments]
-    .sort((a,b) => b.date.localeCompare(a.date))
-    .filter(a => filterApptStatus === "Todos" || a.status === filterApptStatus);
+        <div class="content-grid">
+          <div class="section-card">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">Últimos pagos registrados</h2>
+                <p class="section-subtitle">Movimientos recientes para seguimiento de caja y cobro.</p>
+              </div>
+            </div>
 
-  el.innerHTML = `
-    <div class="card" style="margin-bottom:16px">
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${["Todos","Pendiente","Completado","Cancelado","No asistió"].map(s => `
-          <button class="btn" onclick="filterApptStatus='${s}';renderAppointments()"
-            style="background:${filterApptStatus===s?'var(--verde)':'#f5f0eb'};color:${filterApptStatus===s?'white':'var(--cafe-medio)'};font-size:13px;padding:8px 16px">${s}</button>
-        `).join("")}
-      </div>
-    </div>
-    <div class="card" style="padding:0;overflow-x:auto">
-      <table class="data-table">
-        <thead><tr>
-          <th>Fecha</th><th>Cliente</th><th class="hide-mobile">Servicio</th>
-          <th>Valor</th><th class="hide-mobile">Profesional</th><th>Estado</th>
-        </tr></thead>
-        <tbody>
-          ${sorted.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--cafe-suave)">Sin citas para este filtro</td></tr>' :
-            sorted.map(a => {
-              const c = getClient(a.clientId);
-              const s = getService(a.serviceId);
-              return `<tr>
-                <td style="font-weight:500">${a.date}</td>
-                <td>${c?.name||"—"}</td>
-                <td class="hide-mobile" style="color:var(--cafe-claro)">${s?.name||"—"}</td>
-                <td style="font-weight:500">${fmt(a.value)}</td>
-                <td class="hide-mobile" style="color:var(--cafe-claro)">${a.professional||"—"}</td>
-                <td>${statusBadge(a.status)}</td>
-              </tr>`;
-            }).join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-/* ────────────────────────────────────────────
-   SECCIÓN H: Seguimiento
-   ──────────────────────────────────────────── */
-function renderFollowUp() {
-  const el = $("#page-content");
-  const alerts = [];
-  appData.clients.forEach(c => {
-    const days = daysBetween(c.lastVisit, TODAY);
-    const appts = appData.appointments.filter(a => a.clientId === c.id && a.status === "Completado").length;
-    if (c.type === "VIP" && days > 21)
-      alerts.push({ client:c, type:"🔴 VIP sin visita", msg:`${c.name} es VIP y no viene hace ${days} días. ¡Contactar urgente!`, priority:1 });
-    else if (days > 60)
-      alerts.push({ client:c, type:"⚫ Cliente perdido", msg:`${c.name} no viene hace ${days} días. Campaña de reactivación.`, priority:2 });
-    else if (days > 30)
-      alerts.push({ client:c, type:"🟡 Sin visita reciente", msg:`${c.name} no viene hace ${days} días. Enviar recordatorio.`, priority:3 });
-    if (appts <= 1 && c.type === "Nuevo")
-      alerts.push({ client:c, type:"🔵 Pocas visitas", msg:`${c.name} es nuevo y solo ha venido ${appts} vez. Ofrecer promo.`, priority:4 });
-  });
-  alerts.sort((a,b) => a.priority - b.priority);
-
-  el.innerHTML = `
-    <div class="banner-green">
-      <div style="font-size:15px;font-weight:500">📋 Resumen de Seguimiento</div>
-      <div style="font-size:13px;margin-top:6px;opacity:0.9">${alerts.length} alertas activas • Revisa al inicio de cada semana.</div>
-    </div>
-    ${alerts.length === 0 ? '<div class="card" style="text-align:center;padding:40px;color:var(--cafe-suave)">🎉 ¡Excelente! No hay clientes que requieran seguimiento.</div>' :
-      `<div style="display:grid;gap:12px">${alerts.map(a => `
-        <div class="card alert-card">
-          <div style="flex:1;min-width:200px">
-            <div class="alert-type">${a.type}</div>
-            <div class="alert-msg">${a.msg}</div>
-            <div class="alert-contact">📱 ${a.client.phone} • 📧 ${a.client.email}</div>
+            ${
+              recentPayments.length
+                ? `<div class="list-stack">
+                    ${recentPayments.map(payment => {
+                      const contact = getContact(payment.contactId);
+                      return `
+                        <div class="list-item">
+                          <div>
+                            <strong>${contact?.name || "Contacto"} · ${payment.projectId}</strong>
+                            <p>${payment.type} · ${payment.method} · ${formatDate(payment.date)}</p>
+                          </div>
+                          <div class="list-right">
+                            <strong>${formatCurrency(payment.amount)}</strong>
+                            <span class="badge ${statusTone("payment", payment.status)}">${payment.status}</span>
+                          </div>
+                        </div>
+                      `;
+                    }).join("")}
+                  </div>`
+                : emptyState("Aún no hay pagos registrados.")
+            }
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="markFollowUp('${a.client.id}')">✅ Marcar seguimiento</button>
+
+          <div class="section-card">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">Distribución por servicios</h2>
+                <p class="section-subtitle">Valor cotizado acumulado por línea de servicio.</p>
+              </div>
+            </div>
+
+            <div class="distribution-stack">
+              ${serviceDistribution.map(item => `
+                <div class="distribution-row">
+                  <div class="distribution-head">
+                    <strong>${item.service}</strong>
+                    <span class="muted">${formatCurrency(item.total)} · ${item.count} ${item.count === 1 ? "caso" : "casos"}</span>
+                  </div>
+                  <div class="distribution-bar">
+                    <span style="width:${(item.total / maxDistribution) * 100}%"></span>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
         </div>
-      `).join("")}</div>`}
-  `;
-}
 
-function markFollowUp(id) {
-  const c = appData.clients.find(c => c.id === id);
-  if (c) {
-    c.status = "Seguimiento";
-    apiSave("Clientes", clientToSheet(c)); // Actualizar en Sheets
-    saveData();
-    renderFollowUp();
-  }
-}
-
-/* ────────────────────────────────────────────
-   SECCIÓN I: Guía
-   ──────────────────────────────────────────── */
-function renderGuide() {
-  const el = $("#page-content");
-  const sections = [
-    { title:"☁️ Conexión con Google Sheets", steps:["Esta app se conecta automáticamente a Google Sheets al abrir.","El indicador '🟢 Conectado' en la barra superior confirma la conexión.","Si dice '🟡 Modo local', los datos se guardan solo en este dispositivo.","Usa el botón '🔄 Sincronizar' para actualizar los datos desde Google Sheets.","Todo lo que registres aquí se guarda en Google Sheets en tiempo real."] },
-    { title:"📝 Cómo Registrar un Cliente", steps:["Ve a 'Clientes' desde el menú.","Presiona '+ Nuevo Cliente'.","Llena nombre, teléfono (obligatorio), email, tipo y estado.","Agrega observaciones (alergias, preferencias).","Presiona 'Registrar Cliente'. Se guarda aquí y en Google Sheets."] },
-    { title:"📅 Cómo Registrar una Cita", steps:["Ve a 'Citas' y presiona '+ Nueva Cita'.","Selecciona fecha, cliente y servicio.","El valor se calcula automáticamente.","Indica la profesional que atenderá.","Guarda. La última visita del cliente se actualiza sola."] },
-    { title:"🔔 Cómo Revisar Seguimiento", steps:["Ve a 'Seguimiento' al inicio de cada semana.","Revisa alertas: VIP primero, luego inactivos.","Contacta cada cliente por teléfono o WhatsApp.","Usa 'Marcar seguimiento' para actualizar estado.","Revisa el Dashboard para métricas generales."] },
-    { title:"📊 Revisión Semanal Recomendada", steps:["LUNES: Dashboard — métricas e ingresos.","LUNES: Seguimiento — contactar prioritarios.","MIÉRCOLES: Revisar citas pendientes de la semana.","VIERNES: Actualizar estados de citas.","MENSUAL: Distribución de clientes y servicios top."] },
-    { title:"📥 Importar / Exportar Excel", steps:["'Importar Excel' sube datos desde un archivo .xlsx a la app y a Google Sheets.","'Exportar Excel' descarga todos los datos actuales como archivo .xlsx de respaldo.","El Excel exportado es compatible con el formato de importación.","Usa exportar como respaldo periódico (recomendado: semanal).","También puedes editar datos directamente en Google Sheets y luego Sincronizar."] },
-    { title:"💡 Tips para Maximizar Resultados", steps:["Registra CADA cliente desde su primera visita.","Siempre agrega observaciones — personalización = recompra.","Los VIP deben visitarte al menos cada 3 semanas.","Si no vuelve en 30 días, activa promo de reactivación.","Usa los datos del Dashboard para tus campañas."] },
-  ];
-
-  el.innerHTML = `
-    <div class="guide-section" style="display:grid;gap:16px">
-      <div class="banner-green">
-        <h2 style="font-family:var(--font-display);font-size:22px;margin-bottom:6px">🌿 Guía de Uso — Aura Spa CRM</h2>
-        <p style="font-size:13px;opacity:0.9;line-height:1.5">Gestiona clientes, servicios, citas y seguimiento desde cualquier dispositivo. Los datos se sincronizan con Google Sheets en tiempo real.</p>
-      </div>
-      ${sections.map(s => `
-        <div class="card">
-          <h3 class="section-title">${s.title}</h3>
-          ${s.steps.map((step,j) => `<div class="guide-step"><span class="step-num">${j+1}</span>${step}</div>`).join("")}
-        </div>
-      `).join("")}
-      <div class="card" style="text-align:center;color:var(--cafe-suave);font-size:12px">
-        Sistema diseñado por Step Up Business Solutions 🌿<br>¿Necesitas personalización? Contáctanos.
-      </div>
-    </div>
-  `;
-}
-
-/* ────────────────────────────────────────────
-   SECCIÓN J: Modales / Formularios
-   ──────────────────────────────────────────── */
-function openModal(type, id) {
-  const container = $("#modal-container");
-  let content = "";
-
-  if (type === "newClient" || type === "editClient") {
-    const c = type === "editClient" ? getClient(id) : { name:"",phone:"",email:"",registered:TODAY,type:"Nuevo",lastVisit:TODAY,status:"Activo",notes:"" };
-    const title = type === "editClient" ? "Editar Cliente" : "Nuevo Cliente";
-    content = `
-      <div class="modal-header"><h2>${title}</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
-      <div class="field"><label>Nombre Completo *</label><input class="input" id="f-name" value="${c.name}"></div>
-      <div class="field-row">
-        <div class="field"><label>Teléfono *</label><input class="input" id="f-phone" type="tel" value="${c.phone}"></div>
-        <div class="field"><label>Email</label><input class="input" id="f-email" type="email" value="${c.email}"></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Tipo de Cliente</label><select class="input" id="f-type">
-          <option ${c.type==="Nuevo"?"selected":""}>Nuevo</option>
-          <option ${c.type==="Frecuente"?"selected":""}>Frecuente</option>
-          <option ${c.type==="VIP"?"selected":""}>VIP</option>
-        </select></div>
-        <div class="field"><label>Estado</label><select class="input" id="f-status">
-          <option ${c.status==="Activo"?"selected":""}>Activo</option>
-          <option ${c.status==="Inactivo"?"selected":""}>Inactivo</option>
-          <option ${c.status==="Seguimiento"?"selected":""}>Seguimiento</option>
-        </select></div>
-      </div>
-      <div class="field"><label>Observaciones</label><textarea class="input" id="f-notes" rows="3" style="resize:vertical">${c.notes}</textarea></div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveClient('${type==="editClient"?id:""}')">💾 ${type==="editClient"?"Guardar Cambios":"Registrar Cliente"}</button>
-      </div>
-    `;
-  }
-
-  if (type === "newAppointment") {
-    content = `
-      <div class="modal-header"><h2>Nueva Cita</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
-      <div class="field"><label>Fecha *</label><input class="input" id="f-date" type="date" value="${TODAY}"></div>
-      <div class="field"><label>Cliente *</label><select class="input" id="f-client">
-        ${appData.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join("")}
-      </select></div>
-      <div class="field"><label>Servicio *</label><select class="input" id="f-service" onchange="updateServiceInfo()">
-        ${appData.services.map(s => `<option value="${s.id}">${s.name} — ${fmt(s.price)}</option>`).join("")}
-      </select></div>
-      <div id="service-info" style="background:var(--crema-oscuro);padding:10px;border-radius:8px;font-size:13px;margin-bottom:12px;display:flex;justify-content:space-between">
-        <span>💰 Valor: <strong>${fmt(appData.services[0]?.price||0)}</strong></span>
-        <span>⏱ ${appData.services[0]?.duration||0} min</span>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Profesional</label><input class="input" id="f-prof" placeholder="Ej: Andrea M."></div>
-        <div class="field"><label>Estado</label><select class="input" id="f-appt-status">
-          <option>Pendiente</option><option>Completado</option><option>Cancelado</option><option>No asistió</option>
-        </select></div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveAppointment()">💾 Registrar Cita</button>
-      </div>
-    `;
-  }
-
-  if (type === "newService") {
-    content = `
-      <div class="modal-header"><h2>Nuevo Servicio</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
-      <div class="field"><label>Nombre *</label><input class="input" id="f-svc-name"></div>
-      <div class="field-row" style="grid-template-columns:1fr 1fr 1fr">
-        <div class="field"><label>Categoría</label><select class="input" id="f-svc-cat">
-          <option>Facial</option><option>Masaje</option><option>Corporal</option><option>Paquete</option>
-        </select></div>
-        <div class="field"><label>Precio (COP) *</label><input class="input" id="f-svc-price" type="number"></div>
-        <div class="field"><label>Duración (min)</label><input class="input" id="f-svc-dur" type="number"></div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveService()">💾 Guardar</button>
-      </div>
-    `;
-  }
-
-  if (type === "clientDetail") {
-    const c = getClient(id);
-    if (!c) return;
-    const appts = appData.appointments.filter(a => a.clientId === c.id).sort((a,b)=>b.date.localeCompare(a.date));
-    const totalSpent = appts.filter(a=>a.status==="Completado").reduce((s,a)=>s+a.value,0);
-
-    content = `
-      <div class="modal-header">
-        <div>
-          <h2 style="font-family:var(--font-display);font-size:24px">${c.name}</h2>
-          <div style="display:flex;gap:8px;margin-top:6px">${typeBadge(c.type)} ${statusBadge(c.status)}</div>
-        </div>
-        <button class="modal-close" onclick="closeModal()">✕</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;margin-bottom:20px">
-        <div>📱 ${c.phone}</div>
-        <div>📧 ${c.email}</div>
-        <div>📅 Registro: ${c.registered}</div>
-        <div>🕐 Última: ${c.lastVisit}</div>
-        <div style="grid-column:1/-1">💰 Total invertido: <strong>${fmt(totalSpent)}</strong></div>
-      </div>
-      ${c.notes ? `<div style="background:var(--crema);padding:12px;border-radius:10px;font-size:13px;color:var(--cafe-medio);margin-bottom:16px;line-height:1.5">📝 ${c.notes}</div>` : ""}
-      <h3 class="section-title" style="font-size:17px">Historial de Citas (${appts.length})</h3>
-      <div style="max-height:250px;overflow-y:auto">
-        ${appts.map((a,i) => {
-          const s = getService(a.serviceId);
-          return `<div style="padding:10px 0;border-bottom:1px solid var(--crema-oscuro);display:flex;justify-content:space-between;font-size:13px">
+        <div class="section-card">
+          <div class="section-head">
             <div>
-              <div style="font-weight:500">${s?.name||"—"}</div>
-              <div style="color:var(--cafe-suave);font-size:12px">${a.professional||"—"} • ${a.date}</div>
+              <h2 class="section-title">Proyectos en ejecución</h2>
+              <p class="section-subtitle">Seguimiento operativo de entregables, revisión y cobro pendiente.</p>
             </div>
-            <div style="text-align:right">
-              <div style="font-weight:500">${fmt(a.value)}</div>
-              ${statusBadge(a.status)}
+          </div>
+
+          ${
+            activeProjects.length
+              ? `<div class="cards-grid">
+                  ${activeProjects.map(project => {
+                    const contact = getContact(project.contactId);
+                    const received = sumPaymentsForProject(project.id, true);
+                    const pending = pendingForProject(project);
+                    const progress = projectProgress(project.status);
+                    return `
+                      <div class="project-card">
+                        <div class="card-top">
+                          <div>
+                            <h3 class="card-title">${project.id}</h3>
+                            <div class="card-kicker">${contact?.name || "Contacto"} · ${project.service}</div>
+                          </div>
+                          <span class="badge ${statusTone("project", project.status)}">${project.status}</span>
+                        </div>
+
+                        <div class="meta-grid">
+                          <div class="meta-box">
+                            <div class="label">Valor vendido</div>
+                            <div class="value">${formatCurrency(project.soldValue)}</div>
+                          </div>
+                          <div class="meta-box">
+                            <div class="label">Saldo pendiente</div>
+                            <div class="value">${formatCurrency(pending)}</div>
+                          </div>
+                        </div>
+
+                        <div class="muted" style="font-size:.86rem;font-weight:700;">Avance estimado</div>
+                        <div class="progress-track">
+                          <div class="progress-fill" style="width:${progress}%"></div>
+                        </div>
+
+                        <div class="tag-row">
+                          <span class="tag">Plan: ${project.plan}</span>
+                          <span class="tag">Recibido: ${formatCurrency(received)}</span>
+                        </div>
+                      </div>
+                    `;
+                  }).join("")}
+                </div>`
+              : emptyState("No hay proyectos activos en este momento.")
+          }
+        </div>
+      `;
+    }
+
+    /* =========================
+       RENDER: CONTACTS
+    ========================== */
+    function renderContacts(){
+      const rows = filteredContacts();
+      const cities = uniqueValues(contacts, "city");
+      const channels = uniqueValues(contacts, "channel");
+
+      return `
+        <div class="summary-strip">
+          <div class="summary-chip"><span>Total contactos</span>${contacts.length}</div>
+          <div class="summary-chip"><span>Ciudades activas</span>${new Set(contacts.map(c => c.city)).size}</div>
+          <div class="summary-chip"><span>Canal dominante</span>${getTopChannel()}</div>
+        </div>
+
+        <div class="section-card" style="margin-bottom:16px;">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">Base de contactos</h2>
+              <p class="section-subtitle">Explora la red comercial por ciudad, canal de entrada y tipo de negocio.</p>
             </div>
-          </div>`;
-        }).join("")}
-        ${appts.length===0 ? '<p style="color:var(--cafe-suave);font-size:13px">Sin citas registradas</p>' : ""}
-      </div>
-    `;
-  }
+          </div>
 
-  container.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-content">${content}</div></div>`;
-}
+          <div class="toolbar">
+            <div class="field">
+              <label for="contactSearch">Buscar</label>
+              <input id="contactSearch" class="control" type="text" placeholder="Nombre, especialidad, ciudad..." value="${state.contactSearch}">
+            </div>
 
-function closeModal() { $("#modal-container").innerHTML = ""; }
+            <div class="field">
+              <label for="contactCityFilter">Ciudad</label>
+              <select id="contactCityFilter" class="control">
+                ${cities.map(city => `<option value="${city}" ${state.contactCity === city ? "selected" : ""}>${city}</option>`).join("")}
+              </select>
+            </div>
 
-function updateServiceInfo() {
-  const svcId = $("#f-service").value;
-  const svc = getService(svcId);
-  const info = $("#service-info");
-  if (svc && info) {
-    info.innerHTML = `<span>💰 Valor: <strong>${fmt(svc.price)}</strong></span><span>⏱ ${svc.duration} min</span>`;
-  }
-}
+            <div class="field">
+              <label for="contactChannelFilter">Canal</label>
+              <select id="contactChannelFilter" class="control">
+                ${channels.map(channel => `<option value="${channel}" ${state.contactChannel === channel ? "selected" : ""}>${channel}</option>`).join("")}
+              </select>
+            </div>
+          </div>
 
-async function saveClient(editId) {
-  const name = $("#f-name").value.trim();
-  const phone = $("#f-phone").value.trim();
-  if (!name || !phone) return alert("Nombre y teléfono son obligatorios.");
-  const data = {
-    name, phone,
-    email: $("#f-email").value.trim(),
-    type: $("#f-type").value,
-    status: $("#f-status").value,
-    notes: $("#f-notes").value.trim(),
-  };
-  if (editId) {
-    const c = getClient(editId);
-    Object.assign(c, data);
-    apiSave("Clientes", clientToSheet(c)); // Guardar en Sheets (async)
-  } else {
-    const newId = "C" + String(appData.clients.length + 1).padStart(3, "0");
-    const newClient = { id:newId, registered:TODAY, lastVisit:TODAY, ...data };
-    appData.clients.push(newClient);
-    apiSave("Clientes", clientToSheet(newClient)); // Guardar en Sheets (async)
-  }
-  saveData();
-  closeModal();
-  renderPage();
-}
+          ${
+            rows.length
+              ? `<div class="cards-grid">
+                  ${rows.map(contact => {
+                    const relatedOpps = opportunities.filter(o => o.contactId === contact.id);
+                    const openCount = relatedOpps.filter(o => isOpenOpportunity(o.status)).length;
+                    const wonCount = relatedOpps.filter(o => o.status === "Ganada").length;
+                    return `
+                      <div class="contact-card">
+                        <div class="card-top">
+                          <div>
+                            <h3 class="card-title">${contact.name}</h3>
+                            <div class="card-kicker">${contact.specialty}</div>
+                          </div>
+                          <span class="badge navy">${contact.id}</span>
+                        </div>
 
-async function saveAppointment() {
-  const date = $("#f-date").value;
-  const clientId = $("#f-client").value;
-  const serviceId = $("#f-service").value;
-  if (!date || !clientId || !serviceId) return alert("Completa todos los campos obligatorios.");
-  const svc = getService(serviceId);
-  const newId = "A" + String(appData.appointments.length + 1).padStart(3, "0");
-  const newAppt = {
-    id:newId, date, clientId, serviceId,
-    value: svc?.price || 0,
-    professional: $("#f-prof").value.trim(),
-    status: $("#f-appt-status").value,
-  };
-  appData.appointments.push(newAppt);
-  apiSave("Citas", appointmentToSheet(newAppt)); // Guardar en Sheets
+                        <div class="meta-grid">
+                          <div class="meta-box">
+                            <div class="label">Ciudad</div>
+                            <div class="value">${contact.city}</div>
+                          </div>
+                          <div class="meta-box">
+                            <div class="label">Canal</div>
+                            <div class="value">${contact.channel}</div>
+                          </div>
+                          <div class="meta-box">
+                            <div class="label">Oportunidades abiertas</div>
+                            <div class="value">${openCount}</div>
+                          </div>
+                          <div class="meta-box">
+                            <div class="label">Ganadas</div>
+                            <div class="value">${wonCount}</div>
+                          </div>
+                        </div>
 
-  // Actualizar última visita del cliente
-  const client = getClient(clientId);
-  if (client && date >= client.lastVisit) {
-    client.lastVisit = date;
-    apiSave("Clientes", clientToSheet(client)); // Actualizar en Sheets
-  }
-  saveData();
-  closeModal();
-  renderPage();
-}
+                        <div class="actions-row">
+                          <button class="primary-btn" data-contact-id="${contact.id}">Ver detalle</button>
+                        </div>
+                      </div>
+                    `;
+                  }).join("")}
+                </div>`
+              : emptyState("No hay contactos que coincidan con los filtros actuales.")
+          }
+        </div>
+      `;
+    }
 
-async function saveService() {
-  const name = $("#f-svc-name").value.trim();
-  const price = Number($("#f-svc-price").value);
-  if (!name || !price) return alert("Nombre y precio son obligatorios.");
-  const newId = "S" + String(appData.services.length + 1).padStart(3, "0");
-  const newSvc = {
-    id:newId, name,
-    category: $("#f-svc-cat").value,
-    price,
-    duration: Number($("#f-svc-dur").value) || 0,
-  };
-  appData.services.push(newSvc);
-  apiSave("Servicios", serviceToSheet(newSvc)); // Guardar en Sheets
-  saveData();
-  closeModal();
-  renderPage();
-}
+    /* =========================
+       RENDER: OPPORTUNITIES
+    ========================== */
+    function renderOpportunities(){
+      const rows = filteredOpportunities();
+      const statuses = ["En seguimiento", "Negociación", "Ganada", "Perdida"];
 
-/* ────────────────────────────────────────────
-   SECCIÓN J-2: Importar / Exportar Excel
-   ──────────────────────────────────────────── */
+      const filteredPipeline = status => rows.filter(o => o.status === status);
+      const weekDueCount = rows.filter(o => isOpenOpportunity(o.status) && daysBetween(today, parseDate(o.dueDate)) <= 7).length;
+      const activeValue = rows.filter(o => isOpenOpportunity(o.status)).reduce((sum, o) => sum + o.quotedValue, 0);
 
-function showToolbarStatus(msg) {
-  const el = $("#toolbar-status");
-  el.innerHTML = `<span class="toolbar-status">${msg}</span>`;
-  setTimeout(() => { el.innerHTML = ""; }, 4000);
-}
+      return `
+        <div class="summary-strip">
+          <div class="summary-chip"><span>Oportunidades visibles</span>${rows.length}</div>
+          <div class="summary-chip"><span>Valor abierto</span>${formatCurrency(activeValue)}</div>
+          <div class="summary-chip"><span>Por vencer esta semana</span>${weekDueCount}</div>
+        </div>
 
-// ── IMPORTAR EXCEL ──
-function triggerImport() {
-  $("#file-input-hidden").click();
-}
+        <div class="section-card" style="margin-bottom:16px;">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">Pipeline comercial</h2>
+              <p class="section-subtitle">Visualiza negociación, urgencia de cierre y estado de cada oportunidad.</p>
+            </div>
+          </div>
 
-function handleFileImport(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+          <div class="toolbar">
+            <div class="field">
+              <label for="oppSearch">Buscar</label>
+              <input id="oppSearch" class="control" type="text" placeholder="ID, contacto, servicio, resumen..." value="${state.oppSearch}">
+            </div>
 
-  showToolbarStatus("⏳ Leyendo archivo...");
+            <div class="field" style="max-width:260px;">
+              <label for="oppStatusFilter">Estado</label>
+              <select id="oppStatusFilter" class="control">
+                ${["Todos", "En seguimiento", "Negociación", "Ganada", "Perdida"].map(status => `<option value="${status}" ${state.oppStatus === status ? "selected" : ""}>${status}</option>`).join("")}
+              </select>
+            </div>
+          </div>
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
+          <div class="pipeline-board">
+            ${statuses.map(status => {
+              const items = filteredPipeline(status);
+              return `
+                <div class="pipeline-column">
+                  <div class="pipeline-top">
+                    <h3>${status}</h3>
+                    <div class="pipeline-count">${items.length}</div>
+                  </div>
+                  ${
+                    items.length
+                      ? `<div class="mini-stack">
+                          ${items.map(item => {
+                            const contact = getContact(item.contactId);
+                            const urgency = getOpportunityUrgency(item);
+                            return `
+                              <div class="mini-card">
+                                <strong>${contact?.name || "Contacto"}</strong>
+                                <p>${item.service} · ${item.plan}</p>
+                                <div class="mini-meta">
+                                  <span class="badge ${statusTone("opportunity", item.status)}">${item.status}</span>
+                                  <span class="badge ${urgency.tone}">${urgency.label}</span>
+                                </div>
+                              </div>
+                            `;
+                          }).join("")}
+                        </div>`
+                      : emptyState("Sin registros")
+                  }
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
 
-      const sheetNames = workbook.SheetNames.map(s => s.toLowerCase().trim());
-      let imported = { clients: [], services: [], appointments: [] };
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">Detalle de oportunidades</h2>
+              <p class="section-subtitle">Revisión estructurada para priorizar seguimiento y cierre.</p>
+            </div>
+          </div>
 
-      // ── Buscar hoja de CLIENTES ──
-      const clientSheet = workbook.SheetNames.find(s => s.toLowerCase().includes("cliente"));
-      if (clientSheet) {
-        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[clientSheet], { defval: "" });
-        imported.clients = rows.map((r, i) => ({
-          id: r["ID Cliente"] || r["ID"] || r["id"] || `C${String(i+1).padStart(3,"0")}`,
-          name: r["Nombre Completo"] || r["Nombre"] || r["nombre"] || "",
-          phone: String(r["Teléfono"] || r["Telefono"] || r["Tel"] || r["telefono"] || ""),
-          email: r["Email"] || r["Correo"] || r["email"] || "",
-          registered: String(r["Fecha Registro"] || r["Fecha de registro"] || r["Registro"] || TODAY),
-          type: r["Tipo Cliente"] || r["Tipo de cliente"] || r["Tipo"] || "Nuevo",
-          lastVisit: String(r["Última Visita"] || r["Ultima Visita"] || r["Última visita"] || TODAY),
-          status: r["Estado"] || "Activo",
-          notes: r["Observaciones"] || r["Notas"] || r["observaciones"] || "",
-        })).filter(c => c.name);
-      }
+          ${
+            rows.length
+              ? `<div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Contacto</th>
+                        <th>Servicio / Plan</th>
+                        <th>Valor cotizado</th>
+                        <th>Fecha cotización</th>
+                        <th>Fecha límite</th>
+                        <th>Estado</th>
+                        <th>Urgencia</th>
+                        <th>Resumen</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows.map(opp => {
+                        const contact = getContact(opp.contactId);
+                        const urgency = getOpportunityUrgency(opp);
+                        return `
+                          <tr>
+                            <td><span class="cell-title">${opp.id}</span></td>
+                            <td>
+                              <div class="cell-title">${contact?.name || "Contacto"}</div>
+                              <div class="cell-sub">${contact?.specialty || ""}</div>
+                            </td>
+                            <td>
+                              <div class="cell-title">${opp.service}</div>
+                              <div class="cell-sub">${opp.plan}</div>
+                            </td>
+                            <td>${formatCurrency(opp.quotedValue)}</td>
+                            <td>${formatDate(opp.quoteDate)}</td>
+                            <td>${formatDate(opp.dueDate)}</td>
+                            <td><span class="badge ${statusTone("opportunity", opp.status)}">${opp.status}</span></td>
+                            <td><span class="badge ${urgency.tone}">${urgency.label}</span></td>
+                            <td>${opp.summary}</td>
+                          </tr>
+                        `;
+                      }).join("")}
+                    </tbody>
+                  </table>
+                </div>`
+              : emptyState("No hay oportunidades que coincidan con los filtros actuales.")
+          }
+        </div>
+      `;
+    }
 
-      // ── Buscar hoja de SERVICIOS ──
-      const serviceSheet = workbook.SheetNames.find(s => s.toLowerCase().includes("servicio"));
-      if (serviceSheet) {
-        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[serviceSheet], { defval: "" });
-        imported.services = rows.map((r, i) => ({
-          id: r["ID Servicio"] || r["ID"] || `S${String(i+1).padStart(3,"0")}`,
-          name: r["Nombre del Servicio"] || r["Nombre"] || r["Servicio"] || "",
-          category: r["Categoría"] || r["Categoria"] || "Facial",
-          price: Number(r["Precio (COP)"] || r["Precio"] || r["precio"] || 0),
-          duration: Number(r["Duración (min)"] || r["Duración"] || r["Duracion"] || 0),
-        })).filter(s => s.name);
-      }
+    /* =========================
+       RENDER: PROJECTS
+    ========================== */
+    function renderProjects(){
+      const rows = filteredProjects();
+      const totalSold = rows.reduce((sum, p) => sum + p.soldValue, 0);
+      const totalPending = rows.reduce((sum, p) => sum + pendingForProject(p), 0);
 
-      // ── Buscar hoja de CITAS ──
-      const apptSheet = workbook.SheetNames.find(s =>
-        s.toLowerCase().includes("cita") || s.toLowerCase().includes("registro")
-      );
-      if (apptSheet) {
-        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[apptSheet], { defval: "" });
-        imported.appointments = rows.map((r, i) => ({
-          id: r["ID Cita"] || r["ID"] || `A${String(i+1).padStart(3,"0")}`,
-          date: String(r["Fecha"] || r["fecha"] || TODAY),
-          clientId: r["ID Cliente"] || "",
-          serviceId: r["ID Servicio"] || "",
-          value: Number(r["Valor (COP)"] || r["Valor"] || r["valor"] || 0),
-          professional: r["Profesional"] || r["profesional"] || "",
-          status: r["Estado"] || "Pendiente",
-        })).filter(a => a.date);
-      }
+      return `
+        <div class="summary-strip">
+          <div class="summary-chip"><span>Proyectos visibles</span>${rows.length}</div>
+          <div class="summary-chip"><span>Valor vendido</span>${formatCurrency(totalSold)}</div>
+          <div class="summary-chip"><span>Saldo pendiente</span>${formatCurrency(totalPending)}</div>
+        </div>
 
-      // Validar que se importó algo
-      const totalImported = imported.clients.length + imported.services.length + imported.appointments.length;
-      if (totalImported === 0) {
-        alert("⚠️ No se encontraron datos reconocibles en el archivo.\n\nAsegúrate de que el Excel tenga hojas llamadas 'Clientes', 'Servicios' o 'Registro de Citas' con las columnas correctas.\n\nUsa el botón 'Exportar Excel' para ver el formato esperado.");
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">Control de proyectos</h2>
+              <p class="section-subtitle">Sigue ejecución, relación con la oportunidad ganada y pendiente por cobrar.</p>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="field">
+              <label for="projectSearch">Buscar</label>
+              <input id="projectSearch" class="control" type="text" placeholder="Proyecto, oportunidad, servicio..." value="${state.projectSearch}">
+            </div>
+
+            <div class="field" style="max-width:260px;">
+              <label for="projectStatusFilter">Estado proyecto</label>
+              <select id="projectStatusFilter" class="control">
+                ${["Todos", "Por iniciar", "En ejecución", "Pendiente cliente", "En revisión", "Entregado"].map(status => `<option value="${status}" ${state.projectStatus === status ? "selected" : ""}>${status}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+
+          ${
+            rows.length
+              ? `<div class="cards-grid">
+                  ${rows.map(project => {
+                    const contact = getContact(project.contactId);
+                    const opportunity = getOpportunity(project.opportunityId);
+                    const received = sumPaymentsForProject(project.id, true);
+                    const pending = pendingForProject(project);
+                    const progress = projectProgress(project.status);
+                    return `
+                      <div class="project-card">
+                        <div class="card-top">
+                          <div>
+                            <h3 class="card-title">${project.id}</h3>
+                            <div class="card-kicker">${project.service} · ${project.plan}</div>
+                          </div>
+                          <span class="badge ${statusTone("project", project.status)}">${project.status}</span>
+                        </div>
+
+                        <div class="meta-grid">
+                          <div class="meta-box">
+                            <div class="label">ID Contacto</div>
+                            <div class="value">${project.contactId}</div>
+                          </div>
+                          <div class="meta-box">
+                            <div class="label">ID Oportunidad</div>
+                            <div class="value">${project.opportunityId}</div>
+                          </div>
+                          <div class="meta-box">
+                            <div class="label">Valor vendido</div>
+                            <div class="value">${formatCurrency(project.soldValue)}</div>
+                          </div>
+                          <div class="meta-box">
+                            <div class="label">Saldo pendiente</div>
+                            <div class="value">${formatCurrency(pending)}</div>
+                          </div>
+                        </div>
+
+                        <div class="muted" style="font-size:.86rem;font-weight:700;">${contact?.name || "Contacto"} · ${contact?.city || ""}</div>
+                        <div class="progress-track">
+                          <div class="progress-fill" style="width:${progress}%"></div>
+                        </div>
+
+                        <div class="tag-row">
+                          <span class="tag">Recibido: ${formatCurrency(received)}</span>
+                          <span class="tag">Origen: ${opportunity?.plan || "—"}</span>
+                        </div>
+                      </div>
+                    `;
+                  }).join("")}
+                </div>`
+              : emptyState("No hay proyectos que coincidan con los filtros actuales.")
+          }
+        </div>
+      `;
+    }
+
+    /* =========================
+       RENDER: PAYMENTS
+    ========================== */
+    function renderPayments(){
+      const rows = filteredPayments();
+
+      return `
+        <div class="kpi-grid" style="margin-bottom:16px;">
+          <div class="card metric-card">
+            <div class="metric-head">
+              <span>Ingresos confirmados</span>
+              <div class="metric-icon">↗</div>
+            </div>
+            <p class="metric-value">${formatCurrency(getMetrics().totalReceived)}</p>
+            <div class="metric-foot">Suma de pagos confirmados.</div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-head">
+              <span>Pagos pendientes/programados</span>
+              <div class="metric-icon">◎</div>
+            </div>
+            <p class="metric-value">${formatCurrency(getPendingScheduledTotal())}</p>
+            <div class="metric-foot">Monto ya previsto pero aún no confirmado.</div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-head">
+              <span>Ticket promedio</span>
+              <div class="metric-icon">◍</div>
+            </div>
+            <p class="metric-value">${formatCurrency(getAverageTicket())}</p>
+            <div class="metric-foot">Promedio por pago confirmado registrado.</div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">Registro de pagos</h2>
+              <p class="section-subtitle">Una fila por pago, sin duplicar el valor total del proyecto.</p>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="field">
+              <label for="paymentSearch">Buscar</label>
+              <input id="paymentSearch" class="control" type="text" placeholder="Pago, proyecto, contacto, método..." value="${state.paymentSearch}">
+            </div>
+
+            <div class="field" style="max-width:260px;">
+              <label for="paymentStatusFilter">Estado</label>
+              <select id="paymentStatusFilter" class="control">
+                ${["Todos", "Confirmado", "Pendiente", "Programado"].map(status => `<option value="${status}" ${state.paymentStatus === status ? "selected" : ""}>${status}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+
+          ${
+            rows.length
+              ? `<div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>ID Pago</th>
+                        <th>ID Contacto</th>
+                        <th>ID Proyecto</th>
+                        <th>Tipo de pago</th>
+                        <th>Monto recibido</th>
+                        <th>Fecha pago</th>
+                        <th>Método</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows.map(payment => {
+                        const contact = getContact(payment.contactId);
+                        return `
+                          <tr>
+                            <td><span class="cell-title">${payment.id}</span></td>
+                            <td>
+                              <div class="cell-title">${payment.contactId}</div>
+                              <div class="cell-sub">${contact?.name || ""}</div>
+                            </td>
+                            <td>${payment.projectId}</td>
+                            <td>${payment.type}</td>
+                            <td>${formatCurrency(payment.amount)}</td>
+                            <td>${formatDate(payment.date)}</td>
+                            <td>${payment.method}</td>
+                            <td><span class="badge ${statusTone("payment", payment.status)}">${payment.status}</span></td>
+                          </tr>
+                        `;
+                      }).join("")}
+                    </tbody>
+                  </table>
+                </div>`
+              : emptyState("No hay pagos que coincidan con los filtros actuales.")
+          }
+        </div>
+      `;
+    }
+
+    /* =========================
+       MODAL
+    ========================== */
+    function renderModal(){
+      const modal = document.getElementById("detailModal");
+      const content = document.getElementById("modalContent");
+
+      if (!state.modalContactId) {
+        modal.classList.remove("show");
+        content.innerHTML = "";
         return;
       }
 
-      // Confirmar importación
-      const msg = `Se encontraron:\n• ${imported.clients.length} clientes\n• ${imported.services.length} servicios\n• ${imported.appointments.length} citas\n\n¿Deseas reemplazar los datos actuales con estos?`;
-      if (!confirm(msg)) return;
+      const contact = getContact(state.modalContactId);
+      if (!contact) {
+        modal.classList.remove("show");
+        content.innerHTML = "";
+        return;
+      }
 
-      // Aplicar datos localmente
-      if (imported.clients.length > 0) appData.clients = imported.clients;
-      if (imported.services.length > 0) appData.services = imported.services;
-      if (imported.appointments.length > 0) appData.appointments = imported.appointments;
+      const relatedOpps = opportunities.filter(o => o.contactId === contact.id);
+      const relatedProjects = projects.filter(p => p.contactId === contact.id);
+      const relatedPayments = payments
+        .filter(p => p.contactId === contact.id)
+        .sort((a,b) => parseDate(b.date) - parseDate(a.date));
 
-      saveData();
-      renderPage();
-      showToolbarStatus(`⏳ Importado localmente. Subiendo a Google Sheets...`);
+      const wonValue = relatedOpps
+        .filter(o => o.status === "Ganada")
+        .reduce((sum, o) => sum + o.quotedValue, 0);
 
-      // Subir a Google Sheets en paralelo
-      const uploads = [];
-      if (imported.clients.length > 0)
-        uploads.push(apiSaveAll("Clientes", appData.clients.map(clientToSheet)));
-      if (imported.services.length > 0)
-        uploads.push(apiSaveAll("Servicios", appData.services.map(serviceToSheet)));
-      if (imported.appointments.length > 0)
-        uploads.push(apiSaveAll("Citas", appData.appointments.map(appointmentToSheet)));
+      const received = relatedPayments
+        .filter(p => p.status === "Confirmado")
+        .reduce((sum, p) => sum + p.amount, 0);
 
-      Promise.all(uploads).then(results => {
-        if (results.every(r => r)) {
-          showToolbarStatus(`✅ Importado y sincronizado: ${imported.clients.length} clientes, ${imported.services.length} servicios, ${imported.appointments.length} citas`);
-        } else {
-          showToolbarStatus(`⚠️ Importado localmente. Algunos datos no se subieron a Sheets.`);
-        }
+      content.innerHTML = `
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow" style="margin-bottom:6px;">Detalle de contacto</p>
+            <h2 style="margin:0;color:var(--navy);font-size:1.4rem;letter-spacing:-.03em;">${contact.name}</h2>
+            <p class="section-subtitle" style="margin-top:8px;">${contact.specialty} · ${contact.city} · ${contact.channel}</p>
+          </div>
+          <button class="modal-close" data-close-modal>×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="stats-grid">
+            <div class="section-card">
+              <div class="section-title" style="font-size:.88rem;margin-bottom:8px;">ID Contacto</div>
+              <div class="metric-value" style="font-size:1.3rem;">${contact.id}</div>
+            </div>
+            <div class="section-card">
+              <div class="section-title" style="font-size:.88rem;margin-bottom:8px;">Oportunidades</div>
+              <div class="metric-value" style="font-size:1.3rem;">${relatedOpps.length}</div>
+            </div>
+            <div class="section-card">
+              <div class="section-title" style="font-size:.88rem;margin-bottom:8px;">Valor ganado</div>
+              <div class="metric-value" style="font-size:1.3rem;">${formatCurrency(wonValue)}</div>
+            </div>
+            <div class="section-card">
+              <div class="section-title" style="font-size:.88rem;margin-bottom:8px;">Ingresos confirmados</div>
+              <div class="metric-value" style="font-size:1.3rem;">${formatCurrency(received)}</div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-head">
+              <div>
+                <h3 class="section-title">Oportunidades relacionadas</h3>
+                <p class="section-subtitle">Historial comercial del contacto.</p>
+              </div>
+            </div>
+            ${
+              relatedOpps.length
+                ? `<div class="list-stack">
+                    ${relatedOpps.map(opp => {
+                      const urgency = getOpportunityUrgency(opp);
+                      return `
+                        <div class="list-item">
+                          <div>
+                            <strong>${opp.id} · ${opp.service}</strong>
+                            <p>${opp.plan} · vence ${formatDate(opp.dueDate)}</p>
+                          </div>
+                          <div class="list-right">
+                            <strong>${formatCurrency(opp.quotedValue)}</strong>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+                              <span class="badge ${statusTone("opportunity", opp.status)}">${opp.status}</span>
+                              <span class="badge ${urgency.tone}">${urgency.label}</span>
+                            </div>
+                          </div>
+                        </div>
+                      `;
+                    }).join("")}
+                  </div>`
+                : emptyState("Este contacto aún no tiene oportunidades registradas.")
+            }
+          </div>
+
+          <div class="section-card">
+            <div class="section-head">
+              <div>
+                <h3 class="section-title">Proyectos</h3>
+                <p class="section-subtitle">Ejecución posterior al cierre comercial.</p>
+              </div>
+            </div>
+            ${
+              relatedProjects.length
+                ? `<div class="list-stack">
+                    ${relatedProjects.map(project => `
+                      <div class="list-item">
+                        <div>
+                          <strong>${project.id} · ${project.service}</strong>
+                          <p>${project.plan} · oportunidad ${project.opportunityId}</p>
+                        </div>
+                        <div class="list-right">
+                          <strong>${formatCurrency(project.soldValue)}</strong>
+                          <span class="badge ${statusTone("project", project.status)}">${project.status}</span>
+                        </div>
+                      </div>
+                    `).join("")}
+                  </div>`
+                : emptyState("Este contacto aún no tiene proyectos asociados.")
+            }
+          </div>
+
+          <div class="section-card">
+            <div class="section-head">
+              <div>
+                <h3 class="section-title">Pagos</h3>
+                <p class="section-subtitle">Movimientos financieros vinculados al contacto.</p>
+              </div>
+            </div>
+            ${
+              relatedPayments.length
+                ? `<div class="list-stack">
+                    ${relatedPayments.map(payment => `
+                      <div class="list-item">
+                        <div>
+                          <strong>${payment.id} · ${payment.projectId}</strong>
+                          <p>${payment.type} · ${payment.method} · ${formatDate(payment.date)}</p>
+                        </div>
+                        <div class="list-right">
+                          <strong>${formatCurrency(payment.amount)}</strong>
+                          <span class="badge ${statusTone("payment", payment.status)}">${payment.status}</span>
+                        </div>
+                      </div>
+                    `).join("")}
+                  </div>`
+                : emptyState("Este contacto aún no tiene pagos registrados.")
+            }
+          </div>
+        </div>
+      `;
+
+      modal.classList.add("show");
+    }
+
+    /* =========================
+       NAV / APP
+    ========================== */
+    function setActiveView(view){
+      state.activeView = view;
+      document.getElementById("viewTitle").textContent = viewTitles[view] || "Dashboard";
+
+      document.querySelectorAll("[data-view]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.view === view);
       });
 
-    } catch (err) {
-      console.error("Error al importar:", err);
-      alert("❌ Error al leer el archivo Excel.\n\nVerifica que sea un archivo .xlsx válido.");
+      document.querySelectorAll(".view").forEach(section => {
+        section.classList.toggle("active", section.id === `${view}View`);
+      });
     }
-  };
-  reader.readAsArrayBuffer(file);
-  // Reset para permitir reimportar el mismo archivo
-  event.target.value = "";
-}
 
-// ── EXPORTAR A EXCEL ──
-function exportToExcel() {
-  try {
-    const wb = XLSX.utils.book_new();
+    function renderAll(){
+      document.getElementById("dashboardView").innerHTML = renderDashboard();
+      document.getElementById("contactsView").innerHTML = renderContacts();
+      document.getElementById("opportunitiesView").innerHTML = renderOpportunities();
+      document.getElementById("projectsView").innerHTML = renderProjects();
+      document.getElementById("paymentsView").innerHTML = renderPayments();
+      setActiveView(state.activeView);
+      renderModal();
+    }
 
-    // Hoja: Clientes
-    const clientHeaders = ["ID Cliente", "Nombre Completo", "Teléfono", "Email", "Fecha Registro", "Tipo Cliente", "Última Visita", "Estado", "Observaciones"];
-    const clientRows = appData.clients.map(c => [c.id, c.name, c.phone, c.email, c.registered, c.type, c.lastVisit, c.status, c.notes]);
-    const wsClients = XLSX.utils.aoa_to_sheet([clientHeaders, ...clientRows]);
-    wsClients["!cols"] = [{ wch:12 },{ wch:28 },{ wch:14 },{ wch:24 },{ wch:14 },{ wch:14 },{ wch:14 },{ wch:12 },{ wch:34 }];
-    XLSX.utils.book_append_sheet(wb, wsClients, "Clientes");
+    function showToast(message){
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
 
-    // Hoja: Servicios
-    const svcHeaders = ["ID Servicio", "Nombre del Servicio", "Categoría", "Precio (COP)", "Duración (min)"];
-    const svcRows = appData.services.map(s => [s.id, s.name, s.category, s.price, s.duration]);
-    const wsSvc = XLSX.utils.aoa_to_sheet([svcHeaders, ...svcRows]);
-    wsSvc["!cols"] = [{ wch:12 },{ wch:30 },{ wch:14 },{ wch:14 },{ wch:14 }];
-    XLSX.utils.book_append_sheet(wb, wsSvc, "Servicios");
+    /* =========================
+       EVENTS
+    ========================== */
+    document.addEventListener("click", (e) => {
+      const nav = e.target.closest("[data-view]");
+      const detail = e.target.closest("[data-contact-id]");
+      const closeModalBtn = e.target.closest("[data-close-modal]");
 
-    // Hoja: Registro de Citas
-    const apptHeaders = ["ID Cita", "Fecha", "ID Cliente", "Nombre Cliente", "ID Servicio", "Servicio", "Valor (COP)", "Profesional", "Estado"];
-    const apptRows = appData.appointments.map(a => {
-      const c = getClient(a.clientId);
-      const s = getService(a.serviceId);
-      return [a.id, a.date, a.clientId, c?.name||"", a.serviceId, s?.name||"", a.value, a.professional, a.status];
+      if (nav) {
+        setActiveView(nav.dataset.view);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      if (detail) {
+        state.modalContactId = detail.dataset.contactId;
+        renderModal();
+      }
+
+      if (closeModalBtn) {
+        state.modalContactId = null;
+        renderModal();
+      }
+
+      if (e.target.id === "detailModal") {
+        state.modalContactId = null;
+        renderModal();
+      }
+
+      if (e.target.id === "syncBtn") {
+        showToast("Sincronización simulada: listo para conectar con Google Sheets.");
+      }
     });
-    const wsAppt = XLSX.utils.aoa_to_sheet([apptHeaders, ...apptRows]);
-    wsAppt["!cols"] = [{ wch:10 },{ wch:12 },{ wch:12 },{ wch:26 },{ wch:12 },{ wch:28 },{ wch:14 },{ wch:14 },{ wch:12 }];
-    XLSX.utils.book_append_sheet(wb, wsAppt, "Registro de Citas");
 
-    // Descargar
-    const fecha = new Date().toISOString().slice(0,10);
-    XLSX.writeFile(wb, `AuraSpa_Backup_${fecha}.xlsx`);
-    showToolbarStatus("✅ Excel exportado exitosamente");
+    document.addEventListener("input", (e) => {
+      if (e.target.id === "contactSearch") {
+        state.contactSearch = e.target.value;
+        document.getElementById("contactsView").innerHTML = renderContacts();
+      }
+      if (e.target.id === "oppSearch") {
+        state.oppSearch = e.target.value;
+        document.getElementById("opportunitiesView").innerHTML = renderOpportunities();
+      }
+      if (e.target.id === "projectSearch") {
+        state.projectSearch = e.target.value;
+        document.getElementById("projectsView").innerHTML = renderProjects();
+      }
+      if (e.target.id === "paymentSearch") {
+        state.paymentSearch = e.target.value;
+        document.getElementById("paymentsView").innerHTML = renderPayments();
+      }
+    });
 
-  } catch (err) {
-    console.error("Error al exportar:", err);
-    alert("❌ Error al generar el archivo Excel.");
-  }
-}
+    document.addEventListener("change", (e) => {
+      if (e.target.id === "contactCityFilter") {
+        state.contactCity = e.target.value;
+        document.getElementById("contactsView").innerHTML = renderContacts();
+      }
+      if (e.target.id === "contactChannelFilter") {
+        state.contactChannel = e.target.value;
+        document.getElementById("contactsView").innerHTML = renderContacts();
+      }
+      if (e.target.id === "oppStatusFilter") {
+        state.oppStatus = e.target.value;
+        document.getElementById("opportunitiesView").innerHTML = renderOpportunities();
+      }
+      if (e.target.id === "projectStatusFilter") {
+        state.projectStatus = e.target.value;
+        document.getElementById("projectsView").innerHTML = renderProjects();
+      }
+      if (e.target.id === "paymentStatusFilter") {
+        state.paymentStatus = e.target.value;
+        document.getElementById("paymentsView").innerHTML = renderPayments();
+      }
+    });
 
-// ── RESTAURAR DATOS DE EJEMPLO ──
-function resetData() {
-  if (!confirm("⚠️ Esto reemplazará los datos locales con los datos de ejemplo.\n\nPara sincronizar con Google Sheets, usa el botón 'Sincronizar'.\n\n¿Continuar?")) return;
-  appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-  saveData();
-  renderPage();
-  showToolbarStatus("✅ Datos de ejemplo restaurados (solo local)");
-}
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        state.modalContactId = null;
+        renderModal();
+      }
+    });
 
-/* ────────────────────────────────────────────
-   SECCIÓN K: Inicialización
-   ──────────────────────────────────────────── */
-async function init() {
-  // Mostrar estado de carga
-  const wrapper = $("#page-wrapper");
-  if (wrapper) {
-    wrapper.innerHTML = `
-      <div style="display:flex;justify-content:center;align-items:center;min-height:50vh;flex-direction:column;gap:12px">
-        <div style="font-size:40px">🌿</div>
-        <div style="font-family:var(--font-display);font-size:20px;color:var(--cafe-medio)">Conectando con Google Sheets...</div>
-        <div style="font-size:13px;color:var(--cafe-suave)">Si no hay conexión, se usarán datos locales</div>
-      </div>
-    `;
-  }
-  await loadData();
-  buildNav();
-  renderPage();
-}
-init();
-
-</script>
+    /* =========================
+       INIT
+    ========================== */
+    renderAll();
+  </script>
 </body>
 </html>

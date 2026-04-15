@@ -1010,61 +1010,163 @@
 
   <script>
     /* =========================
-       DATA SIMULADA
+       API / DATA
     ========================== */
-    const today = new Date(2026, 3, 15);
+    const API_URL = "https://script.google.com/macros/s/AKfycbzJonCm-tnYbixIkog2gHX2JgbKXMau3RwnuqT6n8ijHwHoncTodb9QlfdU3bwDPAUEWw/exec";
+    const STORAGE_KEY = "stepup-sbs-dashboard-v1";
 
-    const contacts = [
-      { id: "CT-001", name: "Dra. Laura Sánchez", specialty: "Odontología estética", city: "Manizales", channel: "LinkedIn" },
-      { id: "CT-002", name: "Patricia Gómez", specialty: "Spa & bienestar", city: "Pereira", channel: "Referido" },
-      { id: "CT-003", name: "Carlos Mejía", specialty: "Cirugía plástica", city: "Medellín", channel: "Landing" },
-      { id: "CT-004", name: "Valentina Ruiz", specialty: "Dermatología", city: "Bogotá", channel: "Instagram" },
-      { id: "CT-005", name: "Andrés Villegas", specialty: "Arquitectura interior", city: "Cali", channel: "WhatsApp" },
-      { id: "CT-006", name: "Juliana Ocampo", specialty: "Consultoría legal", city: "Medellín", channel: "Facebook Ads" },
-      { id: "CT-007", name: "Mateo Cárdenas", specialty: "Clínica capilar", city: "Bogotá", channel: "LinkedIn" },
-      { id: "CT-008", name: "Andrea Henao", specialty: "Coaching ejecutivo", city: "Manizales", channel: "Landing" },
-      { id: "CT-009", name: "Santiago Rojas", specialty: "Medicina funcional", city: "Barranquilla", channel: "Referido" },
-      { id: "CT-010", name: "Isabella Torres", specialty: "Real estate boutique", city: "Miami", channel: "LinkedIn" }
-    ];
+    let contacts = [];
+    let opportunities = [];
+    let projects = [];
+    let payments = [];
 
-    const opportunities = [
-      { id: "OP-0996", contactId: "CT-001", service: "CRM de seguimiento", plan: "Basic", quotedValue: 1800000, quoteDate: "2026-02-24", dueDate: "2026-03-02", status: "Ganada", summary: "Sistema ligero para seguimiento comercial y control de leads." },
-      { id: "OP-0997", contactId: "CT-006", service: "Automatización de leads", plan: "Growth", quotedValue: 2600000, quoteDate: "2026-03-08", dueDate: "2026-03-15", status: "Ganada", summary: "Captura desde landing + organización inicial en Google Sheets." },
-      { id: "OP-0998", contactId: "CT-002", service: "Landing comercial", plan: "Premium", quotedValue: 2100000, quoteDate: "2026-03-10", dueDate: "2026-03-18", status: "Ganada", summary: "Landing con enfoque en captación y formulario de contacto." },
-      { id: "OP-1001", contactId: "CT-001", service: "Landing One Page", plan: "Essential", quotedValue: 1500000, quoteDate: "2026-04-07", dueDate: "2026-04-18", status: "Negociación", summary: "Landing estética con CTA a WhatsApp y agendamiento." },
-      { id: "OP-1002", contactId: "CT-002", service: "CRM ligero", plan: "Growth", quotedValue: 2400000, quoteDate: "2026-04-03", dueDate: "2026-04-16", status: "En seguimiento", summary: "Dashboard simple de clientes, sesiones y pagos." },
-      { id: "OP-1003", contactId: "CT-003", service: "Landing + Automatización", plan: "Commercial", quotedValue: 3200000, quoteDate: "2026-03-26", dueDate: "2026-04-06", status: "Ganada", summary: "Landing comercial con conexión operativa para leads." },
-      { id: "OP-1004", contactId: "CT-004", service: "Sitio web", plan: "Premium", quotedValue: 4200000, quoteDate: "2026-03-18", dueDate: "2026-03-30", status: "Perdida", summary: "Proyecto completo de presencia digital y fichas de servicios." },
-      { id: "OP-1005", contactId: "CT-005", service: "Landing One Page", plan: "Essential", quotedValue: 1300000, quoteDate: "2026-04-10", dueDate: "2026-04-20", status: "En seguimiento", summary: "Página de captación para estudio boutique." },
-      { id: "OP-1006", contactId: "CT-006", service: "Sistema de reservas", plan: "Custom", quotedValue: 3800000, quoteDate: "2026-04-02", dueDate: "2026-04-17", status: "Negociación", summary: "Formulario avanzado con disponibilidad y gestión de solicitudes." },
-      { id: "OP-1007", contactId: "CT-007", service: "Mantenimiento web", plan: "Retainer", quotedValue: 900000, quoteDate: "2026-03-28", dueDate: "2026-04-08", status: "Ganada", summary: "Soporte mensual y ajustes de conversión." },
-      { id: "OP-1008", contactId: "CT-008", service: "Landing + CRM", plan: "Commercial", quotedValue: 2800000, quoteDate: "2026-04-11", dueDate: "2026-04-25", status: "En seguimiento", summary: "Página de registro + tablero operativo básico." },
-      { id: "OP-1009", contactId: "CT-009", service: "Dashboard operativo", plan: "Custom", quotedValue: 3500000, quoteDate: "2026-04-01", dueDate: "2026-04-14", status: "Perdida", summary: "Panel interno para control de pacientes y pagos." },
-      { id: "OP-1010", contactId: "CT-010", service: "Landing internacional", plan: "Premium", quotedValue: 4600000, quoteDate: "2026-04-12", dueDate: "2026-04-22", status: "Negociación", summary: "Landing bilingüe con enfoque en autoridad y generación de leads." }
-    ];
+    function toISODate(value){
+      if (!value) return "";
+      if (typeof value === "string") {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+        const parsed = new Date(value);
+        if (!Number.isNaN(parsed.getTime())) return parsed.toISOString().slice(0,10);
+      }
+      if (Object.prototype.toString.call(value) === "[object Date]" && !Number.isNaN(value.getTime())) {
+        return value.toISOString().slice(0,10);
+      }
+      return "";
+    }
 
-    const projects = [
-      { id: "PR-5001", contactId: "CT-003", opportunityId: "OP-1003", service: "Landing + Automatización", plan: "Commercial", status: "En ejecución", soldValue: 3200000 },
-      { id: "PR-5002", contactId: "CT-007", opportunityId: "OP-1007", service: "Mantenimiento web", plan: "Retainer", status: "En revisión", soldValue: 900000 },
-      { id: "PR-5003", contactId: "CT-002", opportunityId: "OP-0998", service: "Landing comercial", plan: "Premium", status: "Pendiente cliente", soldValue: 2100000 },
-      { id: "PR-5004", contactId: "CT-006", opportunityId: "OP-0997", service: "Automatización de leads", plan: "Growth", status: "Entregado", soldValue: 2600000 },
-      { id: "PR-5005", contactId: "CT-001", opportunityId: "OP-0996", service: "CRM de seguimiento", plan: "Basic", status: "Por iniciar", soldValue: 1800000 }
-    ];
+    function toNumber(value){
+      if (value === null || value === undefined || value === "") return 0;
+      if (typeof value === "number") return value;
+      const cleaned = String(value).replace(/[^\d.-]/g, "");
+      const num = Number(cleaned);
+      return Number.isFinite(num) ? num : 0;
+    }
 
-    const payments = [
-      { id: "PY-9001", contactId: "CT-003", projectId: "PR-5001", type: "Abono inicial", amount: 1200000, date: "2026-04-07", method: "Transferencia", status: "Confirmado" },
-      { id: "PY-9002", contactId: "CT-003", projectId: "PR-5001", type: "Segundo pago", amount: 800000, date: "2026-04-12", method: "Wompi", status: "Confirmado" },
-      { id: "PY-9003", contactId: "CT-007", projectId: "PR-5002", type: "Pago único", amount: 900000, date: "2026-04-09", method: "Transferencia", status: "Confirmado" },
-      { id: "PY-9004", contactId: "CT-002", projectId: "PR-5003", type: "Abono inicial", amount: 700000, date: "2026-03-20", method: "Wompi", status: "Confirmado" },
-      { id: "PY-9005", contactId: "CT-006", projectId: "PR-5004", type: "Abono inicial", amount: 1300000, date: "2026-03-18", method: "Transferencia", status: "Confirmado" },
-      { id: "PY-9006", contactId: "CT-006", projectId: "PR-5004", type: "Pago final", amount: 1300000, date: "2026-03-28", method: "Transferencia", status: "Confirmado" },
-      { id: "PY-9007", contactId: "CT-001", projectId: "PR-5005", type: "Abono inicial", amount: 600000, date: "2026-04-11", method: "PayPal", status: "Confirmado" },
-      { id: "PY-9008", contactId: "CT-001", projectId: "PR-5005", type: "Segundo pago", amount: 600000, date: "2026-04-18", method: "Transferencia", status: "Pendiente" },
-      { id: "PY-9009", contactId: "CT-002", projectId: "PR-5003", type: "Pago final", amount: 1400000, date: "2026-04-22", method: "Wompi", status: "Programado" },
-      { id: "PY-9010", contactId: "CT-003", projectId: "PR-5001", type: "Pago final", amount: 1200000, date: "2026-04-25", method: "Transferencia", status: "Programado" }
-    ];
+    function mapContactoRows(rows){
+      return rows.map(row => ({
+        id: row["ID Contacto"] || "",
+        date: toISODate(row["Fecha contacto"]),
+        name: row["Nombre contacto"] || "Sin nombre",
+        specialty: row["Negocio / Especialidad"] || "Sin especificar",
+        city: row["Ciudad"] || "Sin ciudad",
+        phone: String(row["WhatsApp"] || ""),
+        email: row["Email"] || "",
+        channel: row["Canal de ingreso lead"] || "Otro",
+        interest: row["Servicio de Interés"] || "",
+        notes: row["Observaciones"] || ""
+      })).filter(item => item.id);
+    }
 
-    /* =========================
+    function mapOpportunityRows(rows){
+      return rows.map(row => ({
+        id: row["ID Oportunidad"] || "",
+        contactId: row["ID Contacto"] || "",
+        contactName: row["Nombre contacto"] || "",
+        service: row["Servicio"] || "Sin servicio",
+        plan: row["Plan"] || "Sin plan",
+        quotedValue: toNumber(row["Valor cotizado"]),
+        quoteDate: toISODate(row["Fecha cotización"]),
+        dueDate: toISODate(row["Fecha límite"]),
+        status: row["Estado Oportunidad"] || "En seguimiento",
+        lossReason: row["Motivo de la Pérdida"] || "",
+        summary: row["Resumen"] || ""
+      })).filter(item => item.id);
+    }
+
+    function mapProjectRows(rows){
+      return rows.map(row => ({
+        id: row["ID Proyecto"] || "",
+        contactId: row["ID Contacto"] || "",
+        contactName: row["Nombre contacto"] || "",
+        opportunityId: row["ID Oportunidad"] || "",
+        service: row["Servicio"] || "Sin servicio",
+        plan: row["Plan contratado"] || "Sin plan",
+        startDate: toISODate(row["Fecha inicio"]),
+        estimatedDate: toISODate(row["Fecha entrega estimada"]),
+        realDate: toISODate(row["Fecha entrega real"]),
+        status: row["Estado proyecto"] || "Por iniciar",
+        responsible: row["Responsable"] || "Marisol Valencia",
+        referredBy: row["Referido por"] || "Directo",
+        soldValue: toNumber(row["Valor vendido"]),
+        sheetPending: toNumber(row["Saldo pendiente"]),
+        projectLink: row["Link del proyecto"] || "",
+        notes: row["Observaciones"] || ""
+      })).filter(item => item.id);
+    }
+
+    function mapPaymentRows(rows){
+      return rows.map(row => ({
+        id: row["ID Pago"] || "",
+        projectId: row["ID Proyecto"] || "",
+        contactId: row["ID Contacto"] || "",
+        contactName: row["Nombre contacto"] || "",
+        type: row["Tipo"] || "Pago único",
+        amount: toNumber(row["Monto recibido"]),
+        date: toISODate(row["Fecha pago"]),
+        method: row["Método pago"] || "Transferencia",
+        status: row["Estado pago"] || "Pendiente",
+        commitmentDate: toISODate(row["Fecha compromiso saldo"]),
+        notes: row["Observaciones"] || ""
+      })).filter(item => item.id);
+    }
+
+    async function fetchSheet(sheetName){
+      const response = await fetch(`${API_URL}?action=getAll&sheet=${encodeURIComponent(sheetName)}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const json = await response.json();
+      if (!json.success) throw new Error(json.error || `Error loading ${sheetName}`);
+      return json.data || [];
+    }
+
+    function saveLocalCache(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        contacts, opportunities, projects, payments
+      }));
+    }
+
+    function loadLocalCache(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      try {
+        const parsed = JSON.parse(raw);
+        contacts = parsed.contacts || [];
+        opportunities = parsed.opportunities || [];
+        projects = parsed.projects || [];
+        payments = parsed.payments || [];
+        return true;
+      } catch (error) {
+        console.warn("No se pudo leer cache local", error);
+        return false;
+      }
+    }
+
+    async function loadData(showMessage = false){
+      try {
+        const [contactRows, opportunityRows, projectRows, paymentRows] = await Promise.all([
+          fetchSheet("Contacto"),
+          fetchSheet("Oportunidades"),
+          fetchSheet("Proyectos"),
+          fetchSheet("Pagos")
+        ]);
+
+        contacts = mapContactoRows(contactRows);
+        opportunities = mapOpportunityRows(opportunityRows);
+        projects = mapProjectRows(projectRows);
+        payments = mapPaymentRows(paymentRows);
+
+        saveLocalCache();
+        if (showMessage) showToast("Sincronización completada con Google Sheets.");
+      } catch (error) {
+        console.error("Error conectando con Google Sheets:", error);
+        const hasCache = loadLocalCache();
+        if (showMessage) {
+          showToast(hasCache ? "No se pudo sincronizar. Se cargó la copia local." : "No se pudo conectar con Google Sheets.");
+        }
+      }
+    }
+
+    const today = new Date();
+
+/* =========================
        STATE
     ========================== */
     const state = {
@@ -1122,17 +1224,23 @@
     }
 
     function formatDate(value){
-      return dateFmt.format(parseDate(value));
+      if (!value) return "—";
+      const parsed = parseDate(value);
+      if (Number.isNaN(parsed.getTime())) return "—";
+      return dateFmt.format(parsed);
     }
 
     function daysBetween(baseDate, targetDate){
+      if (!(baseDate instanceof Date) || !(targetDate instanceof Date) || Number.isNaN(baseDate.getTime()) || Number.isNaN(targetDate.getTime())) {
+        return 9999;
+      }
       const start = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
       const end = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
       return Math.round((end - start) / 86400000);
     }
 
     function isOpenOpportunity(status){
-      return status === "En seguimiento" || status === "Negociación";
+      return status === "Cotización enviada" || status === "En seguimiento" || status === "En negociación";
     }
 
     function getContact(contactId){
@@ -1149,7 +1257,7 @@
 
     function sumPaymentsForProject(projectId, onlyConfirmed = true){
       return payments
-        .filter(p => p.projectId === projectId && (!onlyConfirmed || p.status === "Confirmado"))
+        .filter(p => p.projectId === projectId && (!onlyConfirmed || isReceivedPayment(p.status)))
         .reduce((sum, p) => sum + p.amount, 0);
     }
 
@@ -1160,32 +1268,37 @@
     function statusTone(type, status){
       const maps = {
         opportunity: {
+          "Cotización enviada": "navy",
           "En seguimiento": "amber",
-          "Negociación": "teal",
+          "En negociación": "teal",
           "Ganada": "green",
-          "Perdida": "red"
+          "Perdida": "red",
+          "Pausada": "violet"
         },
         project: {
           "Por iniciar": "navy",
           "En ejecución": "teal",
           "Pendiente cliente": "amber",
           "En revisión": "violet",
-          "Entregado": "green"
+          "Entregado": "green",
+          "Pausado": "gray"
         },
         payment: {
-          "Confirmado": "green",
+          "Pagado": "green",
           "Pendiente": "amber",
-          "Programado": "navy",
-          "Rechazado": "red"
+          "Abono parcial": "teal",
+          "Vencido": "red"
         }
       };
-      return maps[type][status] || "gray";
+      return (maps[type] && maps[type][status]) || "gray";
     }
 
     function getOpportunityUrgency(opportunity){
+      if (opportunity.status === "Pausada") return { label: "Pausada", tone: "violet" };
       if (!isOpenOpportunity(opportunity.status)) {
         return { label: "Cerrada", tone: "gray" };
       }
+      if (!opportunity.dueDate) return { label: "Sin fecha", tone: "gray" };
       const days = daysBetween(today, parseDate(opportunity.dueDate));
       if (days < 0) return { label: "Atrasada", tone: "red" };
       if (days <= 2) return { label: "Urgente", tone: "red" };
@@ -1199,14 +1312,15 @@
         "En ejecución": 55,
         "Pendiente cliente": 70,
         "En revisión": 88,
-        "Entregado": 100
+        "Entregado": 100,
+        "Pausado": 50
       };
       return map[status] || 0;
     }
 
     function getMetrics(){
       const totalReceived = payments
-        .filter(p => p.status === "Confirmado")
+        .filter(p => isReceivedPayment(p.status))
         .reduce((sum, p) => sum + p.amount, 0);
 
       const pendingBalance = projects.reduce((sum, project) => sum + pendingForProject(project), 0);
@@ -1264,20 +1378,20 @@
 
     function getMonthlyConfirmedTotal(){
       return payments
-        .filter(p => p.status === "Confirmado")
+        .filter(p => isReceivedPayment(p.status))
         .filter(p => parseDate(p.date).getMonth() === today.getMonth() && parseDate(p.date).getFullYear() === today.getFullYear())
         .reduce((sum, p) => sum + p.amount, 0);
     }
 
     function getAverageTicket(){
-      const confirmed = payments.filter(p => p.status === "Confirmado");
+      const confirmed = payments.filter(p => isReceivedPayment(p.status));
       if (!confirmed.length) return 0;
       return confirmed.reduce((sum, p) => sum + p.amount, 0) / confirmed.length;
     }
 
     function getPendingScheduledTotal(){
       return payments
-        .filter(p => p.status !== "Confirmado")
+        .filter(p => !isReceivedPayment(p.status))
         .reduce((sum, p) => sum + p.amount, 0);
     }
 
@@ -1728,7 +1842,7 @@
     ========================== */
     function renderOpportunities(){
       const rows = filteredOpportunities();
-      const statuses = ["En seguimiento", "Negociación", "Ganada", "Perdida"];
+      const statuses = ["Cotización enviada", "En seguimiento", "En negociación", "Ganada", "Perdida", "Pausada"];
 
       const filteredPipeline = status => rows.filter(o => o.status === status);
       const weekDueCount = rows.filter(o => isOpenOpportunity(o.status) && daysBetween(today, parseDate(o.dueDate)) <= 7).length;
@@ -1758,7 +1872,7 @@
             <div class="field" style="max-width:260px;">
               <label for="oppStatusFilter">Estado</label>
               <select id="oppStatusFilter" class="control">
-                ${["Todos", "En seguimiento", "Negociación", "Ganada", "Perdida"].map(status => `<option value="${status}" ${state.oppStatus === status ? "selected" : ""}>${status}</option>`).join("")}
+                ${["Todos", "Cotización enviada", "En seguimiento", "En negociación", "Ganada", "Perdida", "Pausada"].map(status => `<option value="${status}" ${state.oppStatus === status ? "selected" : ""}>${status}</option>`).join("")}
               </select>
             </div>
           </div>
@@ -1888,7 +2002,7 @@
             <div class="field" style="max-width:260px;">
               <label for="projectStatusFilter">Estado proyecto</label>
               <select id="projectStatusFilter" class="control">
-                ${["Todos", "Por iniciar", "En ejecución", "Pendiente cliente", "En revisión", "Entregado"].map(status => `<option value="${status}" ${state.projectStatus === status ? "selected" : ""}>${status}</option>`).join("")}
+                ${["Todos", "Por iniciar", "En ejecución", "Pendiente cliente", "En revisión", "Entregado", "Pausado"].map(status => `<option value="${status}" ${state.projectStatus === status ? "selected" : ""}>${status}</option>`).join("")}
               </select>
             </div>
           </div>
@@ -2003,7 +2117,7 @@
             <div class="field" style="max-width:260px;">
               <label for="paymentStatusFilter">Estado</label>
               <select id="paymentStatusFilter" class="control">
-                ${["Todos", "Confirmado", "Pendiente", "Programado"].map(status => `<option value="${status}" ${state.paymentStatus === status ? "selected" : ""}>${status}</option>`).join("")}
+                ${["Todos", "Pagado", "Pendiente", "Abono parcial", "Vencido"].map(status => `<option value="${status}" ${state.paymentStatus === status ? "selected" : ""}>${status}</option>`).join("")}
               </select>
             </div>
           </div>
@@ -2083,7 +2197,7 @@
         .reduce((sum, o) => sum + o.quotedValue, 0);
 
       const received = relatedPayments
-        .filter(p => p.status === "Confirmado")
+        .filter(p => isReceivedPayment(p.status))
         .reduce((sum, p) => sum + p.amount, 0);
 
       content.innerHTML = `
@@ -2273,7 +2387,7 @@
       }
 
       if (e.target.id === "syncBtn") {
-        showToast("Sincronización simulada: listo para conectar con Google Sheets.");
+        loadData(true).then(() => renderAll());
       }
     });
 
@@ -2329,7 +2443,17 @@
     /* =========================
        INIT
     ========================== */
-    renderAll();
+    async function initApp(){
+      document.getElementById("dateChip").textContent = dateFmt.format(today);
+      document.getElementById("dashboardView").innerHTML = emptyState("Cargando información desde Google Sheets...");
+      await loadData(false);
+      renderAll();
+      if (!contacts.length && !opportunities.length && !projects.length && !payments.length) {
+        showToast("Dashboard listo, pero no se encontraron registros.");
+      }
+    }
+
+    initApp();
   </script>
 </body>
 </html>

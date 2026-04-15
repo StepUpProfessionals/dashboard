@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Aura Spa Medellín — Sistema de Gestión</title>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FUENTES
+     ═══════════════════════════════════════════════════════ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Librería SheetJS para leer/escribir archivos Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CSS — ESTILOS
+     Sección 1: Variables y Reset
+     Sección 2: Layout Principal
+     Sección 3: Sidebar / Navegación
+     Sección 4: Componentes Reutilizables
+     Sección 5: Dashboard
+     Sección 6: Tablas y Tarjetas
+     Sección 7: Modales / Formularios
+     Sección 8: Responsive (Mobile/Tablet)
+     ═══════════════════════════════════════════════════════ -->
+<style>
+
+/* ────────────────────────────────────────────
+   SECCIÓN 1: Variables y Reset
+   ──────────────────────────────────────────── */
+:root {
+  --verde: #7c9a92;
+  --verde-oscuro: #5a7d74;
+  --crema: #faf8f5;
+  --crema-oscuro: #f0ebe4;
+  --cafe: #3a302b;
+  --cafe-medio: #5a4a42;
+  --cafe-claro: #8a7a70;
+  --cafe-suave: #a89888;
+  --borde: #e0d6cc;
+  --terracota: #a67c6d;
+  --morado: #8b7da8;
+  --dorado: #c4956a;
+  --rojo: #c62828;
+  --rojo-bg: #fce4ec;
+  --naranja: #e65100;
+  --naranja-bg: #fff3e0;
+  --verde-estado: #2e7d32;
+  --verde-estado-bg: #e8f5e9;
+  --azul: #1565c0;
+  --azul-bg: #e3f2fd;
+  --vip-bg: #f3e5f5;
+  --vip-text: #6a1b9a;
+  --frecuente-bg: #e0f2f1;
+  --frecuente-text: #00695c;
+  --nuevo-bg: #e3f2fd;
+  --nuevo-text: #1565c0;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 12px rgba(90,74,66,0.06);
+  --sidebar-width: 240px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  background: linear-gradient(160deg, var(--crema) 0%, var(--crema-oscuro) 50%, #e8e0d8 100%);
+  color: var(--cafe);
+  min-height: 100vh;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #c4b5a8; border-radius: 3px; }
+
+/* ────────────────────────────────────────────
+   SECCIÓN 2: Layout Principal
+   ──────────────────────────────────────────── */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  padding: 24px;
+  min-height: 100vh;
+}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--cafe);
+}
+.page-header .subtitle {
+  font-size: 13px;
+  color: var(--cafe-suave);
+  margin-top: 4px;
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN 3: Sidebar / Navegación
+   ──────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-width);
+  background: white;
+  border-right: 1px solid #e8e0d8;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 800;
+}
+.sidebar-logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.sidebar-logo .icon { font-size: 28px; margin-bottom: 4px; }
+.sidebar-logo .brand {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--cafe-medio);
+  letter-spacing: 1px;
+}
+.sidebar-logo .city {
+  font-size: 11px;
+  color: var(--cafe-suave);
+  letter-spacing: 2px;
+  margin-top: 2px;
+}
+.sidebar nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.nav-item {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  transition: all 0.15s;
+  border: none;
+  background: none;
+  color: var(--cafe);
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+}
+.nav-item:hover { background: rgba(124,154,146,0.1); }
+.nav-item.active { background: rgba(124,154,146,0.15); color: var(--verde-oscuro); font-weight: 600; }
+.sidebar-footer {
+  font-size: 11px;
+  color: #b0a090;
+  text-align: center;
+  padding: 12px 0;
+  border-top: 1px solid var(--crema-oscuro);
+}
+
+/* Mobile bottom bar */
+.mobile-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: white;
+  border-top: 1px solid var(--borde);
+  z-index: 900;
+  padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+  justify-content: space-around;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+}
+.mobile-bar button {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--cafe-claro);
+  padding: 6px 8px;
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+.mobile-bar button.active { color: var(--verde-oscuro); font-weight: 600; }
+.mobile-bar button .nav-icon { font-size: 20px; }
+
+/* ────────────────────────────────────────────
+   SECCIÓN 4: Componentes Reutilizables
+   ──────────────────────────────────────────── */
+.card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(90,74,66,0.06);
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.btn-primary { background: linear-gradient(135deg, var(--verde), var(--verde-oscuro)); color: white; }
+.btn-secondary { background: #f5f0eb; color: var(--cafe-medio); }
+.btn-sm { font-size: 12px; padding: 6px 12px; }
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: #fefdfb;
+  transition: border-color 0.2s;
+  outline: none;
+  font-family: var(--font-body);
+}
+.input:focus { border-color: var(--verde); }
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a4a42' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.badge-vip { background: var(--vip-bg); color: var(--vip-text); }
+.badge-frecuente { background: var(--frecuente-bg); color: var(--frecuente-text); }
+.badge-nuevo { background: var(--nuevo-bg); color: var(--nuevo-text); }
+.badge-activo { background: var(--verde-estado-bg); color: var(--verde-estado); }
+.badge-inactivo { background: var(--rojo-bg); color: var(--rojo); }
+.badge-seguimiento { background: var(--naranja-bg); color: var(--naranja); }
+.badge-completado { background: var(--verde-estado-bg); color: var(--verde-estado); }
+.badge-cancelado { background: var(--rojo-bg); color: var(--rojo); }
+.badge-noasistio { background: var(--naranja-bg); color: var(--naranja); }
+.badge-pendiente { background: var(--azul-bg); color: var(--azul); }
+.section-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--cafe-medio);
+  margin-bottom: 16px;
+}
+.grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+.grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.grid-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.field { margin-bottom: 12px; }
+.field label { font-size: 12px; font-weight: 500; color: var(--cafe-medio); display: block; margin-bottom: 4px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.progress-bar {
+  height: 6px;
+  background: var(--crema-oscuro);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.hidden { display: none !important; }
+
+/* Data management toolbar */
+.data-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid var(--borde);
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 700;
+  margin: -24px -24px 24px -24px;
+}
+.data-toolbar .toolbar-label {
+  font-size: 12px;
+  color: var(--cafe-suave);
+  font-weight: 500;
+  margin-right: 4px;
+}
+.btn-toolbar {
+  padding: 7px 14px;
+  border: 1.5px solid var(--borde);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  background: white;
+  color: var(--cafe-medio);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-toolbar:hover { border-color: var(--verde); color: var(--verde-oscuro); background: var(--verde-estado-bg); }
+.btn-toolbar-primary { background: var(--verde-estado-bg); border-color: var(--verde); color: var(--verde-oscuro); }
+.toolbar-divider { width: 1px; height: 24px; background: var(--borde); margin: 0 4px; }
+.toolbar-status {
+  font-size: 11px;
+  color: var(--verde-estado);
+  background: var(--verde-estado-bg);
+  padding: 4px 10px;
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease;
+}
+#file-input-hidden { display: none; }
+
+/* ────────────────────────────────────────────
+   SECCIÓN 5: Dashboard
+   ──────────────────────────────────────────── */
+.stat-card {
+  background: white;
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid rgba(90,74,66,0.06);
+  box-shadow: 0 2px 8px rgba(90,74,66,0.04);
+}
+.stat-card .stat-label {
+  font-size: 11px;
+  color: var(--cafe-suave);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.stat-card .stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN 6: Tablas y Tarjetas de datos
+   ──────────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead th {
+  padding: 12px 16px;
+  background: var(--crema);
+  border-bottom: 2px solid #e8e0d8;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cafe-claro);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left;
+}
+.data-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--crema-oscuro);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.data-table tbody tr:hover { background: var(--crema); }
+.client-card {
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.client-card:hover { transform: translateY(-2px); }
+.client-card .name { font-weight: 600; font-size: 15px; }
+.client-card .contact { font-size: 12px; color: var(--cafe-suave); margin-top: 2px; }
+.client-card .meta { display: flex; gap: 12px; font-size: 12px; color: var(--cafe-claro); flex-wrap: wrap; margin-top: 8px; }
+.client-card .notes { font-size: 12px; color: var(--cafe-suave); margin-top: 8px; font-style: italic; line-height: 1.4; }
+
+/* Service cards */
+.service-category-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.service-category-bar .dot {
+  width: 4px;
+  height: 20px;
+  border-radius: 2px;
+}
+.service-card { padding: 16px; }
+.service-card .svc-name { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+.service-card .svc-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--cafe-claro); }
+
+/* Follow-up alerts */
+.alert-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.alert-card .alert-type { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.alert-card .alert-msg { font-size: 13px; color: var(--cafe-medio); line-height: 1.4; }
+.alert-card .alert-contact { font-size: 12px; color: var(--cafe-suave); margin-top: 4px; }
+.banner-green {
+  background: linear-gradient(135deg, var(--verde), var(--verde-oscuro));
+  color: white;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN 7: Modales / Formularios
+   ──────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  padding: 28px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: fadeIn 0.25s ease;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.modal-header h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--cafe);
+}
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--cafe-suave);
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* Guide */
+.guide-section { max-width: 700px; }
+.guide-step {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cafe-medio);
+}
+.guide-step .step-num {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--crema-oscuro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--verde);
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN 8: Responsive (Mobile/Tablet)
+   ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar { display: none !important; }
+  .mobile-bar { display: flex !important; }
+  .main-content {
+    margin-left: 0 !important;
+    padding: 16px;
+    padding-bottom: 80px;
+  }
+  .data-toolbar { margin: -16px -16px 16px -16px; }
+  .toolbar-divider { display: none; }
+  .page-header h1 { font-size: 22px; }
+  .grid-cards { grid-template-columns: 1fr; }
+  .grid-2col { grid-template-columns: 1fr; }
+  .field-row { grid-template-columns: 1fr; }
+  .data-table { font-size: 12px; }
+  .data-table thead th, .data-table tbody td { padding: 8px 10px; }
+  /* Hide less important columns on mobile */
+  .hide-mobile { display: none; }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root { --sidebar-width: 200px; }
+  .grid-cards { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+}
+</style>
+</head>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HTML — ESTRUCTURA
+     ═══════════════════════════════════════════════════════ -->
+<body>
+<div class="app-layout">
+
+  <!-- ── Sidebar (Desktop) ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="icon">🌿</div>
+      <div class="brand">AURA SPA</div>
+      <div class="city">MEDELLÍN</div>
+    </div>
+    <nav id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      Sistema de Gestión v1.0<br>Step Up Business Solutions
+    </div>
+  </aside>
+
+  <!-- ── Mobile Bottom Bar ── -->
+  <div class="mobile-bar" id="mobile-nav"></div>
+
+  <!-- ── Main Content ── -->
+  <main class="main-content" id="main-content">
+    <!-- Barra de datos: Sincronización con Google Sheets -->
+    <div class="data-toolbar">
+      <span class="toolbar-label">☁️ Google Sheets:</span>
+      <button class="btn-toolbar btn-toolbar-primary" onclick="syncFromSheets()">
+        🔄 Sincronizar
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-toolbar" onclick="triggerImport()">
+        📥 Importar Excel
+      </button>
+      <button class="btn-toolbar" onclick="exportToExcel()">
+        📤 Exportar Excel
+      </button>
+      <span id="toolbar-status"></span>
+      <span id="connection-status"></span>
+    </div>
+    <input type="file" id="file-input-hidden" accept=".xlsx,.xls" onchange="handleFileImport(event)">
+    <!-- Contenedor de páginas (renderPage escribe aquí) -->
+    <div id="page-wrapper"></div>
+  </main>
+</div>
+
+<!-- ── Modal Container ── -->
+<div id="modal-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT — LÓGICA
+     Sección A: Datos y Estado
+     Sección B: Utilidades
+     Sección C: Navegación
+     Sección D: Dashboard
+     Sección E: Clientes
+     Sección F: Servicios
+     Sección G: Citas
+     Sección H: Seguimiento
+     Sección I: Guía
+     Sección J: Modales / Formularios
+     Sección K: Inicialización
+     ═══════════════════════════════════════════════════════ -->
+<script>
+
+/* ────────────────────────────────────────────
+   SECCIÓN A: Datos y Estado
+   ──────────────────────────────────────────── */
+const STORAGE_KEY = "aura-spa-data-v2";
+const TODAY = "2026-03-31";
+
+const DEFAULT_DATA = {
+  clients: [
+    { id:"C001", name:"María Fernanda López", phone:"3001234567", email:"maria@email.com", registered:"2025-11-15", type:"VIP", lastVisit:"2026-03-25", status:"Activo", notes:"Prefiere horario AM. Alergia a frutos secos." },
+    { id:"C002", name:"Camila Restrepo", phone:"3109876543", email:"camila.r@email.com", registered:"2026-01-10", type:"Frecuente", lastVisit:"2026-03-20", status:"Activo", notes:"Piel sensible. Usa protector solar orgánico." },
+    { id:"C003", name:"Andrés Mejía", phone:"3205551234", email:"andres.m@email.com", registered:"2026-02-28", type:"Nuevo", lastVisit:"2026-02-28", status:"Seguimiento", notes:"Primera visita por regalo. Interesado en paquete mensual." },
+    { id:"C004", name:"Laura Gómez Ochoa", phone:"3157778899", email:"laura.go@email.com", registered:"2025-09-05", type:"VIP", lastVisit:"2026-01-15", status:"Inactivo", notes:"No ha vuelto desde enero. Llamar para ofrecer promo." },
+    { id:"C005", name:"Juliana Cardona", phone:"3183334455", email:"juli.card@email.com", registered:"2026-03-01", type:"Frecuente", lastVisit:"2026-03-28", status:"Activo", notes:"Viene cada 2 semanas. Masaje descontracturante." },
+  ],
+  services: [
+    { id:"S001", name:"Limpieza Facial Profunda", category:"Facial", price:120000, duration:60 },
+    { id:"S002", name:"Masaje Relajante Full Body", category:"Masaje", price:150000, duration:90 },
+    { id:"S003", name:"Tratamiento Antiedad", category:"Facial", price:180000, duration:75 },
+    { id:"S004", name:"Exfoliación Corporal", category:"Corporal", price:130000, duration:60 },
+    { id:"S005", name:"Paquete Relax Total", category:"Paquete", price:280000, duration:120 },
+    { id:"S006", name:"Masaje Descontracturante", category:"Masaje", price:140000, duration:60 },
+    { id:"S007", name:"Hidratación Facial Express", category:"Facial", price:80000, duration:30 },
+  ],
+  appointments: [
+    { id:"A001", date:"2026-03-25", clientId:"C001", serviceId:"S003", value:180000, professional:"Andrea M.", status:"Completado" },
+    { id:"A002", date:"2026-03-20", clientId:"C002", serviceId:"S002", value:150000, professional:"Carolina P.", status:"Completado" },
+    { id:"A003", date:"2026-03-28", clientId:"C005", serviceId:"S006", value:140000, professional:"Andrea M.", status:"Completado" },
+    { id:"A004", date:"2026-03-28", clientId:"C001", serviceId:"S005", value:280000, professional:"Carolina P.", status:"Completado" },
+    { id:"A005", date:"2026-02-28", clientId:"C003", serviceId:"S002", value:150000, professional:"Andrea M.", status:"Completado" },
+    { id:"A006", date:"2026-01-15", clientId:"C004", serviceId:"S001", value:120000, professional:"Carolina P.", status:"Completado" },
+    { id:"A007", date:"2026-04-02", clientId:"C002", serviceId:"S007", value:80000, professional:"Andrea M.", status:"Pendiente" },
+    { id:"A008", date:"2026-04-03", clientId:"C001", serviceId:"S001", value:120000, professional:"Carolina P.", status:"Pendiente" },
+  ]
+};
+
+let appData = null;
+let currentView = "dashboard";
+let searchText = "";
+let filterType = "Todos";
+let filterStatus = "Todos";
+let filterApptStatus = "Todos";
+
+/* ────────────────────────────────────────────
+   SECCIÓN B: Utilidades
+   ──────────────────────────────────────────── */
+function fmt(n) {
+  return new Intl.NumberFormat("es-CO", { style:"currency", currency:"COP", minimumFractionDigits:0 }).format(n);
+}
+function daysBetween(d1, d2) {
+  return Math.floor((new Date(d2) - new Date(d1)) / 86400000);
+}
+function getClient(id) { return appData.clients.find(c => c.id === id); }
+function getService(id) { return appData.services.find(s => s.id === id); }
+
+function typeBadge(type) {
+  const cls = { VIP:"badge-vip", Frecuente:"badge-frecuente", Nuevo:"badge-nuevo" };
+  return `<span class="badge ${cls[type] || ''}">${type}</span>`;
+}
+function statusBadge(st) {
+  const cls = { Activo:"badge-activo", Inactivo:"badge-inactivo", Seguimiento:"badge-seguimiento",
+    Completado:"badge-completado", Cancelado:"badge-cancelado", "No asistió":"badge-noasistio", Pendiente:"badge-pendiente" };
+  return `<span class="badge ${cls[st] || ''}">${st}</span>`;
+}
+const CAT_COLORS = { Facial:"#7c9a92", Masaje:"#a67c6d", Corporal:"#8b7da8", Paquete:"#c4956a" };
+
+// ─────────────────────────────────────────────────
+// CONEXIÓN CON GOOGLE SHEETS (Apps Script API)
+// ─────────────────────────────────────────────────
+const API_URL = "https://script.google.com/macros/s/AKfycbzHbba9HR4JfC4Mxb5lrjH4g0fw8yq9YyhAUuU3ErMyjsDzPEDYwBhIgHt0Ql25wUZu9g/exec";
+
+let isOnline = true; // Indica si la conexión con Google Sheets está activa
+
+// Mostrar estado de conexión en la barra
+function showConnectionStatus(online) {
+  isOnline = online;
+  const el = $("#connection-status");
+  if (!el) return;
+  if (online) {
+    el.innerHTML = '<span class="toolbar-status" style="background:#e8f5e9;color:#2e7d32">🟢 Conectado</span>';
+  } else {
+    el.innerHTML = '<span class="toolbar-status" style="background:#fff3e0;color:#e65100">🟡 Modo local</span>';
+  }
+}
+
+// ── LEER datos desde Google Sheets ──
+async function fetchSheet(sheetName) {
+  const res = await fetch(`${API_URL}?action=getAll&sheet=${sheetName}`);
+  if (!res.ok) throw new Error(`Error ${res.status}`);
+  const json = await res.json();
+  if (!json.success) throw new Error(json.error || "Error desconocido");
+  return json.data;
+}
+
+// ── CARGAR todos los datos ──
+async function loadData() {
+  // Intentar cargar desde Google Sheets
+  try {
+    const [clients, services, appointments] = await Promise.all([
+      fetchSheet("Clientes"),
+      fetchSheet("Servicios"),
+      fetchSheet("Citas"),
+    ]);
+
+    appData = {
+      clients: clients.map(c => ({
+        id: String(c.id), name: c.nombre, phone: String(c.telefono),
+        email: c.email || "", registered: String(c.fechaRegistro),
+        type: c.tipoCliente || "Nuevo", lastVisit: String(c.ultimaVisita),
+        status: c.estado || "Activo", notes: c.observaciones || ""
+      })),
+      services: services.map(s => ({
+        id: String(s.id), name: s.nombre, category: s.categoria || "Facial",
+        price: Number(s.precio) || 0, duration: Number(s.duracion) || 0
+      })),
+      appointments: appointments.map(a => ({
+        id: String(a.id), date: String(a.fecha), clientId: String(a.clienteId),
+        serviceId: String(a.servicioId), value: Number(a.valor) || 0,
+        professional: a.profesional || "", status: a.estado || "Pendiente"
+      })),
+    };
+
+    // Guardar en localStorage como cache
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    showConnectionStatus(true);
+
+  } catch (err) {
+    console.warn("No se pudo conectar a Google Sheets, usando datos locales:", err);
+    // Fallback a localStorage
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) appData = JSON.parse(saved);
+      else appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    } catch {
+      appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+    showConnectionStatus(false);
+  }
+}
+
+// ── GUARDAR un registro en Google Sheets ──
+async function apiSave(sheetName, registro) {
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" }, // Apps Script requiere text/plain para evitar preflight CORS
+      body: JSON.stringify({ action: "save", sheet: sheetName, data: registro }),
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error);
+    showConnectionStatus(true);
+    return true;
+  } catch (err) {
+    console.warn("Error guardando en Sheets:", err);
+    showConnectionStatus(false);
+    return false;
+  }
+}
+
+// ── GUARDAR toda una hoja completa ──
+async function apiSaveAll(sheetName, registros) {
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ action: "saveAll", sheet: sheetName, data: registros }),
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error);
+    showConnectionStatus(true);
+    return true;
+  } catch (err) {
+    console.warn("Error guardando hoja completa:", err);
+    showConnectionStatus(false);
+    return false;
+  }
+}
+
+// ── Convertir formato app → formato Google Sheets ──
+function clientToSheet(c) {
+  return { id:c.id, nombre:c.name, telefono:c.phone, email:c.email,
+    fechaRegistro:c.registered, tipoCliente:c.type, ultimaVisita:c.lastVisit,
+    estado:c.status, observaciones:c.notes };
+}
+function serviceToSheet(s) {
+  return { id:s.id, nombre:s.name, categoria:s.category, precio:s.price, duracion:s.duration };
+}
+function appointmentToSheet(a) {
+  return { id:a.id, fecha:a.date, clienteId:a.clientId, servicioId:a.serviceId,
+    valor:a.value, profesional:a.professional, estado:a.status };
+}
+
+// ── Cache local (siempre se guarda como respaldo) ──
+async function saveData() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch {}
+}
+
+// ── Sincronizar manualmente desde Google Sheets ──
+async function syncFromSheets() {
+  showToolbarStatus("⏳ Sincronizando con Google Sheets...");
+  await loadData();
+  renderPage();
+  if (isOnline) {
+    showToolbarStatus("✅ Datos sincronizados desde Google Sheets");
+  } else {
+    showToolbarStatus("⚠️ No se pudo conectar. Mostrando datos locales.");
+  }
+}
+
+function $(sel) { return document.querySelector(sel); }
+function $$(sel) { return document.querySelectorAll(sel); }
+
+/* ────────────────────────────────────────────
+   SECCIÓN C: Navegación
+   ──────────────────────────────────────────── */
+const NAV_ITEMS = [
+  { key:"dashboard", icon:"📊", label:"Dashboard" },
+  { key:"clients",   icon:"👤", label:"Clientes" },
+  { key:"services",  icon:"✨", label:"Servicios" },
+  { key:"appointments", icon:"📅", label:"Citas" },
+  { key:"followup",  icon:"🔔", label:"Seguimiento" },
+  { key:"guide",     icon:"📖", label:"Guía" },
+];
+
+function buildNav() {
+  const sidebarNav = $("#sidebar-nav");
+  const mobileNav = $("#mobile-nav");
+  sidebarNav.innerHTML = NAV_ITEMS.map(n =>
+    `<button class="nav-item ${currentView===n.key?'active':''}" data-view="${n.key}">
+      <span>${n.icon}</span> ${n.label}
+    </button>`
+  ).join("");
+
+  // Mobile: show first 5
+  mobileNav.innerHTML = NAV_ITEMS.slice(0,5).map(n =>
+    `<button class="${currentView===n.key?'active':''}" data-view="${n.key}">
+      <span class="nav-icon">${n.icon}</span>${n.label}
+    </button>`
+  ).join("");
+
+  // Click handlers
+  [...sidebarNav.querySelectorAll("[data-view]"), ...mobileNav.querySelectorAll("[data-view]")].forEach(btn => {
+    btn.addEventListener("click", () => navigate(btn.dataset.view));
+  });
+}
+
+function navigate(view) {
+  currentView = view;
+  searchText = "";
+  filterType = "Todos";
+  filterStatus = "Todos";
+  filterApptStatus = "Todos";
+  buildNav();
+  renderPage();
+}
+
+function renderPage() {
+  const wrapper = $("#page-wrapper");
+  const item = NAV_ITEMS.find(n => n.key === currentView);
+  const subtitles = {
+    dashboard: "Resumen general del negocio",
+    clients: `${appData.clients.length} clientes registrados`,
+    services: `${appData.services.length} servicios disponibles`,
+    appointments: `${appData.appointments.length} citas registradas`,
+    followup: "Clientes que necesitan atención",
+    guide: "Manual de uso del sistema"
+  };
+
+  let actionBtn = "";
+  if (currentView === "clients") actionBtn = `<button class="btn btn-primary" onclick="openModal('newClient')">+ Nuevo Cliente</button>`;
+  if (currentView === "appointments") actionBtn = `<button class="btn btn-primary" onclick="openModal('newAppointment')">+ Nueva Cita</button>`;
+  if (currentView === "services") actionBtn = `<button class="btn btn-primary" onclick="openModal('newService')">+ Nuevo Servicio</button>`;
+
+  wrapper.innerHTML = `
+    <div class="page-header">
+      <div>
+        <h1>${item.icon} ${item.label}</h1>
+        <div class="subtitle">${subtitles[currentView]}</div>
+      </div>
+      ${actionBtn}
+    </div>
+    <div id="page-content"></div>
+  `;
+
+  const renderers = {
+    dashboard: renderDashboard,
+    clients: renderClients,
+    services: renderServices,
+    appointments: renderAppointments,
+    followup: renderFollowUp,
+    guide: renderGuide,
+  };
+  renderers[currentView]();
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN D: Dashboard
+   ──────────────────────────────────────────── */
+function renderDashboard() {
+  const el = $("#page-content");
+  const now = new Date(TODAY);
+  const thisMonth = (d) => { const dt = new Date(d); return dt.getMonth() === now.getMonth() && dt.getFullYear() === now.getFullYear(); };
+
+  const totalClients = appData.clients.length;
+  const newThisMonth = appData.clients.filter(c => thisMonth(c.registered)).length;
+  const active = appData.clients.filter(c => c.status === "Activo").length;
+  const completed = appData.appointments.filter(a => a.status === "Completado");
+  const monthRevenue = completed.filter(a => thisMonth(a.date)).reduce((s,a) => s + a.value, 0);
+  const totalRevenue = completed.reduce((s,a) => s + a.value, 0);
+  const needFollowUp = appData.clients.filter(c => daysBetween(c.lastVisit, TODAY) > 30).length;
+
+  // Top services
+  const svcCount = {};
+  completed.forEach(a => { svcCount[a.serviceId] = (svcCount[a.serviceId]||0)+1; });
+  const topSvcs = Object.entries(svcCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxCount = Math.max(...topSvcs.map(t=>t[1]),1);
+
+  // Upcoming
+  const upcoming = appData.appointments
+    .filter(a => a.date >= TODAY && a.status === "Pendiente")
+    .sort((a,b) => a.date.localeCompare(b.date))
+    .slice(0,5);
+
+  el.innerHTML = `
+    <div class="grid-stats" style="margin-bottom:16px">
+      ${[
+        { label:"Total Clientes", value:totalClients, icon:"👤", color:"var(--verde)" },
+        { label:"Nuevos (mes)", value:newThisMonth, icon:"🆕", color:"var(--terracota)" },
+        { label:"Activos", value:active, icon:"✅", color:"var(--verde-estado)" },
+        { label:"Ingresos (mes)", value:fmt(monthRevenue), icon:"💰", color:"var(--dorado)" },
+        { label:"Seguimiento", value:needFollowUp, icon:"🔔", color:"#d4756a" },
+        { label:"Ingresos totales", value:fmt(totalRevenue), icon:"📈", color:"#6a8ba6" },
+      ].map(s => `
+        <div class="stat-card">
+          <div class="stat-label">${s.label}</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:22px">${s.icon}</span>
+            <span class="stat-value" style="color:${s.color}">${s.value}</span>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+
+    <div class="grid-2col">
+      <div class="card">
+        <h3 class="section-title">🏆 Servicios Más Vendidos</h3>
+        ${topSvcs.map(([id, count]) => {
+          const svc = getService(id);
+          return `<div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+              <span style="font-weight:500">${svc?.name||"—"}</span>
+              <span style="color:var(--cafe-suave)">${count} ventas</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${(count/maxCount)*100}%;background:${CAT_COLORS[svc?.category]||'var(--verde)'}"></div>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">📅 Próximas Citas</h3>
+        ${upcoming.length === 0 ? '<p style="color:var(--cafe-suave);font-size:13px">No hay citas pendientes</p>' :
+          upcoming.map((a,i) => {
+            const c = getClient(a.clientId);
+            const s = getService(a.serviceId);
+            return `<div style="padding:10px 0;${i<upcoming.length-1?'border-bottom:1px solid var(--crema-oscuro)':''};display:flex;justify-content:space-between;align-items:center;font-size:13px">
+              <div>
+                <div style="font-weight:500">${c?.name||"—"}</div>
+                <div style="color:var(--cafe-suave);font-size:12px">${s?.name||""} • ${a.professional||"—"}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-weight:500;color:var(--verde)">${a.date}</div>
+                <div style="color:var(--cafe-suave);font-size:12px">${fmt(a.value)}</div>
+              </div>
+            </div>`;
+          }).join("")}
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">👥 Distribución de Clientes</h3>
+        ${["VIP","Frecuente","Nuevo"].map(type => {
+          const count = appData.clients.filter(c=>c.type===type).length;
+          const pct = totalClients>0 ? ((count/totalClients)*100).toFixed(0) : 0;
+          return `<div style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              ${typeBadge(type)}
+              <span style="font-size:13px;color:var(--cafe-claro)">${count} (${pct}%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:var(--verde);opacity:0.6"></div></div>
+          </div>`;
+        }).join("")}
+        <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;font-size:12px">
+          ${["Activo","Inactivo","Seguimiento"].map(st => {
+            const cnt = appData.clients.filter(c=>c.status===st).length;
+            return `<span>${statusBadge(st)} ${cnt}</span>`;
+          }).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN E: Clientes
+   ──────────────────────────────────────────── */
+function renderClients() {
+  const el = $("#page-content");
+  const filtered = appData.clients.filter(c => {
+    const s = searchText.toLowerCase();
+    const matchSearch = !s || c.name.toLowerCase().includes(s) || c.phone.includes(s) || c.email.toLowerCase().includes(s);
+    const matchType = filterType === "Todos" || c.type === filterType;
+    const matchStatus = filterStatus === "Todos" || c.status === filterStatus;
+    return matchSearch && matchType && matchStatus;
+  });
+
+  el.innerHTML = `
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <input class="input" id="client-search" placeholder="🔍 Buscar por nombre, teléfono o email..." value="${searchText}" style="flex:1 1 200px;max-width:350px">
+        <select class="input" id="filter-type" style="flex:0 0 auto;width:auto;min-width:130px">
+          <option ${filterType==="Todos"?"selected":""}>Todos</option>
+          <option ${filterType==="VIP"?"selected":""}>VIP</option>
+          <option ${filterType==="Frecuente"?"selected":""}>Frecuente</option>
+          <option ${filterType==="Nuevo"?"selected":""}>Nuevo</option>
+        </select>
+        <select class="input" id="filter-status" style="flex:0 0 auto;width:auto;min-width:150px">
+          <option ${filterStatus==="Todos"?"selected":""}>Todos</option>
+          <option ${filterStatus==="Activo"?"selected":""}>Activo</option>
+          <option ${filterStatus==="Inactivo"?"selected":""}>Inactivo</option>
+          <option ${filterStatus==="Seguimiento"?"selected":""}>Seguimiento</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-cards" id="clients-grid"></div>
+  `;
+
+  const grid = $("#clients-grid");
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="card" style="text-align:center;padding:40px;color:var(--cafe-suave);grid-column:1/-1">No se encontraron clientes con estos filtros</div>';
+  } else {
+    grid.innerHTML = filtered.map(c => {
+      const days = daysBetween(c.lastVisit, TODAY);
+      const appts = appData.appointments.filter(a => a.clientId === c.id && a.status === "Completado").length;
+      return `<div class="card client-card" onclick="openModal('clientDetail','${c.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+          <div>
+            <div class="name">${c.name}</div>
+            <div class="contact">${c.phone} • ${c.email}</div>
+          </div>
+          ${typeBadge(c.type)}
+        </div>
+        <div class="meta">
+          ${statusBadge(c.status)}
+          <span>📅 Hace ${days}d</span>
+          <span>🔄 ${appts} citas</span>
+        </div>
+        ${c.notes ? `<div class="notes">"${c.notes}"</div>` : ""}
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openModal('editClient','${c.id}')">✏️ Editar</button>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  // Event listeners
+  $("#client-search").addEventListener("input", e => { searchText = e.target.value; renderClients(); });
+  $("#filter-type").addEventListener("change", e => { filterType = e.target.value; renderClients(); });
+  $("#filter-status").addEventListener("change", e => { filterStatus = e.target.value; renderClients(); });
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN F: Servicios
+   ──────────────────────────────────────────── */
+function renderServices() {
+  const el = $("#page-content");
+  const categories = [...new Set(appData.services.map(s => s.category))];
+
+  el.innerHTML = categories.map(cat => `
+    <div style="margin-bottom:20px">
+      <div class="service-category-bar">
+        <div class="dot" style="background:${CAT_COLORS[cat]||'var(--verde)'}"></div>
+        <h3 class="section-title" style="margin-bottom:0">${cat}</h3>
+      </div>
+      <div class="grid-cards">
+        ${appData.services.filter(s=>s.category===cat).map(s => `
+          <div class="card service-card">
+            <div class="svc-name">${s.name}</div>
+            <div class="svc-info">
+              <span>${fmt(s.price)}</span>
+              <span>⏱ ${s.duration} min</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN G: Citas
+   ──────────────────────────────────────────── */
+function renderAppointments() {
+  const el = $("#page-content");
+  const sorted = [...appData.appointments]
+    .sort((a,b) => b.date.localeCompare(a.date))
+    .filter(a => filterApptStatus === "Todos" || a.status === filterApptStatus);
+
+  el.innerHTML = `
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${["Todos","Pendiente","Completado","Cancelado","No asistió"].map(s => `
+          <button class="btn" onclick="filterApptStatus='${s}';renderAppointments()"
+            style="background:${filterApptStatus===s?'var(--verde)':'#f5f0eb'};color:${filterApptStatus===s?'white':'var(--cafe-medio)'};font-size:13px;padding:8px 16px">${s}</button>
+        `).join("")}
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow-x:auto">
+      <table class="data-table">
+        <thead><tr>
+          <th>Fecha</th><th>Cliente</th><th class="hide-mobile">Servicio</th>
+          <th>Valor</th><th class="hide-mobile">Profesional</th><th>Estado</th>
+        </tr></thead>
+        <tbody>
+          ${sorted.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--cafe-suave)">Sin citas para este filtro</td></tr>' :
+            sorted.map(a => {
+              const c = getClient(a.clientId);
+              const s = getService(a.serviceId);
+              return `<tr>
+                <td style="font-weight:500">${a.date}</td>
+                <td>${c?.name||"—"}</td>
+                <td class="hide-mobile" style="color:var(--cafe-claro)">${s?.name||"—"}</td>
+                <td style="font-weight:500">${fmt(a.value)}</td>
+                <td class="hide-mobile" style="color:var(--cafe-claro)">${a.professional||"—"}</td>
+                <td>${statusBadge(a.status)}</td>
+              </tr>`;
+            }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN H: Seguimiento
+   ──────────────────────────────────────────── */
+function renderFollowUp() {
+  const el = $("#page-content");
+  const alerts = [];
+  appData.clients.forEach(c => {
+    const days = daysBetween(c.lastVisit, TODAY);
+    const appts = appData.appointments.filter(a => a.clientId === c.id && a.status === "Completado").length;
+    if (c.type === "VIP" && days > 21)
+      alerts.push({ client:c, type:"🔴 VIP sin visita", msg:`${c.name} es VIP y no viene hace ${days} días. ¡Contactar urgente!`, priority:1 });
+    else if (days > 60)
+      alerts.push({ client:c, type:"⚫ Cliente perdido", msg:`${c.name} no viene hace ${days} días. Campaña de reactivación.`, priority:2 });
+    else if (days > 30)
+      alerts.push({ client:c, type:"🟡 Sin visita reciente", msg:`${c.name} no viene hace ${days} días. Enviar recordatorio.`, priority:3 });
+    if (appts <= 1 && c.type === "Nuevo")
+      alerts.push({ client:c, type:"🔵 Pocas visitas", msg:`${c.name} es nuevo y solo ha venido ${appts} vez. Ofrecer promo.`, priority:4 });
+  });
+  alerts.sort((a,b) => a.priority - b.priority);
+
+  el.innerHTML = `
+    <div class="banner-green">
+      <div style="font-size:15px;font-weight:500">📋 Resumen de Seguimiento</div>
+      <div style="font-size:13px;margin-top:6px;opacity:0.9">${alerts.length} alertas activas • Revisa al inicio de cada semana.</div>
+    </div>
+    ${alerts.length === 0 ? '<div class="card" style="text-align:center;padding:40px;color:var(--cafe-suave)">🎉 ¡Excelente! No hay clientes que requieran seguimiento.</div>' :
+      `<div style="display:grid;gap:12px">${alerts.map(a => `
+        <div class="card alert-card">
+          <div style="flex:1;min-width:200px">
+            <div class="alert-type">${a.type}</div>
+            <div class="alert-msg">${a.msg}</div>
+            <div class="alert-contact">📱 ${a.client.phone} • 📧 ${a.client.email}</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="markFollowUp('${a.client.id}')">✅ Marcar seguimiento</button>
+        </div>
+      `).join("")}</div>`}
+  `;
+}
+
+function markFollowUp(id) {
+  const c = appData.clients.find(c => c.id === id);
+  if (c) {
+    c.status = "Seguimiento";
+    apiSave("Clientes", clientToSheet(c)); // Actualizar en Sheets
+    saveData();
+    renderFollowUp();
+  }
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN I: Guía
+   ──────────────────────────────────────────── */
+function renderGuide() {
+  const el = $("#page-content");
+  const sections = [
+    { title:"☁️ Conexión con Google Sheets", steps:["Esta app se conecta automáticamente a Google Sheets al abrir.","El indicador '🟢 Conectado' en la barra superior confirma la conexión.","Si dice '🟡 Modo local', los datos se guardan solo en este dispositivo.","Usa el botón '🔄 Sincronizar' para actualizar los datos desde Google Sheets.","Todo lo que registres aquí se guarda en Google Sheets en tiempo real."] },
+    { title:"📝 Cómo Registrar un Cliente", steps:["Ve a 'Clientes' desde el menú.","Presiona '+ Nuevo Cliente'.","Llena nombre, teléfono (obligatorio), email, tipo y estado.","Agrega observaciones (alergias, preferencias).","Presiona 'Registrar Cliente'. Se guarda aquí y en Google Sheets."] },
+    { title:"📅 Cómo Registrar una Cita", steps:["Ve a 'Citas' y presiona '+ Nueva Cita'.","Selecciona fecha, cliente y servicio.","El valor se calcula automáticamente.","Indica la profesional que atenderá.","Guarda. La última visita del cliente se actualiza sola."] },
+    { title:"🔔 Cómo Revisar Seguimiento", steps:["Ve a 'Seguimiento' al inicio de cada semana.","Revisa alertas: VIP primero, luego inactivos.","Contacta cada cliente por teléfono o WhatsApp.","Usa 'Marcar seguimiento' para actualizar estado.","Revisa el Dashboard para métricas generales."] },
+    { title:"📊 Revisión Semanal Recomendada", steps:["LUNES: Dashboard — métricas e ingresos.","LUNES: Seguimiento — contactar prioritarios.","MIÉRCOLES: Revisar citas pendientes de la semana.","VIERNES: Actualizar estados de citas.","MENSUAL: Distribución de clientes y servicios top."] },
+    { title:"📥 Importar / Exportar Excel", steps:["'Importar Excel' sube datos desde un archivo .xlsx a la app y a Google Sheets.","'Exportar Excel' descarga todos los datos actuales como archivo .xlsx de respaldo.","El Excel exportado es compatible con el formato de importación.","Usa exportar como respaldo periódico (recomendado: semanal).","También puedes editar datos directamente en Google Sheets y luego Sincronizar."] },
+    { title:"💡 Tips para Maximizar Resultados", steps:["Registra CADA cliente desde su primera visita.","Siempre agrega observaciones — personalización = recompra.","Los VIP deben visitarte al menos cada 3 semanas.","Si no vuelve en 30 días, activa promo de reactivación.","Usa los datos del Dashboard para tus campañas."] },
+  ];
+
+  el.innerHTML = `
+    <div class="guide-section" style="display:grid;gap:16px">
+      <div class="banner-green">
+        <h2 style="font-family:var(--font-display);font-size:22px;margin-bottom:6px">🌿 Guía de Uso — Aura Spa CRM</h2>
+        <p style="font-size:13px;opacity:0.9;line-height:1.5">Gestiona clientes, servicios, citas y seguimiento desde cualquier dispositivo. Los datos se sincronizan con Google Sheets en tiempo real.</p>
+      </div>
+      ${sections.map(s => `
+        <div class="card">
+          <h3 class="section-title">${s.title}</h3>
+          ${s.steps.map((step,j) => `<div class="guide-step"><span class="step-num">${j+1}</span>${step}</div>`).join("")}
+        </div>
+      `).join("")}
+      <div class="card" style="text-align:center;color:var(--cafe-suave);font-size:12px">
+        Sistema diseñado por Step Up Business Solutions 🌿<br>¿Necesitas personalización? Contáctanos.
+      </div>
+    </div>
+  `;
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN J: Modales / Formularios
+   ──────────────────────────────────────────── */
+function openModal(type, id) {
+  const container = $("#modal-container");
+  let content = "";
+
+  if (type === "newClient" || type === "editClient") {
+    const c = type === "editClient" ? getClient(id) : { name:"",phone:"",email:"",registered:TODAY,type:"Nuevo",lastVisit:TODAY,status:"Activo",notes:"" };
+    const title = type === "editClient" ? "Editar Cliente" : "Nuevo Cliente";
+    content = `
+      <div class="modal-header"><h2>${title}</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="field"><label>Nombre Completo *</label><input class="input" id="f-name" value="${c.name}"></div>
+      <div class="field-row">
+        <div class="field"><label>Teléfono *</label><input class="input" id="f-phone" type="tel" value="${c.phone}"></div>
+        <div class="field"><label>Email</label><input class="input" id="f-email" type="email" value="${c.email}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Tipo de Cliente</label><select class="input" id="f-type">
+          <option ${c.type==="Nuevo"?"selected":""}>Nuevo</option>
+          <option ${c.type==="Frecuente"?"selected":""}>Frecuente</option>
+          <option ${c.type==="VIP"?"selected":""}>VIP</option>
+        </select></div>
+        <div class="field"><label>Estado</label><select class="input" id="f-status">
+          <option ${c.status==="Activo"?"selected":""}>Activo</option>
+          <option ${c.status==="Inactivo"?"selected":""}>Inactivo</option>
+          <option ${c.status==="Seguimiento"?"selected":""}>Seguimiento</option>
+        </select></div>
+      </div>
+      <div class="field"><label>Observaciones</label><textarea class="input" id="f-notes" rows="3" style="resize:vertical">${c.notes}</textarea></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveClient('${type==="editClient"?id:""}')">💾 ${type==="editClient"?"Guardar Cambios":"Registrar Cliente"}</button>
+      </div>
+    `;
+  }
+
+  if (type === "newAppointment") {
+    content = `
+      <div class="modal-header"><h2>Nueva Cita</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="field"><label>Fecha *</label><input class="input" id="f-date" type="date" value="${TODAY}"></div>
+      <div class="field"><label>Cliente *</label><select class="input" id="f-client">
+        ${appData.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join("")}
+      </select></div>
+      <div class="field"><label>Servicio *</label><select class="input" id="f-service" onchange="updateServiceInfo()">
+        ${appData.services.map(s => `<option value="${s.id}">${s.name} — ${fmt(s.price)}</option>`).join("")}
+      </select></div>
+      <div id="service-info" style="background:var(--crema-oscuro);padding:10px;border-radius:8px;font-size:13px;margin-bottom:12px;display:flex;justify-content:space-between">
+        <span>💰 Valor: <strong>${fmt(appData.services[0]?.price||0)}</strong></span>
+        <span>⏱ ${appData.services[0]?.duration||0} min</span>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Profesional</label><input class="input" id="f-prof" placeholder="Ej: Andrea M."></div>
+        <div class="field"><label>Estado</label><select class="input" id="f-appt-status">
+          <option>Pendiente</option><option>Completado</option><option>Cancelado</option><option>No asistió</option>
+        </select></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveAppointment()">💾 Registrar Cita</button>
+      </div>
+    `;
+  }
+
+  if (type === "newService") {
+    content = `
+      <div class="modal-header"><h2>Nuevo Servicio</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="field"><label>Nombre *</label><input class="input" id="f-svc-name"></div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="field"><label>Categoría</label><select class="input" id="f-svc-cat">
+          <option>Facial</option><option>Masaje</option><option>Corporal</option><option>Paquete</option>
+        </select></div>
+        <div class="field"><label>Precio (COP) *</label><input class="input" id="f-svc-price" type="number"></div>
+        <div class="field"><label>Duración (min)</label><input class="input" id="f-svc-dur" type="number"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveService()">💾 Guardar</button>
+      </div>
+    `;
+  }
+
+  if (type === "clientDetail") {
+    const c = getClient(id);
+    if (!c) return;
+    const appts = appData.appointments.filter(a => a.clientId === c.id).sort((a,b)=>b.date.localeCompare(a.date));
+    const totalSpent = appts.filter(a=>a.status==="Completado").reduce((s,a)=>s+a.value,0);
+
+    content = `
+      <div class="modal-header">
+        <div>
+          <h2 style="font-family:var(--font-display);font-size:24px">${c.name}</h2>
+          <div style="display:flex;gap:8px;margin-top:6px">${typeBadge(c.type)} ${statusBadge(c.status)}</div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;margin-bottom:20px">
+        <div>📱 ${c.phone}</div>
+        <div>📧 ${c.email}</div>
+        <div>📅 Registro: ${c.registered}</div>
+        <div>🕐 Última: ${c.lastVisit}</div>
+        <div style="grid-column:1/-1">💰 Total invertido: <strong>${fmt(totalSpent)}</strong></div>
+      </div>
+      ${c.notes ? `<div style="background:var(--crema);padding:12px;border-radius:10px;font-size:13px;color:var(--cafe-medio);margin-bottom:16px;line-height:1.5">📝 ${c.notes}</div>` : ""}
+      <h3 class="section-title" style="font-size:17px">Historial de Citas (${appts.length})</h3>
+      <div style="max-height:250px;overflow-y:auto">
+        ${appts.map((a,i) => {
+          const s = getService(a.serviceId);
+          return `<div style="padding:10px 0;border-bottom:1px solid var(--crema-oscuro);display:flex;justify-content:space-between;font-size:13px">
+            <div>
+              <div style="font-weight:500">${s?.name||"—"}</div>
+              <div style="color:var(--cafe-suave);font-size:12px">${a.professional||"—"} • ${a.date}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-weight:500">${fmt(a.value)}</div>
+              ${statusBadge(a.status)}
+            </div>
+          </div>`;
+        }).join("")}
+        ${appts.length===0 ? '<p style="color:var(--cafe-suave);font-size:13px">Sin citas registradas</p>' : ""}
+      </div>
+    `;
+  }
+
+  container.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-content">${content}</div></div>`;
+}
+
+function closeModal() { $("#modal-container").innerHTML = ""; }
+
+function updateServiceInfo() {
+  const svcId = $("#f-service").value;
+  const svc = getService(svcId);
+  const info = $("#service-info");
+  if (svc && info) {
+    info.innerHTML = `<span>💰 Valor: <strong>${fmt(svc.price)}</strong></span><span>⏱ ${svc.duration} min</span>`;
+  }
+}
+
+async function saveClient(editId) {
+  const name = $("#f-name").value.trim();
+  const phone = $("#f-phone").value.trim();
+  if (!name || !phone) return alert("Nombre y teléfono son obligatorios.");
+  const data = {
+    name, phone,
+    email: $("#f-email").value.trim(),
+    type: $("#f-type").value,
+    status: $("#f-status").value,
+    notes: $("#f-notes").value.trim(),
+  };
+  if (editId) {
+    const c = getClient(editId);
+    Object.assign(c, data);
+    apiSave("Clientes", clientToSheet(c)); // Guardar en Sheets (async)
+  } else {
+    const newId = "C" + String(appData.clients.length + 1).padStart(3, "0");
+    const newClient = { id:newId, registered:TODAY, lastVisit:TODAY, ...data };
+    appData.clients.push(newClient);
+    apiSave("Clientes", clientToSheet(newClient)); // Guardar en Sheets (async)
+  }
+  saveData();
+  closeModal();
+  renderPage();
+}
+
+async function saveAppointment() {
+  const date = $("#f-date").value;
+  const clientId = $("#f-client").value;
+  const serviceId = $("#f-service").value;
+  if (!date || !clientId || !serviceId) return alert("Completa todos los campos obligatorios.");
+  const svc = getService(serviceId);
+  const newId = "A" + String(appData.appointments.length + 1).padStart(3, "0");
+  const newAppt = {
+    id:newId, date, clientId, serviceId,
+    value: svc?.price || 0,
+    professional: $("#f-prof").value.trim(),
+    status: $("#f-appt-status").value,
+  };
+  appData.appointments.push(newAppt);
+  apiSave("Citas", appointmentToSheet(newAppt)); // Guardar en Sheets
+
+  // Actualizar última visita del cliente
+  const client = getClient(clientId);
+  if (client && date >= client.lastVisit) {
+    client.lastVisit = date;
+    apiSave("Clientes", clientToSheet(client)); // Actualizar en Sheets
+  }
+  saveData();
+  closeModal();
+  renderPage();
+}
+
+async function saveService() {
+  const name = $("#f-svc-name").value.trim();
+  const price = Number($("#f-svc-price").value);
+  if (!name || !price) return alert("Nombre y precio son obligatorios.");
+  const newId = "S" + String(appData.services.length + 1).padStart(3, "0");
+  const newSvc = {
+    id:newId, name,
+    category: $("#f-svc-cat").value,
+    price,
+    duration: Number($("#f-svc-dur").value) || 0,
+  };
+  appData.services.push(newSvc);
+  apiSave("Servicios", serviceToSheet(newSvc)); // Guardar en Sheets
+  saveData();
+  closeModal();
+  renderPage();
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN J-2: Importar / Exportar Excel
+   ──────────────────────────────────────────── */
+
+function showToolbarStatus(msg) {
+  const el = $("#toolbar-status");
+  el.innerHTML = `<span class="toolbar-status">${msg}</span>`;
+  setTimeout(() => { el.innerHTML = ""; }, 4000);
+}
+
+// ── IMPORTAR EXCEL ──
+function triggerImport() {
+  $("#file-input-hidden").click();
+}
+
+function handleFileImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  showToolbarStatus("⏳ Leyendo archivo...");
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+
+      const sheetNames = workbook.SheetNames.map(s => s.toLowerCase().trim());
+      let imported = { clients: [], services: [], appointments: [] };
+
+      // ── Buscar hoja de CLIENTES ──
+      const clientSheet = workbook.SheetNames.find(s => s.toLowerCase().includes("cliente"));
+      if (clientSheet) {
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[clientSheet], { defval: "" });
+        imported.clients = rows.map((r, i) => ({
+          id: r["ID Cliente"] || r["ID"] || r["id"] || `C${String(i+1).padStart(3,"0")}`,
+          name: r["Nombre Completo"] || r["Nombre"] || r["nombre"] || "",
+          phone: String(r["Teléfono"] || r["Telefono"] || r["Tel"] || r["telefono"] || ""),
+          email: r["Email"] || r["Correo"] || r["email"] || "",
+          registered: String(r["Fecha Registro"] || r["Fecha de registro"] || r["Registro"] || TODAY),
+          type: r["Tipo Cliente"] || r["Tipo de cliente"] || r["Tipo"] || "Nuevo",
+          lastVisit: String(r["Última Visita"] || r["Ultima Visita"] || r["Última visita"] || TODAY),
+          status: r["Estado"] || "Activo",
+          notes: r["Observaciones"] || r["Notas"] || r["observaciones"] || "",
+        })).filter(c => c.name);
+      }
+
+      // ── Buscar hoja de SERVICIOS ──
+      const serviceSheet = workbook.SheetNames.find(s => s.toLowerCase().includes("servicio"));
+      if (serviceSheet) {
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[serviceSheet], { defval: "" });
+        imported.services = rows.map((r, i) => ({
+          id: r["ID Servicio"] || r["ID"] || `S${String(i+1).padStart(3,"0")}`,
+          name: r["Nombre del Servicio"] || r["Nombre"] || r["Servicio"] || "",
+          category: r["Categoría"] || r["Categoria"] || "Facial",
+          price: Number(r["Precio (COP)"] || r["Precio"] || r["precio"] || 0),
+          duration: Number(r["Duración (min)"] || r["Duración"] || r["Duracion"] || 0),
+        })).filter(s => s.name);
+      }
+
+      // ── Buscar hoja de CITAS ──
+      const apptSheet = workbook.SheetNames.find(s =>
+        s.toLowerCase().includes("cita") || s.toLowerCase().includes("registro")
+      );
+      if (apptSheet) {
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[apptSheet], { defval: "" });
+        imported.appointments = rows.map((r, i) => ({
+          id: r["ID Cita"] || r["ID"] || `A${String(i+1).padStart(3,"0")}`,
+          date: String(r["Fecha"] || r["fecha"] || TODAY),
+          clientId: r["ID Cliente"] || "",
+          serviceId: r["ID Servicio"] || "",
+          value: Number(r["Valor (COP)"] || r["Valor"] || r["valor"] || 0),
+          professional: r["Profesional"] || r["profesional"] || "",
+          status: r["Estado"] || "Pendiente",
+        })).filter(a => a.date);
+      }
+
+      // Validar que se importó algo
+      const totalImported = imported.clients.length + imported.services.length + imported.appointments.length;
+      if (totalImported === 0) {
+        alert("⚠️ No se encontraron datos reconocibles en el archivo.\n\nAsegúrate de que el Excel tenga hojas llamadas 'Clientes', 'Servicios' o 'Registro de Citas' con las columnas correctas.\n\nUsa el botón 'Exportar Excel' para ver el formato esperado.");
+        return;
+      }
+
+      // Confirmar importación
+      const msg = `Se encontraron:\n• ${imported.clients.length} clientes\n• ${imported.services.length} servicios\n• ${imported.appointments.length} citas\n\n¿Deseas reemplazar los datos actuales con estos?`;
+      if (!confirm(msg)) return;
+
+      // Aplicar datos localmente
+      if (imported.clients.length > 0) appData.clients = imported.clients;
+      if (imported.services.length > 0) appData.services = imported.services;
+      if (imported.appointments.length > 0) appData.appointments = imported.appointments;
+
+      saveData();
+      renderPage();
+      showToolbarStatus(`⏳ Importado localmente. Subiendo a Google Sheets...`);
+
+      // Subir a Google Sheets en paralelo
+      const uploads = [];
+      if (imported.clients.length > 0)
+        uploads.push(apiSaveAll("Clientes", appData.clients.map(clientToSheet)));
+      if (imported.services.length > 0)
+        uploads.push(apiSaveAll("Servicios", appData.services.map(serviceToSheet)));
+      if (imported.appointments.length > 0)
+        uploads.push(apiSaveAll("Citas", appData.appointments.map(appointmentToSheet)));
+
+      Promise.all(uploads).then(results => {
+        if (results.every(r => r)) {
+          showToolbarStatus(`✅ Importado y sincronizado: ${imported.clients.length} clientes, ${imported.services.length} servicios, ${imported.appointments.length} citas`);
+        } else {
+          showToolbarStatus(`⚠️ Importado localmente. Algunos datos no se subieron a Sheets.`);
+        }
+      });
+
+    } catch (err) {
+      console.error("Error al importar:", err);
+      alert("❌ Error al leer el archivo Excel.\n\nVerifica que sea un archivo .xlsx válido.");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  // Reset para permitir reimportar el mismo archivo
+  event.target.value = "";
+}
+
+// ── EXPORTAR A EXCEL ──
+function exportToExcel() {
+  try {
+    const wb = XLSX.utils.book_new();
+
+    // Hoja: Clientes
+    const clientHeaders = ["ID Cliente", "Nombre Completo", "Teléfono", "Email", "Fecha Registro", "Tipo Cliente", "Última Visita", "Estado", "Observaciones"];
+    const clientRows = appData.clients.map(c => [c.id, c.name, c.phone, c.email, c.registered, c.type, c.lastVisit, c.status, c.notes]);
+    const wsClients = XLSX.utils.aoa_to_sheet([clientHeaders, ...clientRows]);
+    wsClients["!cols"] = [{ wch:12 },{ wch:28 },{ wch:14 },{ wch:24 },{ wch:14 },{ wch:14 },{ wch:14 },{ wch:12 },{ wch:34 }];
+    XLSX.utils.book_append_sheet(wb, wsClients, "Clientes");
+
+    // Hoja: Servicios
+    const svcHeaders = ["ID Servicio", "Nombre del Servicio", "Categoría", "Precio (COP)", "Duración (min)"];
+    const svcRows = appData.services.map(s => [s.id, s.name, s.category, s.price, s.duration]);
+    const wsSvc = XLSX.utils.aoa_to_sheet([svcHeaders, ...svcRows]);
+    wsSvc["!cols"] = [{ wch:12 },{ wch:30 },{ wch:14 },{ wch:14 },{ wch:14 }];
+    XLSX.utils.book_append_sheet(wb, wsSvc, "Servicios");
+
+    // Hoja: Registro de Citas
+    const apptHeaders = ["ID Cita", "Fecha", "ID Cliente", "Nombre Cliente", "ID Servicio", "Servicio", "Valor (COP)", "Profesional", "Estado"];
+    const apptRows = appData.appointments.map(a => {
+      const c = getClient(a.clientId);
+      const s = getService(a.serviceId);
+      return [a.id, a.date, a.clientId, c?.name||"", a.serviceId, s?.name||"", a.value, a.professional, a.status];
+    });
+    const wsAppt = XLSX.utils.aoa_to_sheet([apptHeaders, ...apptRows]);
+    wsAppt["!cols"] = [{ wch:10 },{ wch:12 },{ wch:12 },{ wch:26 },{ wch:12 },{ wch:28 },{ wch:14 },{ wch:14 },{ wch:12 }];
+    XLSX.utils.book_append_sheet(wb, wsAppt, "Registro de Citas");
+
+    // Descargar
+    const fecha = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `AuraSpa_Backup_${fecha}.xlsx`);
+    showToolbarStatus("✅ Excel exportado exitosamente");
+
+  } catch (err) {
+    console.error("Error al exportar:", err);
+    alert("❌ Error al generar el archivo Excel.");
+  }
+}
+
+// ── RESTAURAR DATOS DE EJEMPLO ──
+function resetData() {
+  if (!confirm("⚠️ Esto reemplazará los datos locales con los datos de ejemplo.\n\nPara sincronizar con Google Sheets, usa el botón 'Sincronizar'.\n\n¿Continuar?")) return;
+  appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  saveData();
+  renderPage();
+  showToolbarStatus("✅ Datos de ejemplo restaurados (solo local)");
+}
+
+/* ────────────────────────────────────────────
+   SECCIÓN K: Inicialización
+   ──────────────────────────────────────────── */
+async function init() {
+  // Mostrar estado de carga
+  const wrapper = $("#page-wrapper");
+  if (wrapper) {
+    wrapper.innerHTML = `
+      <div style="display:flex;justify-content:center;align-items:center;min-height:50vh;flex-direction:column;gap:12px">
+        <div style="font-size:40px">🌿</div>
+        <div style="font-family:var(--font-display);font-size:20px;color:var(--cafe-medio)">Conectando con Google Sheets...</div>
+        <div style="font-size:13px;color:var(--cafe-suave)">Si no hay conexión, se usarán datos locales</div>
+      </div>
+    `;
+  }
+  await loadData();
+  buildNav();
+  renderPage();
+}
+init();
+
+</script>
+</body>
+</html>

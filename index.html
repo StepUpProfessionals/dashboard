@@ -1,2463 +1,811 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SBS Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    /* =========================
-       VARIABLES / BASE
-    ========================== */
-    :root{
-      --navy:#00274D;
-      --navy-2:#0A3966;
-      --navy-soft:#EAF1F8;
-      --teal:#008080;
-      --teal-soft:#E6F6F6;
-      --bg:#F6F8FB;
-      --surface:#FFFFFF;
-      --surface-2:#FBFCFE;
-      --text:#152235;
-      --muted:#66768A;
-      --line:#E6EBF2;
-      --green:#2FA66A;
-      --green-soft:#EAF8F0;
-      --red:#D85C5C;
-      --red-soft:#FDEEEE;
-      --amber:#C98A1D;
-      --amber-soft:#FFF4DE;
-      --violet:#6C63FF;
-      --violet-soft:#EFEFFF;
-      --shadow:0 14px 34px rgba(0, 39, 77, 0.08);
-      --radius:20px;
-      --radius-sm:14px;
-      --sidebar-width:258px;
-      --transition:.22s ease;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Step Up Business Solutions — CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   VARIABLES
+   ═══════════════════════════════════════════ */
+:root {
+  --teal: #2A7A6E;
+  --teal-dark: #1E5C53;
+  --teal-light: #E0F2F0;
+  --navy: #1B2A4A;
+  --navy-light: #2A3F6A;
+  --white: #FFFFFF;
+  --bg: #F4F6F8;
+  --bg-card: #FFFFFF;
+  --text: #1B2A4A;
+  --text-muted: #6B7A8D;
+  --text-light: #9BA8B7;
+  --border: #E2E8F0;
+  --green: #16A34A;
+  --green-bg: #DCFCE7;
+  --red: #DC2626;
+  --red-bg: #FEE2E2;
+  --yellow: #D97706;
+  --yellow-bg: #FEF3C7;
+  --blue: #2563EB;
+  --blue-bg: #DBEAFE;
+  --sidebar: 220px;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Outfit', 'Segoe UI', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; font-weight: 400; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
-    body{
-      font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:linear-gradient(180deg,#F7FAFD 0%, #F4F7FB 100%);
-      color:var(--text);
-      min-height:100vh;
-    }
-    button,input,select{
-      font:inherit;
-    }
-    button{
-      cursor:pointer;
-      border:none;
-      background:none;
-    }
-    a{
-      color:inherit;
-      text-decoration:none;
-    }
-    .muted{color:var(--muted)}
-    .nowrap{white-space:nowrap}
+/* ═══════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════ */
+.sidebar {
+  position: fixed; left:0; top:0; bottom:0; width: var(--sidebar);
+  background: var(--navy); padding: 20px 12px; display: flex;
+  flex-direction: column; z-index: 800;
+}
+.sidebar-logo { text-align: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-logo .brand { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--white); letter-spacing: 0.5px; }
+.sidebar-logo .sub { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1.5px; margin-top: 2px; }
+.sidebar nav { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.nav-btn {
+  padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex;
+  align-items: center; gap: 10px; font-size: 13px; border: none; background: none;
+  color: rgba(255,255,255,0.6); width: 100%; text-align: left; font-family: var(--font-body);
+  transition: all 0.15s; font-weight: 400;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); }
+.nav-btn.active { background: var(--teal); color: var(--white); font-weight: 500; }
+.nav-btn .icon { font-size: 16px; width: 22px; text-align: center; }
+.sidebar-footer { font-size: 9px; color: rgba(255,255,255,0.25); text-align: center; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+.conn-status { font-size: 10px; padding: 4px 8px; border-radius: 6px; text-align: center; margin-bottom: 8px; }
 
-    /* =========================
-       APP LAYOUT
-    ========================== */
-    .app-shell{
-      display:flex;
-      min-height:100vh;
-    }
-    .sidebar{
-      position:fixed;
-      inset:0 auto 0 0;
-      width:var(--sidebar-width);
-      background:
-        radial-gradient(circle at top right, rgba(0,128,128,.22), transparent 35%),
-        linear-gradient(180deg, #032E58 0%, #00274D 100%);
-      color:#fff;
-      padding:22px 16px 20px;
-      display:flex;
-      flex-direction:column;
-      z-index:40;
-      border-right:1px solid rgba(255,255,255,.08);
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:10px 10px 18px;
-      border-bottom:1px solid rgba(255,255,255,.1);
-      margin-bottom:18px;
-    }
-    .brand-mark{
-      width:42px;
-      height:42px;
-      border-radius:14px;
-      background:linear-gradient(135deg, #0E4A84 0%, #0A9E9E 100%);
-      position:relative;
-      box-shadow:0 10px 24px rgba(0,0,0,.16);
-      flex:0 0 auto;
-    }
-    .brand-mark::before,
-    .brand-mark::after{
-      content:"";
-      position:absolute;
-      border-radius:999px;
-      background:#fff;
-      opacity:.95;
-    }
-    .brand-mark::before{
-      width:18px;height:6px;left:12px;top:11px;
-    }
-    .brand-mark::after{
-      width:10px;height:10px;left:16px;top:22px;
-    }
-    .brand h2{
-      margin:0;
-      font-size:1rem;
-      letter-spacing:.01em;
-      font-weight:800;
-    }
-    .brand p{
-      margin:.15rem 0 0;
-      font-size:.78rem;
-      color:rgba(255,255,255,.68);
-    }
+/* ═══════════════════════════════════════════
+   MOBILE BAR
+   ═══════════════════════════════════════════ */
+.mobile-bar {
+  display: none; position: fixed; bottom:0; left:0; right:0; background: var(--white);
+  border-top: 1px solid var(--border); z-index: 900; padding: 4px 0 max(4px, env(safe-area-inset-bottom));
+  justify-content: space-around;
+}
+.mobile-bar button {
+  background: none; border: none; display: flex; flex-direction: column; align-items: center;
+  gap: 1px; font-size: 9px; color: var(--text-muted); padding: 6px 4px; font-family: var(--font-body); cursor: pointer;
+}
+.mobile-bar button.active { color: var(--teal); font-weight: 600; }
+.mobile-bar button .icon { font-size: 18px; }
 
-    .nav-list{
-      display:grid;
-      gap:8px;
-      margin-top:4px;
-    }
-    .nav-item{
-      width:100%;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:13px 14px;
-      border-radius:16px;
-      color:rgba(255,255,255,.78);
-      transition:var(--transition);
-      font-weight:600;
-      text-align:left;
-    }
-    .nav-item:hover{
-      background:rgba(255,255,255,.08);
-      color:#fff;
-    }
-    .nav-item.active{
-      background:rgba(255,255,255,.12);
-      color:#fff;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
-    }
-    .nav-icon{
-      width:22px;
-      text-align:center;
-      font-size:1rem;
-      opacity:.95;
-    }
-    .sidebar-foot{
-      margin-top:auto;
-      padding:14px 12px 10px;
-      border-top:1px solid rgba(255,255,255,.1);
-      color:rgba(255,255,255,.68);
-      font-size:.82rem;
-      line-height:1.45;
-    }
+/* ═══════════════════════════════════════════
+   MAIN
+   ═══════════════════════════════════════════ */
+.main { margin-left: var(--sidebar); padding: 20px 24px; min-height: 100vh; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.page-header h1 { font-family: var(--font-display); font-size: 26px; font-weight: 600; }
+.page-header .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-    .main{
-      margin-left:var(--sidebar-width);
-      width:calc(100% - var(--sidebar-width));
-      padding:26px 28px 110px;
-    }
+/* ═══════════════════════════════════════════
+   COMPONENTS
+   ═══════════════════════════════════════════ */
+.card { background: var(--bg-card); border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid var(--border); animation: fadeIn 0.25s ease; }
+.btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 13px; font-family: var(--font-body); transition: all 0.15s; }
+.btn:hover { transform: translateY(-1px); }
+.btn-primary { background: var(--teal); color: var(--white); }
+.btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+.btn-sm { font-size: 11px; padding: 5px 10px; }
+.input { width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; background:var(--white); font-family:var(--font-body); outline:none; transition:border-color 0.2s; }
+.input:focus { border-color: var(--teal); }
+select.input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 5 5-5' stroke='%236B7A8D' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:28px; }
+.badge { display:inline-block; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:600; letter-spacing:0.3px; }
+.b-green { background:var(--green-bg); color:var(--green); }
+.b-red { background:var(--red-bg); color:var(--red); }
+.b-yellow { background:var(--yellow-bg); color:var(--yellow); }
+.b-blue { background:var(--blue-bg); color:var(--blue); }
+.b-gray { background:#F1F5F9; color:#64748B; }
+.field { margin-bottom: 10px; }
+.field label { font-size: 11px; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 3px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.stat { background: var(--bg-card); border-radius: 10px; padding: 14px 16px; border: 1px solid var(--border); }
+.stat .stat-label { font-size: 10px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.stat .stat-val { font-size: 22px; font-weight: 700; font-family: var(--font-display); }
+.grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.section-title { font-family: var(--font-display); font-size: 16px; color: var(--text); margin-bottom: 12px; font-weight: 600; }
+.table { width:100%; border-collapse:collapse; }
+.table th { padding:10px 12px; background:var(--bg); border-bottom:2px solid var(--border); font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.4px; text-align:left; }
+.table td { padding:10px 12px; border-bottom:1px solid var(--border); font-size:12px; }
+.table tr:hover { background:#F8FAFC; }
+.clickable { cursor: pointer; }
+.empty-state { text-align:center; padding:40px; color:var(--text-muted); font-size:13px; }
+.bar { height:5px; background:var(--border); border-radius:3px; overflow:hidden; margin-top:4px; }
+.bar-fill { height:100%; border-radius:3px; }
 
-    .topbar{
-      position:sticky;
-      top:0;
-      z-index:20;
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:18px;
-      margin-bottom:22px;
-      padding:6px 0 16px;
-      backdrop-filter:blur(10px);
-      background:linear-gradient(180deg, rgba(246,248,251,.95) 0%, rgba(246,248,251,.78) 70%, rgba(246,248,251,0) 100%);
-    }
-    .eyebrow{
-      margin:0 0 6px;
-      font-size:.8rem;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      color:var(--teal);
-      font-weight:700;
-    }
-    .topbar h1{
-      margin:0;
-      font-size:clamp(1.6rem, 2vw, 2rem);
-      letter-spacing:-.03em;
-    }
-    .topbar-actions{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .ghost-btn,
-    .primary-btn,
-    .soft-btn{
-      border-radius:14px;
-      padding:11px 14px;
-      font-weight:700;
-      transition:var(--transition);
-      white-space:nowrap;
-    }
-    .ghost-btn{
-      background:#fff;
-      color:var(--navy);
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-    }
-    .ghost-btn:hover{transform:translateY(-1px)}
-    .primary-btn{
-      color:#fff;
-      background:linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
-      box-shadow:0 10px 24px rgba(0, 39, 77, .18);
-    }
-    .primary-btn:hover{transform:translateY(-1px)}
-    .soft-btn{
-      background:var(--navy-soft);
-      color:var(--navy);
-      border:1px solid transparent;
-    }
-    .soft-btn:hover{
-      background:#fff;
-      border-color:var(--line);
-    }
+/* ═══════════════════════════════════════════
+   MODAL
+   ═══════════════════════════════════════════ */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); display:flex; justify-content:center; align-items:center; z-index:1000; padding:12px; backdrop-filter:blur(3px); }
+.modal { background:var(--white); border-radius:16px; padding:24px; max-width:540px; width:100%; max-height:85vh; overflow-y:auto; animation:fadeIn 0.2s ease; }
+.modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.modal-head h2 { font-family:var(--font-display); font-size:20px; }
+.modal-close { background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-muted); }
+.modal-foot { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
 
-    /* =========================
-       CARDS / BLOCKS
-    ========================== */
-    .view{display:none}
-    .view.active{display:block}
-
-    .kpi-grid,
-    .stats-grid,
-    .cards-grid,
-    .content-grid,
-    .dashboard-grid{
-      display:grid;
-      gap:16px;
-    }
-    .kpi-grid{
-      grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
-      margin-bottom:16px;
-    }
-    .stats-grid{
-      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-    }
-    .dashboard-grid{
-      grid-template-columns:1.3fr .9fr;
-      margin-bottom:16px;
-    }
-    .content-grid{
-      grid-template-columns:1.15fr .85fr;
-      margin-bottom:16px;
-    }
-    .cards-grid{
-      grid-template-columns:repeat(auto-fit, minmax(285px, 1fr));
-    }
-
-    .card{
-      background:var(--surface);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .card-body{
-      padding:18px;
-    }
-    .metric-card{
-      padding:18px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      min-height:130px;
-      background:
-        radial-gradient(circle at top right, rgba(0,128,128,.07), transparent 38%),
-        linear-gradient(180deg, #FFFFFF 0%, #FCFDFE 100%);
-    }
-    .metric-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      color:var(--muted);
-      font-weight:600;
-      font-size:.92rem;
-    }
-    .metric-icon{
-      width:36px;height:36px;border-radius:12px;
-      display:grid;place-items:center;
-      background:var(--navy-soft);
-      color:var(--navy);
-      font-size:1rem;
-      flex:0 0 auto;
-    }
-    .metric-value{
-      margin:0;
-      font-size:1.8rem;
-      font-weight:800;
-      letter-spacing:-.03em;
-      color:var(--navy);
-    }
-    .metric-foot{
-      margin-top:auto;
-      color:var(--muted);
-      font-size:.86rem;
-      line-height:1.45;
-    }
-
-    .section-card{
-      background:var(--surface);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:18px;
-    }
-    .section-head{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:14px;
-    }
-    .section-title{
-      margin:0;
-      font-size:1.06rem;
-      font-weight:800;
-      letter-spacing:-.02em;
-      color:var(--navy);
-    }
-    .section-subtitle{
-      margin:4px 0 0;
-      color:var(--muted);
-      font-size:.9rem;
-      line-height:1.45;
-    }
-
-    .summary-strip{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-bottom:16px;
-    }
-    .summary-chip{
-      padding:10px 12px;
-      border-radius:14px;
-      background:#fff;
-      border:1px solid var(--line);
-      color:var(--navy);
-      font-size:.88rem;
-      font-weight:700;
-      box-shadow:var(--shadow);
-    }
-    .summary-chip span{
-      color:var(--muted);
-      font-weight:600;
-      margin-right:8px;
-    }
-
-    /* =========================
-       BADGES / STATUS
-    ========================== */
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      border-radius:999px;
-      padding:7px 10px;
-      font-size:.78rem;
-      font-weight:800;
-      line-height:1;
-      white-space:nowrap;
-      letter-spacing:.01em;
-    }
-    .badge::before{
-      content:"";
-      width:7px;height:7px;
-      border-radius:50%;
-      background:currentColor;
-      opacity:.85;
-    }
-    .badge.green{background:var(--green-soft);color:var(--green)}
-    .badge.red{background:var(--red-soft);color:var(--red)}
-    .badge.teal{background:var(--teal-soft);color:var(--teal)}
-    .badge.amber{background:var(--amber-soft);color:var(--amber)}
-    .badge.navy{background:var(--navy-soft);color:var(--navy)}
-    .badge.violet{background:var(--violet-soft);color:var(--violet)}
-    .badge.gray{background:#F1F4F8;color:#7C8A9B}
-
-    /* =========================
-       LISTS / ROWS
-    ========================== */
-    .list-stack{
-      display:grid;
-      gap:12px;
-    }
-    .list-item{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:14px 14px;
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:var(--surface-2);
-    }
-    .list-item strong{
-      display:block;
-      margin-bottom:4px;
-      color:var(--navy);
-    }
-    .list-item p{
-      margin:0;
-      color:var(--muted);
-      font-size:.88rem;
-      line-height:1.45;
-    }
-    .list-right{
-      display:flex;
-      flex-direction:column;
-      align-items:flex-end;
-      gap:7px;
-      min-width:max-content;
-    }
-
-    .progress-track{
-      width:100%;
-      height:8px;
-      border-radius:999px;
-      background:#ECF0F4;
-      overflow:hidden;
-      margin-top:10px;
-    }
-    .progress-fill{
-      height:100%;
-      border-radius:999px;
-      background:linear-gradient(90deg, var(--navy) 0%, var(--teal) 100%);
-    }
-
-    /* =========================
-       TOOLBAR / FILTERS
-    ========================== */
-    .toolbar{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:16px;
-    }
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      min-width:180px;
-      flex:1 1 180px;
-    }
-    .field label{
-      font-size:.8rem;
-      font-weight:700;
-      color:var(--muted);
-    }
-    .control{
-      width:100%;
-      border:1px solid var(--line);
-      background:#fff;
-      border-radius:14px;
-      padding:12px 13px;
-      outline:none;
-      color:var(--text);
-      transition:var(--transition);
-      box-shadow:0 2px 0 rgba(0,0,0,0);
-    }
-    .control:focus{
-      border-color:rgba(0,128,128,.45);
-      box-shadow:0 0 0 4px rgba(0,128,128,.08);
-    }
-
-    /* =========================
-       TABLES
-    ========================== */
-    .table-wrap{
-      overflow:auto;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:#fff;
-    }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:960px;
-    }
-    thead th{
-      position:sticky;
-      top:0;
-      background:#F8FAFD;
-      color:var(--muted);
-      font-size:.78rem;
-      letter-spacing:.03em;
-      text-transform:uppercase;
-      text-align:left;
-      padding:13px 14px;
-      border-bottom:1px solid var(--line);
-      z-index:1;
-    }
-    tbody td{
-      padding:14px;
-      border-bottom:1px solid #EEF2F6;
-      font-size:.92rem;
-      vertical-align:top;
-    }
-    tbody tr:hover{
-      background:#FBFDFF;
-    }
-    tbody tr:last-child td{
-      border-bottom:none;
-    }
-    .cell-title{
-      font-weight:700;
-      color:var(--navy);
-    }
-    .cell-sub{
-      margin-top:4px;
-      color:var(--muted);
-      font-size:.84rem;
-      line-height:1.45;
-    }
-
-    /* =========================
-       PIPELINE
-    ========================== */
-    .pipeline-board{
-      display:grid;
-      grid-template-columns:repeat(4, minmax(230px, 1fr));
-      gap:16px;
-      margin-bottom:16px;
-    }
-    .pipeline-column{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:16px;
-      box-shadow:var(--shadow);
-    }
-    .pipeline-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:12px;
-    }
-    .pipeline-top h3{
-      margin:0;
-      font-size:.95rem;
-      color:var(--navy);
-    }
-    .pipeline-count{
-      padding:7px 10px;
-      border-radius:999px;
-      font-size:.78rem;
-      font-weight:800;
-      background:#F3F6FA;
-      color:var(--navy);
-    }
-    .mini-stack{
-      display:grid;
-      gap:10px;
-    }
-    .mini-card{
-      padding:12px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background:var(--surface-2);
-    }
-    .mini-card strong{
-      display:block;
-      font-size:.92rem;
-      color:var(--navy);
-      margin-bottom:4px;
-    }
-    .mini-card p{
-      margin:0;
-      color:var(--muted);
-      font-size:.82rem;
-      line-height:1.45;
-    }
-    .mini-meta{
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      gap:8px;
-      margin-top:10px;
-    }
-
-    /* =========================
-       CONTACT / PROJECT CARDS
-    ========================== */
-    .contact-card,
-    .project-card{
-      padding:18px;
-      border-radius:22px;
-      border:1px solid var(--line);
-      background:
-        radial-gradient(circle at top right, rgba(0,39,77,.035), transparent 30%),
-        linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%);
-      box-shadow:var(--shadow);
-    }
-    .card-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:12px;
-      margin-bottom:14px;
-    }
-    .card-title{
-      margin:0;
-      font-size:1.02rem;
-      font-weight:800;
-      letter-spacing:-.02em;
-      color:var(--navy);
-    }
-    .card-kicker{
-      color:var(--muted);
-      font-size:.86rem;
-      margin-top:5px;
-      line-height:1.45;
-    }
-    .meta-grid{
-      display:grid;
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:12px;
-      margin:16px 0;
-    }
-    .meta-box{
-      padding:12px 13px;
-      border-radius:16px;
-      background:#F8FAFD;
-      border:1px solid var(--line);
-    }
-    .meta-box .label{
-      font-size:.76rem;
-      text-transform:uppercase;
-      letter-spacing:.04em;
-      color:var(--muted);
-      font-weight:700;
-      margin-bottom:6px;
-    }
-    .meta-box .value{
-      font-size:.92rem;
-      font-weight:700;
-      color:var(--navy);
-      line-height:1.4;
-    }
-    .tag-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin:16px 0 0;
-    }
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:8px 10px;
-      border-radius:999px;
-      background:#F3F6FA;
-      color:var(--muted);
-      font-weight:700;
-      font-size:.8rem;
-      border:1px solid var(--line);
-    }
-    .actions-row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:16px;
-    }
-
-    /* =========================
-       DISTRIBUTION / RING
-    ========================== */
-    .distribution-stack{
-      display:grid;
-      gap:14px;
-    }
-    .distribution-row{
-      display:grid;
-      gap:7px;
-    }
-    .distribution-head{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:center;
-      font-size:.9rem;
-    }
-    .distribution-head strong{
-      color:var(--navy);
-    }
-    .distribution-bar{
-      width:100%;
-      height:10px;
-      border-radius:999px;
-      background:#EDF2F7;
-      overflow:hidden;
-    }
-    .distribution-bar span{
-      display:block;
-      height:100%;
-      border-radius:999px;
-      background:linear-gradient(90deg, var(--navy) 0%, var(--teal) 100%);
-    }
-
-    .performance-wrap{
-      display:grid;
-      grid-template-columns:170px 1fr;
-      gap:16px;
-      align-items:center;
-      min-height:100%;
-    }
-    .performance-ring{
-      width:150px;
-      height:150px;
-      border-radius:50%;
-      position:relative;
-      display:grid;
-      place-items:center;
-      background:
-        conic-gradient(var(--teal) 0 var(--pct), #E9EEF4 var(--pct) 100%);
-      margin:auto;
-    }
-    .performance-ring::after{
-      content:"";
-      position:absolute;
-      width:102px;
-      height:102px;
-      border-radius:50%;
-      background:#fff;
-      box-shadow:inset 0 0 0 1px var(--line);
-    }
-    .performance-inner{
-      position:relative;
-      z-index:1;
-      text-align:center;
-    }
-    .performance-value{
-      font-size:1.65rem;
-      font-weight:800;
-      color:var(--navy);
-      letter-spacing:-.04em;
-    }
-    .performance-label{
-      font-size:.82rem;
-      color:var(--muted);
-      font-weight:700;
-    }
-
-    /* =========================
-       EMPTY STATES / MODAL / TOAST
-    ========================== */
-    .empty-state{
-      display:grid;
-      place-items:center;
-      text-align:center;
-      gap:10px;
-      padding:28px 18px;
-      color:var(--muted);
-      background:#FAFCFF;
-      border:1px dashed #D7E1EC;
-      border-radius:18px;
-    }
-    .empty-state .empty-icon{
-      width:44px;
-      height:44px;
-      display:grid;
-      place-items:center;
-      border-radius:14px;
-      background:#EEF4FA;
-      color:var(--navy);
-      font-weight:800;
-    }
-
-    .modal-backdrop{
-      position:fixed;
-      inset:0;
-      background:rgba(5, 22, 40, .5);
-      padding:20px;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:80;
-      backdrop-filter:blur(8px);
-    }
-    .modal-backdrop.show{display:flex}
-    .modal{
-      width:min(880px, 100%);
-      max-height:86vh;
-      overflow:auto;
-      background:#fff;
-      border-radius:24px;
-      border:1px solid rgba(255,255,255,.35);
-      box-shadow:0 28px 70px rgba(0,0,0,.18);
-    }
-    .modal-header{
-      position:sticky;
-      top:0;
-      z-index:2;
-      display:flex;
-      justify-content:space-between;
-      gap:16px;
-      align-items:flex-start;
-      padding:18px 18px 14px;
-      background:linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.95) 100%);
-      border-bottom:1px solid var(--line);
-    }
-    .modal-close{
-      width:40px;height:40px;border-radius:14px;
-      background:#F3F6FA;color:var(--navy);font-size:1.2rem;font-weight:800;
-      flex:0 0 auto;
-    }
-    .modal-body{
-      padding:18px;
-      display:grid;
-      gap:16px;
-    }
-
-    .toast{
-      position:fixed;
-      right:22px;
-      bottom:96px;
-      background:#082F57;
-      color:#fff;
-      padding:14px 16px;
-      border-radius:16px;
-      box-shadow:0 18px 40px rgba(0,0,0,.22);
-      font-weight:700;
-      opacity:0;
-      transform:translateY(12px);
-      pointer-events:none;
-      transition:var(--transition);
-      z-index:95;
-      max-width:min(420px, calc(100vw - 32px));
-    }
-    .toast.show{
-      opacity:1;
-      transform:translateY(0);
-    }
-
-    /* =========================
-       MOBILE NAV
-    ========================== */
-    .mobile-nav{
-      position:fixed;
-      left:14px;
-      right:14px;
-      bottom:14px;
-      z-index:60;
-      display:none;
-      grid-template-columns:repeat(5, 1fr);
-      gap:8px;
-      padding:8px;
-      background:rgba(255,255,255,.92);
-      backdrop-filter:blur(14px);
-      border:1px solid rgba(255,255,255,.7);
-      border-radius:22px;
-      box-shadow:0 18px 40px rgba(0,39,77,.14);
-    }
-    .mobile-nav-item{
-      border-radius:16px;
-      padding:10px 8px;
-      display:grid;
-      gap:4px;
-      place-items:center;
-      color:var(--muted);
-      font-size:.73rem;
-      font-weight:700;
-      transition:var(--transition);
-    }
-    .mobile-nav-item.active{
-      background:var(--navy);
-      color:#fff;
-    }
-    .mobile-nav-item span:first-child{
-      font-size:1rem;
-    }
-
-    /* =========================
-       RESPONSIVE
-    ========================== */
-    @media (max-width: 1120px){
-      .dashboard-grid,
-      .content-grid,
-      .performance-wrap{
-        grid-template-columns:1fr;
-      }
-      .pipeline-board{
-        overflow:auto;
-      }
-    }
-
-    @media (max-width: 920px){
-      .sidebar{display:none}
-      .main{
-        margin-left:0;
-        width:100%;
-        padding:20px 16px 118px;
-      }
-      .mobile-nav{display:grid}
-      .topbar{
-        flex-direction:column;
-        align-items:flex-start;
-      }
-      .topbar-actions{
-        width:100%;
-        justify-content:flex-start;
-      }
-      .pipeline-board{
-        grid-auto-flow:column;
-        grid-auto-columns:minmax(260px, 1fr);
-      }
-    }
-
-    @media (max-width: 620px){
-      .metric-value{font-size:1.55rem}
-      .meta-grid{grid-template-columns:1fr}
-      .card-top,
-      .list-item{
-        flex-direction:column;
-        align-items:flex-start;
-      }
-      .list-right{align-items:flex-start}
-      .performance-ring{
-        width:135px;height:135px;
-      }
-      .performance-ring::after{
-        width:92px;height:92px;
-      }
-    }
-  </style>
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .sidebar { display: none !important; }
+  .mobile-bar { display: flex !important; }
+  .main { margin-left: 0 !important; padding: 14px; padding-bottom: 72px; }
+  .page-header h1 { font-size: 20px; }
+  .grid-cards { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .field-row, .field-row-3 { grid-template-columns: 1fr; }
+  .hide-m { display: none; }
+}
+</style>
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark"></div>
-        <div>
-          <h2>Step Up Business Solutions</h2>
-          <p>CRM ligero · Dashboard comercial</p>
-        </div>
+<div class="sidebar" id="sidebar"></div>
+<div class="mobile-bar" id="mobile-bar"></div>
+<main class="main" id="main"></main>
+<div id="modal-root"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONFIG & STATE
+   ═══════════════════════════════════════════ */
+// ⚠️ PEGA TU URL DE DEPLOYMENT AQUÍ:
+const API_URL = "https://script.google.com/macros/s/AKfycby1zrGjTE6O2ZIOJBenVTipbOhV2JlwKcajJcdko4JdGnTptuP6DP5V4gDBfFjs0GJARw/exec";
+const STORE = "stepup-crm-v4";
+const TODAY = new Date().toISOString().slice(0,10);
+
+let D = { contactos:[], oportunidades:[], proyectos:[], pagos:[], catalogos:[] };
+let view = "dashboard";
+let online = false;
+
+const NAV = [
+  { key:"dashboard", icon:"📊", label:"Dashboard" },
+  { key:"contactos", icon:"👤", label:"Contactos" },
+  { key:"oportunidades", icon:"💼", label:"Oportunidades" },
+  { key:"proyectos", icon:"📁", label:"Proyectos" },
+  { key:"pagos", icon:"💰", label:"Pagos" },
+];
+
+const fmt = n => new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",minimumFractionDigits:0}).format(n||0);
+const $=s=>document.querySelector(s);
+
+/* ═══════════════════════════════════════════
+   BADGES
+   ═══════════════════════════════════════════ */
+function estadoBadge(st) {
+  const map = {
+    "Ganada":"b-green","Entregado":"b-green","Pagado":"b-green","Cerrado":"b-green",
+    "Perdida":"b-red","Cancelado":"b-red","Vencido":"b-red",
+    "Cotización enviada":"b-blue","Por iniciar":"b-blue",
+    "En seguimiento":"b-yellow","En negociación":"b-yellow","En ejecución":"b-yellow",
+    "Pendiente cliente":"b-yellow","En revisión":"b-yellow","Pausada":"b-yellow","Pausado":"b-yellow",
+    "Anticipo":"b-blue","Pago final":"b-green","Pronto pago":"b-green","Pago recurrente":"b-yellow",
+    "Abono parcial":"b-yellow","Pendiente":"b-yellow",
+  };
+  return `<span class="badge ${map[st]||'b-gray'}">${st||'—'}</span>`;
+}
+
+/* ═══════════════════════════════════════════
+   API
+   ═══════════════════════════════════════════ */
+async function apiGet(sheet) {
+  const r = await fetch(`${API_URL}?action=getAll&sheet=${sheet}`);
+  const j = await r.json();
+  if (!j.success) throw new Error(j.error);
+  return j.data;
+}
+async function apiSave(sheet, data) {
+  try {
+    const r = await fetch(API_URL, { method:"POST", headers:{"Content-Type":"text/plain"},
+      body: JSON.stringify({ action:"save", sheet, data }) });
+    const j = await r.json();
+    return j.success;
+  } catch { return false; }
+}
+
+async function loadData() {
+  try {
+    const [co, op, pr, pa, ca] = await Promise.all([
+      apiGet("Contacto"), apiGet("Oportunidades"), apiGet("Proyectos"), apiGet("Pagos"), apiGet("Catálogos")
+    ]);
+    D.contactos = co; D.oportunidades = op; D.proyectos = pr; D.pagos = pa; D.catalogos = ca;
+    localStorage.setItem(STORE, JSON.stringify(D));
+    online = true;
+  } catch(e) {
+    console.warn("Offline:", e);
+    try { const s=localStorage.getItem(STORE); if(s) D=JSON.parse(s); } catch{}
+    online = false;
+  }
+}
+function saveLocal() { try{localStorage.setItem(STORE,JSON.stringify(D));}catch{} }
+
+function getCatList(col) {
+  return D.catalogos.map(r=>r[col]).filter(v=>v!=null&&v!=="");
+}
+function getContactName(id) {
+  const c = D.contactos.find(c=>String(c["ID Contacto"])===String(id));
+  return c ? c["Nombre contacto"] : "";
+}
+
+/* ═══════════════════════════════════════════
+   NAV
+   ═══════════════════════════════════════════ */
+function buildNav() {
+  $("#sidebar").innerHTML = `
+    <div class="sidebar-logo">
+      <div class="brand">STEP UP</div>
+      <div class="sub">BUSINESS SOLUTIONS</div>
+    </div>
+    <div id="conn" class="conn-status" style="background:${online?'rgba(22,163,74,0.15);color:#16A34A':'rgba(217,119,6,0.15);color:#D97706'}">
+      ${online?'🟢 Conectado':'🟡 Local'}
+    </div>
+    <nav>${NAV.map(n=>`
+      <button class="nav-btn ${view===n.key?'active':''}" onclick="go('${n.key}')">
+        <span class="icon">${n.icon}</span>${n.label}
+      </button>`).join("")}
+    </nav>
+    <div class="sidebar-footer">CRM Interno v4.0<br>Step Up Business Solutions</div>`;
+
+  $("#mobile-bar").innerHTML = NAV.map(n=>`
+    <button class="${view===n.key?'active':''}" onclick="go('${n.key}')">
+      <span class="icon">${n.icon}</span>${n.label}
+    </button>`).join("");
+}
+
+function go(v) { view=v; buildNav(); render(); }
+
+/* ═══════════════════════════════════════════
+   RENDER
+   ═══════════════════════════════════════════ */
+function render() {
+  const m = $("#main");
+  const pg = NAV.find(n=>n.key===view);
+  const actions = {
+    contactos: `<button class="btn btn-primary" onclick="openForm('contacto')">+ Contacto</button>`,
+    oportunidades: `<button class="btn btn-primary" onclick="openForm('oportunidad')">+ Oportunidad</button>`,
+    proyectos: `<button class="btn btn-primary" onclick="openForm('proyecto')">+ Proyecto</button>`,
+    pagos: `<button class="btn btn-primary" onclick="openForm('pago')">+ Pago</button>`,
+  };
+  m.innerHTML = `
+    <div class="page-header">
+      <div><h1>${pg.icon} ${pg.label}</h1></div>
+      ${actions[view]||''}
+    </div>
+    <div id="content"></div>`;
+  ({dashboard:rDash, contactos:rContactos, oportunidades:rOportunidades, proyectos:rProyectos, pagos:rPagos})[view]();
+}
+
+/* ═══════════════════════════════════════════
+   DASHBOARD
+   ═══════════════════════════════════════════ */
+function rDash() {
+  const el=$("#content");
+  const ops=D.oportunidades, prs=D.proyectos, pgs=D.pagos;
+  const ganadas=ops.filter(o=>o["Estado Oportunidad"]==="Ganada");
+  const perdidas=ops.filter(o=>o["Estado Oportunidad"]==="Perdida");
+  const abiertas=ops.filter(o=>!["Ganada","Perdida","Pausada"].includes(o["Estado Oportunidad"]));
+  const activos=prs.filter(p=>["Por iniciar","En ejecución","En revisión","Pendiente cliente"].includes(p["Estado proyecto"]));
+  const entregados=prs.filter(p=>p["Estado proyecto"]==="Entregado");
+  const totalCotizado=ops.reduce((s,o)=>s+(Number(o["Valor cotizado"])||0),0);
+  const totalGanado=prs.reduce((s,p)=>s+(Number(p["Valor vendido"])||0),0);
+  const totalPerdido=perdidas.reduce((s,o)=>s+(Number(o["Valor cotizado"])||0),0);
+  const totalRecibido=pgs.reduce((s,p)=>s+(Number(p["Monto recibido"])||0),0);
+  const pendiente=totalGanado-totalRecibido;
+  const ticket=ganadas.length?totalGanado/ganadas.length:0;
+  const tasa=ops.length?(ganadas.length/ops.length):0;
+
+  // Pipeline values
+  const pipeStages=["Cotización enviada","En seguimiento","En negociación"];
+  const pipeData=pipeStages.map(st=>({
+    label:st,
+    count:ops.filter(o=>o["Estado Oportunidad"]===st).length,
+    value:ops.filter(o=>o["Estado Oportunidad"]===st).reduce((s,o)=>s+(Number(o["Valor cotizado"])||0),0)
+  }));
+
+  // Services
+  const svcs=["Landing","CRM","Base de datos","Automatización","Mantenimiento"];
+  const svcData=svcs.map(s=>({
+    name:s,
+    cotizadas:ops.filter(o=>o["Servicio"]===s).length,
+    ganadas:ganadas.filter(o=>o["Servicio"]===s).length,
+  })).filter(s=>s.cotizadas>0||s.ganadas>0);
+
+  // Motivos
+  const motivos={};
+  perdidas.forEach(o=>{const m=o["Motivo de la Pérdida"]||"Sin especificar";motivos[m]=(motivos[m]||0)+1;});
+  const maxMotivo=Math.max(...Object.values(motivos),1);
+
+  el.innerHTML = `
+    <div class="grid-stats" style="margin-bottom:14px">
+      ${[
+        {l:"Contactos",v:D.contactos.length,c:"var(--teal)"},
+        {l:"Op. Abiertas",v:abiertas.length,c:"var(--blue)"},
+        {l:"Ganadas",v:ganadas.length,c:"var(--green)"},
+        {l:"Perdidas",v:perdidas.length,c:"var(--red)"},
+        {l:"Proyectos Activos",v:activos.length,c:"var(--yellow)"},
+        {l:"Tasa Conversión",v:Math.round(tasa*100)+"%",c:"var(--teal)"},
+      ].map(s=>`<div class="stat"><div class="stat-label">${s.l}</div><div class="stat-val" style="color:${s.c}">${s.v}</div></div>`).join("")}
+    </div>
+
+    <div class="grid-stats" style="margin-bottom:14px">
+      ${[
+        {l:"Total Cotizado",v:fmt(totalCotizado),c:"var(--text)"},
+        {l:"Total Ganado",v:fmt(totalGanado),c:"var(--green)"},
+        {l:"Total Recibido",v:fmt(totalRecibido),c:"var(--teal)"},
+        {l:"Pendiente Cobrar",v:fmt(Math.max(pendiente,0)),c:pendiente>0?"var(--yellow)":"var(--green)"},
+        {l:"Total Perdido",v:fmt(totalPerdido),c:"var(--red)"},
+        {l:"Ticket Promedio",v:fmt(ticket),c:"var(--teal)"},
+      ].map(s=>`<div class="stat"><div class="stat-label">${s.l}</div><div class="stat-val" style="color:${s.c};font-size:18px">${s.v}</div></div>`).join("")}
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="section-title">Pipeline</h3>
+        ${pipeData.map(p=>`
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+              <span>${estadoBadge(p.label)} <strong>${p.count}</strong></span>
+              <span style="color:var(--text-muted)">${fmt(p.value)}</span>
+            </div>
+            <div class="bar"><div class="bar-fill" style="width:${totalCotizado?((p.value/totalCotizado)*100):0}%;background:var(--teal)"></div></div>
+          </div>
+        `).join("")}
+        ${pipeData.every(p=>p.count===0)?'<div class="empty-state">Sin oportunidades abiertas</div>':""}
       </div>
 
-      <nav class="nav-list">
-        <button class="nav-item active" data-view="dashboard"><span class="nav-icon">▣</span><span>Dashboard</span></button>
-        <button class="nav-item" data-view="contacts"><span class="nav-icon">◉</span><span>Contactos</span></button>
-        <button class="nav-item" data-view="opportunities"><span class="nav-icon">◇</span><span>Oportunidades</span></button>
-        <button class="nav-item" data-view="projects"><span class="nav-icon">▤</span><span>Proyectos</span></button>
-        <button class="nav-item" data-view="payments"><span class="nav-icon">◎</span><span>Pagos</span></button>
-      </nav>
-
-      <div class="sidebar-foot">
-        Visual pensado para operación comercial diaria, seguimiento ejecutivo y futura conexión con Google Sheets.
+      <div class="card">
+        <h3 class="section-title">Servicios Cotizados vs Ganados</h3>
+        ${svcData.length===0?'<div class="empty-state">Sin datos</div>':
+          svcData.map(s=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+              <span style="font-weight:500">${s.name}</span>
+              <span>Cotizadas: <strong>${s.cotizadas}</strong> | Ganadas: <strong style="color:var(--green)">${s.ganadas}</strong></span>
+            </div>
+          `).join("")}
       </div>
-    </aside>
 
-    <main class="main">
-      <header class="topbar">
+      <div class="card">
+        <h3 class="section-title">Motivos de Pérdida</h3>
+        ${Object.keys(motivos).length===0?'<div class="empty-state">Sin pérdidas registradas</div>':
+          Object.entries(motivos).sort((a,b)=>b[1]-a[1]).map(([m,c])=>`
+            <div style="margin-bottom:8px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">
+                <span>${m}</span><span style="color:var(--text-muted)">${c}</span>
+              </div>
+              <div class="bar"><div class="bar-fill" style="width:${(c/maxMotivo)*100}%;background:var(--red)"></div></div>
+            </div>
+          `).join("")}
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">Estado de Pagos</h3>
+        ${[
+          {l:"Pagados",v:pgs.filter(p=>p["Estado pago"]==="Pagado").length,c:"green"},
+          {l:"Abono parcial",v:pgs.filter(p=>p["Estado pago"]==="Abono parcial").length,c:"yellow"},
+          {l:"Pendientes",v:pgs.filter(p=>p["Estado pago"]==="Pendiente").length,c:"yellow"},
+          {l:"Vencidos",v:pgs.filter(p=>p["Estado pago"]==="Vencido").length,c:"red"},
+        ].map(s=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px">
+            <span>${s.l}</span>${estadoBadge(s.l==="Pagados"?"Pagado":s.l==="Abono parcial"?"Abono parcial":s.l==="Pendientes"?"Pendiente":"Vencido")} <strong>${s.v}</strong>
+          </div>
+        `).join("")}
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   CONTACTOS
+   ═══════════════════════════════════════════ */
+function rContactos() {
+  const el=$("#content");
+  const data=D.contactos;
+  if(!data.length) { el.innerHTML='<div class="card empty-state">Sin contactos registrados. Presiona + Contacto para empezar.</div>'; return; }
+
+  el.innerHTML=`<div class="grid-cards">${data.map(c=>{
+    const ops=D.oportunidades.filter(o=>String(o["ID Contacto"])===String(c["ID Contacto"]));
+    const ganadas=ops.filter(o=>o["Estado Oportunidad"]==="Ganada").length;
+    return `<div class="card clickable" onclick="viewDetail('contacto','${c["ID Contacto"]}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
         <div>
-          <p class="eyebrow" id="topbarEyebrow">Step Up Business Solutions</p>
-          <h1 id="viewTitle">Dashboard</h1>
+          <div style="font-weight:600;font-size:14px">${c["Nombre contacto"]}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${c["Negocio / Especialidad"]||""} • ${c["Ciudad"]||""}</div>
         </div>
-        <div class="topbar-actions">
-          <button class="ghost-btn" id="dateChip">15 abr 2026</button>
-          <button class="primary-btn" id="syncBtn">Sincronizar</button>
+        <span class="badge b-gray" style="font-size:9px">${c["ID Contacto"]}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);display:flex;gap:10px;flex-wrap:wrap">
+        <span>📱 ${c["WhatsApp"]||"—"}</span>
+        <span>📧 ${c["Email"]||"—"}</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px;font-size:11px">
+        ${estadoBadge(c["Servicio de Interés"]||c["Servicio interés"])}
+        <span style="color:var(--text-muted)">💼 ${ops.length} op. | ✅ ${ganadas} ganadas</span>
+      </div>
+      ${c["Observaciones"]?`<div style="font-size:11px;color:var(--text-light);margin-top:6px;font-style:italic">${c["Observaciones"].substring(0,80)}${c["Observaciones"].length>80?"...":""}</div>`:""}
+    </div>`}).join("")}</div>`;
+}
+
+/* ═══════════════════════════════════════════
+   OPORTUNIDADES
+   ═══════════════════════════════════════════ */
+function rOportunidades() {
+  const el=$("#content");
+  const data=[...D.oportunidades].sort((a,b)=>(b["Fecha cotización"]||"").localeCompare(a["Fecha cotización"]||""));
+  if(!data.length) { el.innerHTML='<div class="card empty-state">Sin oportunidades registradas.</div>'; return; }
+
+  el.innerHTML=`<div class="card" style="padding:0;overflow-x:auto">
+    <table class="table"><thead><tr>
+      <th>ID</th><th>Contacto</th><th>Servicio</th><th>Plan</th>
+      <th>Valor</th><th class="hide-m">Fecha</th><th>Estado</th><th class="hide-m">Resumen</th>
+    </tr></thead><tbody>
+    ${data.map(o=>`<tr class="clickable" onclick="openForm('oportunidad','${o["ID Oportunidad"]}')">
+      <td><span class="badge b-gray" style="font-size:9px">${o["ID Oportunidad"]}</span></td>
+      <td style="font-weight:500">${o["Nombre contacto"]||getContactName(o["ID Contacto"])}</td>
+      <td>${o["Servicio"]||"—"}</td>
+      <td class="hide-m" style="font-size:11px">${o["Plan"]||"—"}</td>
+      <td style="font-weight:500">${fmt(o["Valor cotizado"])}</td>
+      <td class="hide-m">${o["Fecha cotización"]||"—"}</td>
+      <td>${estadoBadge(o["Estado Oportunidad"])}</td>
+      <td class="hide-m" style="font-size:11px;color:var(--text-muted);max-width:150px;overflow:hidden;text-overflow:ellipsis">${o["Resumen"]||""}</td>
+    </tr>`).join("")}
+    </tbody></table></div>`;
+}
+
+/* ═══════════════════════════════════════════
+   PROYECTOS
+   ═══════════════════════════════════════════ */
+function rProyectos() {
+  const el=$("#content");
+  const data=D.proyectos;
+  if(!data.length) { el.innerHTML='<div class="card empty-state">Sin proyectos registrados.</div>'; return; }
+
+  el.innerHTML=`<div class="grid-cards">${data.map(p=>{
+    const pagos=D.pagos.filter(pg=>String(pg["ID Proyecto"])===String(p["ID Proyecto"]));
+    const recibido=pagos.reduce((s,pg)=>s+(Number(pg["Monto recibido"])||0),0);
+    const valor=Number(p["Valor vendido"])||0;
+    const saldo=valor-recibido;
+    return `<div class="card clickable" onclick="openForm('proyecto','${p["ID Proyecto"]}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div>
+          <div style="font-weight:600;font-size:14px">${p["Nombre contacto"]||getContactName(p["ID Contacto"])}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${p["Servicio"]||""} • ${p["Plan contratado"]||""}</div>
         </div>
-      </header>
-
-      <section class="view active" id="dashboardView"></section>
-      <section class="view" id="contactsView"></section>
-      <section class="view" id="opportunitiesView"></section>
-      <section class="view" id="projectsView"></section>
-      <section class="view" id="paymentsView"></section>
-    </main>
-  </div>
-
-  <nav class="mobile-nav">
-    <button class="mobile-nav-item active" data-view="dashboard"><span>▣</span><span>Inicio</span></button>
-    <button class="mobile-nav-item" data-view="contacts"><span>◉</span><span>Contactos</span></button>
-    <button class="mobile-nav-item" data-view="opportunities"><span>◇</span><span>Oport.</span></button>
-    <button class="mobile-nav-item" data-view="projects"><span>▤</span><span>Proy.</span></button>
-    <button class="mobile-nav-item" data-view="payments"><span>◎</span><span>Pagos</span></button>
-  </nav>
-
-  <div class="modal-backdrop" id="detailModal">
-    <div class="modal" id="modalContent"></div>
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-  <script>
-    /* =========================
-       API / DATA
-    ========================== */
-    const API_URL = "https://script.google.com/macros/s/AKfycbzJonCm-tnYbixIkog2gHX2JgbKXMau3RwnuqT6n8ijHwHoncTodb9QlfdU3bwDPAUEWw/exec";
-    const STORAGE_KEY = "stepup-sbs-dashboard-v1";
-
-    let contacts = [];
-    let opportunities = [];
-    let projects = [];
-    let payments = [];
-
-    function toISODate(value){
-      if (!value) return "";
-      if (typeof value === "string") {
-        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-        const parsed = new Date(value);
-        if (!Number.isNaN(parsed.getTime())) return parsed.toISOString().slice(0,10);
-      }
-      if (Object.prototype.toString.call(value) === "[object Date]" && !Number.isNaN(value.getTime())) {
-        return value.toISOString().slice(0,10);
-      }
-      return "";
-    }
-
-    function toNumber(value){
-      if (value === null || value === undefined || value === "") return 0;
-      if (typeof value === "number") return value;
-      const cleaned = String(value).replace(/[^\d.-]/g, "");
-      const num = Number(cleaned);
-      return Number.isFinite(num) ? num : 0;
-    }
-
-    function mapContactoRows(rows){
-      return rows.map(row => ({
-        id: row["ID Contacto"] || "",
-        date: toISODate(row["Fecha contacto"]),
-        name: row["Nombre contacto"] || "Sin nombre",
-        specialty: row["Negocio / Especialidad"] || "Sin especificar",
-        city: row["Ciudad"] || "Sin ciudad",
-        phone: String(row["WhatsApp"] || ""),
-        email: row["Email"] || "",
-        channel: row["Canal de ingreso lead"] || "Otro",
-        interest: row["Servicio de Interés"] || "",
-        notes: row["Observaciones"] || ""
-      })).filter(item => item.id);
-    }
-
-    function mapOpportunityRows(rows){
-      return rows.map(row => ({
-        id: row["ID Oportunidad"] || "",
-        contactId: row["ID Contacto"] || "",
-        contactName: row["Nombre contacto"] || "",
-        service: row["Servicio"] || "Sin servicio",
-        plan: row["Plan"] || "Sin plan",
-        quotedValue: toNumber(row["Valor cotizado"]),
-        quoteDate: toISODate(row["Fecha cotización"]),
-        dueDate: toISODate(row["Fecha límite"]),
-        status: row["Estado Oportunidad"] || "En seguimiento",
-        lossReason: row["Motivo de la Pérdida"] || "",
-        summary: row["Resumen"] || ""
-      })).filter(item => item.id);
-    }
-
-    function mapProjectRows(rows){
-      return rows.map(row => ({
-        id: row["ID Proyecto"] || "",
-        contactId: row["ID Contacto"] || "",
-        contactName: row["Nombre contacto"] || "",
-        opportunityId: row["ID Oportunidad"] || "",
-        service: row["Servicio"] || "Sin servicio",
-        plan: row["Plan contratado"] || "Sin plan",
-        startDate: toISODate(row["Fecha inicio"]),
-        estimatedDate: toISODate(row["Fecha entrega estimada"]),
-        realDate: toISODate(row["Fecha entrega real"]),
-        status: row["Estado proyecto"] || "Por iniciar",
-        responsible: row["Responsable"] || "Marisol Valencia",
-        referredBy: row["Referido por"] || "Directo",
-        soldValue: toNumber(row["Valor vendido"]),
-        sheetPending: toNumber(row["Saldo pendiente"]),
-        projectLink: row["Link del proyecto"] || "",
-        notes: row["Observaciones"] || ""
-      })).filter(item => item.id);
-    }
-
-    function mapPaymentRows(rows){
-      return rows.map(row => ({
-        id: row["ID Pago"] || "",
-        projectId: row["ID Proyecto"] || "",
-        contactId: row["ID Contacto"] || "",
-        contactName: row["Nombre contacto"] || "",
-        type: row["Tipo"] || "Pago único",
-        amount: toNumber(row["Monto recibido"]),
-        date: toISODate(row["Fecha pago"]),
-        method: row["Método pago"] || "Transferencia",
-        status: row["Estado pago"] || "Pendiente",
-        commitmentDate: toISODate(row["Fecha compromiso saldo"]),
-        notes: row["Observaciones"] || ""
-      })).filter(item => item.id);
-    }
-
-    async function fetchSheet(sheetName){
-      const response = await fetch(`${API_URL}?action=getAll&sheet=${encodeURIComponent(sheetName)}`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const json = await response.json();
-      if (!json.success) throw new Error(json.error || `Error loading ${sheetName}`);
-      return json.data || [];
-    }
-
-    function saveLocalCache(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        contacts, opportunities, projects, payments
-      }));
-    }
-
-    function loadLocalCache(){
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
-      try {
-        const parsed = JSON.parse(raw);
-        contacts = parsed.contacts || [];
-        opportunities = parsed.opportunities || [];
-        projects = parsed.projects || [];
-        payments = parsed.payments || [];
-        return true;
-      } catch (error) {
-        console.warn("No se pudo leer cache local", error);
-        return false;
-      }
-    }
-
-    async function loadData(showMessage = false){
-      try {
-        const [contactRows, opportunityRows, projectRows, paymentRows] = await Promise.all([
-          fetchSheet("Contacto"),
-          fetchSheet("Oportunidades"),
-          fetchSheet("Proyectos"),
-          fetchSheet("Pagos")
-        ]);
-
-        contacts = mapContactoRows(contactRows);
-        opportunities = mapOpportunityRows(opportunityRows);
-        projects = mapProjectRows(projectRows);
-        payments = mapPaymentRows(paymentRows);
-
-        saveLocalCache();
-        if (showMessage) showToast("Sincronización completada con Google Sheets.");
-      } catch (error) {
-        console.error("Error conectando con Google Sheets:", error);
-        const hasCache = loadLocalCache();
-        if (showMessage) {
-          showToast(hasCache ? "No se pudo sincronizar. Se cargó la copia local." : "No se pudo conectar con Google Sheets.");
-        }
-      }
-    }
-
-    const today = new Date();
-
-/* =========================
-       STATE
-    ========================== */
-    const state = {
-      activeView: "dashboard",
-      contactSearch: "",
-      contactCity: "Todos",
-      contactChannel: "Todos",
-      oppSearch: "",
-      oppStatus: "Todos",
-      projectSearch: "",
-      projectStatus: "Todos",
-      paymentSearch: "",
-      paymentStatus: "Todos",
-      modalContactId: null
-    };
-
-    const viewTitles = {
-      dashboard: "Dashboard",
-      contacts: "Contactos",
-      opportunities: "Oportunidades",
-      projects: "Proyectos",
-      payments: "Pagos"
-    };
-
-    /* =========================
-       HELPERS
-    ========================== */
-    const money = new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      maximumFractionDigits: 0
-    });
-
-    const dateFmt = new Intl.DateTimeFormat("es-CO", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric"
-    });
-
-    function parseDate(str){
-      const [y,m,d] = str.split("-").map(Number);
-      return new Date(y, m - 1, d);
-    }
-
-    function normalize(value = ""){
-      return String(value)
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .trim();
-    }
-
-    function formatCurrency(value){
-      return money.format(value || 0);
-    }
-
-    function formatDate(value){
-      if (!value) return "—";
-      const parsed = parseDate(value);
-      if (Number.isNaN(parsed.getTime())) return "—";
-      return dateFmt.format(parsed);
-    }
-
-    function daysBetween(baseDate, targetDate){
-      if (!(baseDate instanceof Date) || !(targetDate instanceof Date) || Number.isNaN(baseDate.getTime()) || Number.isNaN(targetDate.getTime())) {
-        return 9999;
-      }
-      const start = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
-      const end = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
-      return Math.round((end - start) / 86400000);
-    }
-
-    function isOpenOpportunity(status){
-      return status === "Cotización enviada" || status === "En seguimiento" || status === "En negociación";
-    }
-
-    function getContact(contactId){
-      return contacts.find(c => c.id === contactId);
-    }
-
-    function getOpportunity(opportunityId){
-      return opportunities.find(o => o.id === opportunityId);
-    }
-
-    function getProject(projectId){
-      return projects.find(p => p.id === projectId);
-    }
-
-    function sumPaymentsForProject(projectId, onlyConfirmed = true){
-      return payments
-        .filter(p => p.projectId === projectId && (!onlyConfirmed || isReceivedPayment(p.status)))
-        .reduce((sum, p) => sum + p.amount, 0);
-    }
-
-    function pendingForProject(project){
-      return Math.max(0, project.soldValue - sumPaymentsForProject(project.id, true));
-    }
-	
-	function isReceivedPayment(status){
-		return status === "Pagado" || status === "Abono parcial";
-	}
-
-    function statusTone(type, status){
-      const maps = {
-        opportunity: {
-          "Cotización enviada": "navy",
-          "En seguimiento": "amber",
-          "En negociación": "teal",
-          "Ganada": "green",
-          "Perdida": "red",
-          "Pausada": "violet"
-        },
-        project: {
-          "Por iniciar": "navy",
-          "En ejecución": "teal",
-          "Pendiente cliente": "amber",
-          "En revisión": "violet",
-          "Entregado": "green",
-          "Pausado": "gray"
-        },
-        payment: {
-          "Pagado": "green",
-          "Pendiente": "amber",
-          "Abono parcial": "teal",
-          "Vencido": "red"
-        }
-      };
-      return (maps[type] && maps[type][status]) || "gray";
-    }
-
-    function getOpportunityUrgency(opportunity){
-      if (opportunity.status === "Pausada") return { label: "Pausada", tone: "violet" };
-      if (!isOpenOpportunity(opportunity.status)) {
-        return { label: "Cerrada", tone: "gray" };
-      }
-      if (!opportunity.dueDate) return { label: "Sin fecha", tone: "gray" };
-      const days = daysBetween(today, parseDate(opportunity.dueDate));
-      if (days < 0) return { label: "Atrasada", tone: "red" };
-      if (days <= 2) return { label: "Urgente", tone: "red" };
-      if (days <= 7) return { label: "Próxima", tone: "amber" };
-      return { label: "En plazo", tone: "green" };
-    }
-
-    function projectProgress(status){
-      const map = {
-        "Por iniciar": 18,
-        "En ejecución": 55,
-        "Pendiente cliente": 70,
-        "En revisión": 88,
-        "Entregado": 100,
-        "Pausado": 50
-      };
-      return map[status] || 0;
-    }
-
-    function getMetrics(){
-      const totalReceived = payments
-        .filter(p => isReceivedPayment(p.status))
-        .reduce((sum, p) => sum + p.amount, 0);
-
-      const pendingBalance = projects.reduce((sum, project) => sum + pendingForProject(project), 0);
-
-      const openOpportunities = opportunities.filter(o => isOpenOpportunity(o.status)).length;
-      const activeProjects = projects.filter(p => p.status !== "Entregado").length;
-
-      const won = opportunities.filter(o => o.status === "Ganada").length;
-      const lost = opportunities.filter(o => o.status === "Perdida").length;
-      const closeRate = won + lost === 0 ? 0 : (won / (won + lost)) * 100;
-
-      return {
-        totalReceived,
-        pendingBalance,
-        openOpportunities,
-        activeProjects,
-        closeRate,
-        won,
-        lost
-      };
-    }
-
-    function getDueOpportunities(){
-      return opportunities
-        .filter(o => isOpenOpportunity(o.status))
-        .filter(o => daysBetween(today, parseDate(o.dueDate)) <= 7)
-        .sort((a,b) => parseDate(a.dueDate) - parseDate(b.dueDate));
-    }
-
-    function getLatestPayments(limit = 5){
-      return [...payments]
-        .sort((a,b) => parseDate(b.date) - parseDate(a.date))
-        .slice(0, limit);
-    }
-
-    function getServiceDistribution(){
-      const bucket = {};
-      opportunities.forEach(item => {
-        if (!bucket[item.service]) {
-          bucket[item.service] = { service: item.service, total: 0, count: 0 };
-        }
-        bucket[item.service].total += item.quotedValue;
-        bucket[item.service].count += 1;
-      });
-      return Object.values(bucket).sort((a,b) => b.total - a.total);
-    }
-
-    function getTopChannel(){
-      const counts = {};
-      contacts.forEach(c => {
-        counts[c.channel] = (counts[c.channel] || 0) + 1;
-      });
-      return Object.entries(counts).sort((a,b) => b[1] - a[1])[0]?.[0] || "—";
-    }
-
-    function getMonthlyConfirmedTotal(){
-      return payments
-        .filter(p => isReceivedPayment(p.status))
-        .filter(p => parseDate(p.date).getMonth() === today.getMonth() && parseDate(p.date).getFullYear() === today.getFullYear())
-        .reduce((sum, p) => sum + p.amount, 0);
-    }
-
-    function getAverageTicket(){
-      const confirmed = payments.filter(p => isReceivedPayment(p.status));
-      if (!confirmed.length) return 0;
-      return confirmed.reduce((sum, p) => sum + p.amount, 0) / confirmed.length;
-    }
-
-    function getPendingScheduledTotal(){
-      return payments
-        .filter(p => !isReceivedPayment(p.status))
-        .reduce((sum, p) => sum + p.amount, 0);
-    }
-
-    function uniqueValues(items, key){
-      return ["Todos", ...new Set(items.map(i => i[key]))];
-    }
-
-    function emptyState(message){
-      return `
-        <div class="empty-state">
-          <div class="empty-icon">◇</div>
-          <div>${message}</div>
-        </div>
-      `;
-    }
-
-    /* =========================
-       FILTERS
-    ========================== */
-    function filteredContacts(){
-      return contacts.filter(contact => {
-        const search = normalize(state.contactSearch);
-        const haystack = normalize([contact.name, contact.specialty, contact.city, contact.channel].join(" "));
-        const matchesSearch = !search || haystack.includes(search);
-        const matchesCity = state.contactCity === "Todos" || contact.city === state.contactCity;
-        const matchesChannel = state.contactChannel === "Todos" || contact.channel === state.contactChannel;
-        return matchesSearch && matchesCity && matchesChannel;
-      });
-    }
-
-    function filteredOpportunities(){
-      return opportunities.filter(opp => {
-        const contact = getContact(opp.contactId);
-        const search = normalize(state.oppSearch);
-        const haystack = normalize([
-          opp.id,
-          contact?.name || "",
-          opp.service,
-          opp.plan,
-          opp.summary,
-          opp.status
-        ].join(" "));
-        const matchesSearch = !search || haystack.includes(search);
-        const matchesStatus = state.oppStatus === "Todos" || opp.status === state.oppStatus;
-        return matchesSearch && matchesStatus;
-      }).sort((a,b) => parseDate(a.dueDate) - parseDate(b.dueDate));
-    }
-
-    function filteredProjects(){
-      return projects.filter(project => {
-        const contact = getContact(project.contactId);
-        const search = normalize(state.projectSearch);
-        const haystack = normalize([
-          project.id,
-          project.opportunityId,
-          contact?.name || "",
-          project.service,
-          project.plan,
-          project.status
-        ].join(" "));
-        const matchesSearch = !search || haystack.includes(search);
-        const matchesStatus = state.projectStatus === "Todos" || project.status === state.projectStatus;
-        return matchesSearch && matchesStatus;
-      });
-    }
-
-    function filteredPayments(){
-      return payments.filter(payment => {
-        const contact = getContact(payment.contactId);
-        const search = normalize(state.paymentSearch);
-        const haystack = normalize([
-          payment.id,
-          payment.projectId,
-          contact?.name || "",
-          payment.type,
-          payment.method,
-          payment.status
-        ].join(" "));
-        const matchesSearch = !search || haystack.includes(search);
-        const matchesStatus = state.paymentStatus === "Todos" || payment.status === state.paymentStatus;
-        return matchesSearch && matchesStatus;
-      }).sort((a,b) => parseDate(b.date) - parseDate(a.date));
-    }
-
-    /* =========================
-       RENDER: DASHBOARD
-    ========================== */
-    function renderDashboard(){
-      const metrics = getMetrics();
-      const dueOpps = getDueOpportunities();
-      const recentPayments = getLatestPayments(5);
-      const activeProjects = projects
-        .filter(p => p.status !== "Entregado")
-        .sort((a,b) => pendingForProject(b) - pendingForProject(a));
-      const serviceDistribution = getServiceDistribution();
-      const maxDistribution = Math.max(...serviceDistribution.map(item => item.total), 1);
-
-      const openPipelineValue = opportunities
-        .filter(o => isOpenOpportunity(o.status))
-        .reduce((sum, o) => sum + o.quotedValue, 0);
-
-      const executingProjects = projects.filter(p => p.status === "En ejecución" || p.status === "En revisión").length;
-
-      return `
-        <div class="kpi-grid">
-          <div class="card metric-card">
-            <div class="metric-head">
-              <span>Ingresos recibidos</span>
-              <div class="metric-icon">↗</div>
-            </div>
-            <p class="metric-value">${formatCurrency(metrics.totalReceived)}</p>
-            <div class="metric-foot">Pagos confirmados registrados en proyectos activos y entregados.</div>
-          </div>
-
-          <div class="card metric-card">
-            <div class="metric-head">
-              <span>Saldo pendiente</span>
-              <div class="metric-icon">◎</div>
-            </div>
-            <p class="metric-value">${formatCurrency(metrics.pendingBalance)}</p>
-            <div class="metric-foot">Pendiente calculado por proyecto según valor vendido menos pagos confirmados.</div>
-          </div>
-
-          <div class="card metric-card">
-            <div class="metric-head">
-              <span>Oportunidades abiertas</span>
-              <div class="metric-icon">◇</div>
-            </div>
-            <p class="metric-value">${metrics.openOpportunities}</p>
-            <div class="metric-foot">Negocios en seguimiento o negociación con opción real de cierre.</div>
-          </div>
-
-          <div class="card metric-card">
-            <div class="metric-head">
-              <span>Proyectos activos</span>
-              <div class="metric-icon">▤</div>
-            </div>
-            <p class="metric-value">${metrics.activeProjects}</p>
-            <div class="metric-foot">Incluye proyectos por iniciar, en ejecución, revisión o pendientes del cliente.</div>
-          </div>
-
-          <div class="card metric-card">
-            <div class="metric-head">
-              <span>Tasa de cierre</span>
-              <div class="metric-icon">◍</div>
-            </div>
-            <p class="metric-value">${metrics.closeRate.toFixed(1)}%</p>
-            <div class="metric-foot">Relación entre oportunidades ganadas y perdidas cerradas comercialmente.</div>
-          </div>
-        </div>
-
-        <div class="summary-strip">
-          <div class="summary-chip"><span>Pipeline abierto</span>${formatCurrency(openPipelineValue)}</div>
-          <div class="summary-chip"><span>Pagos del mes</span>${formatCurrency(getMonthlyConfirmedTotal())}</div>
-          <div class="summary-chip"><span>Canal principal</span>${getTopChannel()}</div>
-          <div class="summary-chip"><span>Proyectos en ejecución/revisión</span>${executingProjects}</div>
-        </div>
-
-        <div class="dashboard-grid">
-          <div class="section-card">
-            <div class="section-head">
-              <div>
-                <h2 class="section-title">Oportunidades por vencer</h2>
-                <p class="section-subtitle">Prioridades comerciales con fecha límite cercana para acelerar decisión y seguimiento.</p>
-              </div>
-            </div>
-
-            ${
-              dueOpps.length
-                ? `<div class="list-stack">
-                    ${dueOpps.map(opp => {
-                      const contact = getContact(opp.contactId);
-                      const urgency = getOpportunityUrgency(opp);
-                      return `
-                        <div class="list-item">
-                          <div>
-                            <strong>${contact?.name || "Contacto"}</strong>
-                            <p>${opp.service} · ${opp.plan} · vence ${formatDate(opp.dueDate)}</p>
-                          </div>
-                          <div class="list-right">
-                            <strong>${formatCurrency(opp.quotedValue)}</strong>
-                            <span class="badge ${urgency.tone}">${urgency.label}</span>
-                          </div>
-                        </div>
-                      `;
-                    }).join("")}
-                  </div>`
-                : emptyState("No hay oportunidades abiertas con vencimiento cercano.")
-            }
-          </div>
-
-          <div class="section-card">
-            <div class="section-head">
-              <div>
-                <h2 class="section-title">Salud comercial</h2>
-                <p class="section-subtitle">Lectura rápida del rendimiento de cierre actual.</p>
-              </div>
-            </div>
-
-            <div class="performance-wrap">
-              <div class="performance-ring" style="--pct:${metrics.closeRate}%;">
-                <div class="performance-inner">
-                  <div class="performance-value">${metrics.closeRate.toFixed(0)}%</div>
-                  <div class="performance-label">Cierre</div>
-                </div>
-              </div>
-
-              <div class="list-stack">
-                <div class="list-item">
-                  <div>
-                    <strong>Oportunidades ganadas</strong>
-                    <p>Negocios convertidos en proyecto</p>
-                  </div>
-                  <div class="list-right">
-                    <strong>${metrics.won}</strong>
-                  </div>
-                </div>
-                <div class="list-item">
-                  <div>
-                    <strong>Oportunidades perdidas</strong>
-                    <p>Casos cerrados sin conversión</p>
-                  </div>
-                  <div class="list-right">
-                    <strong>${metrics.lost}</strong>
-                  </div>
-                </div>
-                <div class="list-item">
-                  <div>
-                    <strong>Saldo pendiente activo</strong>
-                    <p>Dinero por cobrar en proyectos ya vendidos</p>
-                  </div>
-                  <div class="list-right">
-                    <strong>${formatCurrency(metrics.pendingBalance)}</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="content-grid">
-          <div class="section-card">
-            <div class="section-head">
-              <div>
-                <h2 class="section-title">Últimos pagos registrados</h2>
-                <p class="section-subtitle">Movimientos recientes para seguimiento de caja y cobro.</p>
-              </div>
-            </div>
-
-            ${
-              recentPayments.length
-                ? `<div class="list-stack">
-                    ${recentPayments.map(payment => {
-                      const contact = getContact(payment.contactId);
-                      return `
-                        <div class="list-item">
-                          <div>
-                            <strong>${contact?.name || "Contacto"} · ${payment.projectId}</strong>
-                            <p>${payment.type} · ${payment.method} · ${formatDate(payment.date)}</p>
-                          </div>
-                          <div class="list-right">
-                            <strong>${formatCurrency(payment.amount)}</strong>
-                            <span class="badge ${statusTone("payment", payment.status)}">${payment.status}</span>
-                          </div>
-                        </div>
-                      `;
-                    }).join("")}
-                  </div>`
-                : emptyState("Aún no hay pagos registrados.")
-            }
-          </div>
-
-          <div class="section-card">
-            <div class="section-head">
-              <div>
-                <h2 class="section-title">Distribución por servicios</h2>
-                <p class="section-subtitle">Valor cotizado acumulado por línea de servicio.</p>
-              </div>
-            </div>
-
-            <div class="distribution-stack">
-              ${serviceDistribution.map(item => `
-                <div class="distribution-row">
-                  <div class="distribution-head">
-                    <strong>${item.service}</strong>
-                    <span class="muted">${formatCurrency(item.total)} · ${item.count} ${item.count === 1 ? "caso" : "casos"}</span>
-                  </div>
-                  <div class="distribution-bar">
-                    <span style="width:${(item.total / maxDistribution) * 100}%"></span>
-                  </div>
-                </div>
-              `).join("")}
-            </div>
-          </div>
-        </div>
-
-        <div class="section-card">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">Proyectos en ejecución</h2>
-              <p class="section-subtitle">Seguimiento operativo de entregables, revisión y cobro pendiente.</p>
-            </div>
-          </div>
-
-          ${
-            activeProjects.length
-              ? `<div class="cards-grid">
-                  ${activeProjects.map(project => {
-                    const contact = getContact(project.contactId);
-                    const received = sumPaymentsForProject(project.id, true);
-                    const pending = pendingForProject(project);
-                    const progress = projectProgress(project.status);
-                    return `
-                      <div class="project-card">
-                        <div class="card-top">
-                          <div>
-                            <h3 class="card-title">${project.id}</h3>
-                            <div class="card-kicker">${contact?.name || "Contacto"} · ${project.service}</div>
-                          </div>
-                          <span class="badge ${statusTone("project", project.status)}">${project.status}</span>
-                        </div>
-
-                        <div class="meta-grid">
-                          <div class="meta-box">
-                            <div class="label">Valor vendido</div>
-                            <div class="value">${formatCurrency(project.soldValue)}</div>
-                          </div>
-                          <div class="meta-box">
-                            <div class="label">Saldo pendiente</div>
-                            <div class="value">${formatCurrency(pending)}</div>
-                          </div>
-                        </div>
-
-                        <div class="muted" style="font-size:.86rem;font-weight:700;">Avance estimado</div>
-                        <div class="progress-track">
-                          <div class="progress-fill" style="width:${progress}%"></div>
-                        </div>
-
-                        <div class="tag-row">
-                          <span class="tag">Plan: ${project.plan}</span>
-                          <span class="tag">Recibido: ${formatCurrency(received)}</span>
-                        </div>
-                      </div>
-                    `;
-                  }).join("")}
-                </div>`
-              : emptyState("No hay proyectos activos en este momento.")
-          }
-        </div>
-      `;
-    }
-
-    /* =========================
-       RENDER: CONTACTS
-    ========================== */
-    function renderContacts(){
-      const rows = filteredContacts();
-      const cities = uniqueValues(contacts, "city");
-      const channels = uniqueValues(contacts, "channel");
-
-      return `
-        <div class="summary-strip">
-          <div class="summary-chip"><span>Total contactos</span>${contacts.length}</div>
-          <div class="summary-chip"><span>Ciudades activas</span>${new Set(contacts.map(c => c.city)).size}</div>
-          <div class="summary-chip"><span>Canal dominante</span>${getTopChannel()}</div>
-        </div>
-
-        <div class="section-card" style="margin-bottom:16px;">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">Base de contactos</h2>
-              <p class="section-subtitle">Explora la red comercial por ciudad, canal de entrada y tipo de negocio.</p>
-            </div>
-          </div>
-
-          <div class="toolbar">
-            <div class="field">
-              <label for="contactSearch">Buscar</label>
-              <input id="contactSearch" class="control" type="text" placeholder="Nombre, especialidad, ciudad..." value="${state.contactSearch}">
-            </div>
-
-            <div class="field">
-              <label for="contactCityFilter">Ciudad</label>
-              <select id="contactCityFilter" class="control">
-                ${cities.map(city => `<option value="${city}" ${state.contactCity === city ? "selected" : ""}>${city}</option>`).join("")}
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="contactChannelFilter">Canal</label>
-              <select id="contactChannelFilter" class="control">
-                ${channels.map(channel => `<option value="${channel}" ${state.contactChannel === channel ? "selected" : ""}>${channel}</option>`).join("")}
-              </select>
-            </div>
-          </div>
-
-          ${
-            rows.length
-              ? `<div class="cards-grid">
-                  ${rows.map(contact => {
-                    const relatedOpps = opportunities.filter(o => o.contactId === contact.id);
-                    const openCount = relatedOpps.filter(o => isOpenOpportunity(o.status)).length;
-                    const wonCount = relatedOpps.filter(o => o.status === "Ganada").length;
-                    return `
-                      <div class="contact-card">
-                        <div class="card-top">
-                          <div>
-                            <h3 class="card-title">${contact.name}</h3>
-                            <div class="card-kicker">${contact.specialty}</div>
-                          </div>
-                          <span class="badge navy">${contact.id}</span>
-                        </div>
-
-                        <div class="meta-grid">
-                          <div class="meta-box">
-                            <div class="label">Ciudad</div>
-                            <div class="value">${contact.city}</div>
-                          </div>
-                          <div class="meta-box">
-                            <div class="label">Canal</div>
-                            <div class="value">${contact.channel}</div>
-                          </div>
-                          <div class="meta-box">
-                            <div class="label">Oportunidades abiertas</div>
-                            <div class="value">${openCount}</div>
-                          </div>
-                          <div class="meta-box">
-                            <div class="label">Ganadas</div>
-                            <div class="value">${wonCount}</div>
-                          </div>
-                        </div>
-
-                        <div class="actions-row">
-                          <button class="primary-btn" data-contact-id="${contact.id}">Ver detalle</button>
-                        </div>
-                      </div>
-                    `;
-                  }).join("")}
-                </div>`
-              : emptyState("No hay contactos que coincidan con los filtros actuales.")
-          }
-        </div>
-      `;
-    }
-
-    /* =========================
-       RENDER: OPPORTUNITIES
-    ========================== */
-    function renderOpportunities(){
-      const rows = filteredOpportunities();
-      const statuses = ["Cotización enviada", "En seguimiento", "En negociación", "Ganada", "Perdida", "Pausada"];
-
-      const filteredPipeline = status => rows.filter(o => o.status === status);
-      const weekDueCount = rows.filter(o => isOpenOpportunity(o.status) && daysBetween(today, parseDate(o.dueDate)) <= 7).length;
-      const activeValue = rows.filter(o => isOpenOpportunity(o.status)).reduce((sum, o) => sum + o.quotedValue, 0);
-
-      return `
-        <div class="summary-strip">
-          <div class="summary-chip"><span>Oportunidades visibles</span>${rows.length}</div>
-          <div class="summary-chip"><span>Valor abierto</span>${formatCurrency(activeValue)}</div>
-          <div class="summary-chip"><span>Por vencer esta semana</span>${weekDueCount}</div>
-        </div>
-
-        <div class="section-card" style="margin-bottom:16px;">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">Pipeline comercial</h2>
-              <p class="section-subtitle">Visualiza negociación, urgencia de cierre y estado de cada oportunidad.</p>
-            </div>
-          </div>
-
-          <div class="toolbar">
-            <div class="field">
-              <label for="oppSearch">Buscar</label>
-              <input id="oppSearch" class="control" type="text" placeholder="ID, contacto, servicio, resumen..." value="${state.oppSearch}">
-            </div>
-
-            <div class="field" style="max-width:260px;">
-              <label for="oppStatusFilter">Estado</label>
-              <select id="oppStatusFilter" class="control">
-                ${["Todos", "Cotización enviada", "En seguimiento", "En negociación", "Ganada", "Perdida", "Pausada"].map(status => `<option value="${status}" ${state.oppStatus === status ? "selected" : ""}>${status}</option>`).join("")}
-              </select>
-            </div>
-          </div>
-
-          <div class="pipeline-board">
-            ${statuses.map(status => {
-              const items = filteredPipeline(status);
-              return `
-                <div class="pipeline-column">
-                  <div class="pipeline-top">
-                    <h3>${status}</h3>
-                    <div class="pipeline-count">${items.length}</div>
-                  </div>
-                  ${
-                    items.length
-                      ? `<div class="mini-stack">
-                          ${items.map(item => {
-                            const contact = getContact(item.contactId);
-                            const urgency = getOpportunityUrgency(item);
-                            return `
-                              <div class="mini-card">
-                                <strong>${contact?.name || "Contacto"}</strong>
-                                <p>${item.service} · ${item.plan}</p>
-                                <div class="mini-meta">
-                                  <span class="badge ${statusTone("opportunity", item.status)}">${item.status}</span>
-                                  <span class="badge ${urgency.tone}">${urgency.label}</span>
-                                </div>
-                              </div>
-                            `;
-                          }).join("")}
-                        </div>`
-                      : emptyState("Sin registros")
-                  }
-                </div>
-              `;
-            }).join("")}
-          </div>
-        </div>
-
-        <div class="section-card">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">Detalle de oportunidades</h2>
-              <p class="section-subtitle">Revisión estructurada para priorizar seguimiento y cierre.</p>
-            </div>
-          </div>
-
-          ${
-            rows.length
-              ? `<div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Contacto</th>
-                        <th>Servicio / Plan</th>
-                        <th>Valor cotizado</th>
-                        <th>Fecha cotización</th>
-                        <th>Fecha límite</th>
-                        <th>Estado</th>
-                        <th>Urgencia</th>
-                        <th>Resumen</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${rows.map(opp => {
-                        const contact = getContact(opp.contactId);
-                        const urgency = getOpportunityUrgency(opp);
-                        return `
-                          <tr>
-                            <td><span class="cell-title">${opp.id}</span></td>
-                            <td>
-                              <div class="cell-title">${contact?.name || "Contacto"}</div>
-                              <div class="cell-sub">${contact?.specialty || ""}</div>
-                            </td>
-                            <td>
-                              <div class="cell-title">${opp.service}</div>
-                              <div class="cell-sub">${opp.plan}</div>
-                            </td>
-                            <td>${formatCurrency(opp.quotedValue)}</td>
-                            <td>${formatDate(opp.quoteDate)}</td>
-                            <td>${formatDate(opp.dueDate)}</td>
-                            <td><span class="badge ${statusTone("opportunity", opp.status)}">${opp.status}</span></td>
-                            <td><span class="badge ${urgency.tone}">${urgency.label}</span></td>
-                            <td>${opp.summary}</td>
-                          </tr>
-                        `;
-                      }).join("")}
-                    </tbody>
-                  </table>
-                </div>`
-              : emptyState("No hay oportunidades que coincidan con los filtros actuales.")
-          }
-        </div>
-      `;
-    }
-
-    /* =========================
-       RENDER: PROJECTS
-    ========================== */
-    function renderProjects(){
-      const rows = filteredProjects();
-      const totalSold = rows.reduce((sum, p) => sum + p.soldValue, 0);
-      const totalPending = rows.reduce((sum, p) => sum + pendingForProject(p), 0);
-
-      return `
-        <div class="summary-strip">
-          <div class="summary-chip"><span>Proyectos visibles</span>${rows.length}</div>
-          <div class="summary-chip"><span>Valor vendido</span>${formatCurrency(totalSold)}</div>
-          <div class="summary-chip"><span>Saldo pendiente</span>${formatCurrency(totalPending)}</div>
-        </div>
-
-        <div class="section-card">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">Control de proyectos</h2>
-              <p class="section-subtitle">Sigue ejecución, relación con la oportunidad ganada y pendiente por cobrar.</p>
-            </div>
-          </div>
-
-          <div class="toolbar">
-            <div class="field">
-              <label for="projectSearch">Buscar</label>
-              <input id="projectSearch" class="control" type="text" placeholder="Proyecto, oportunidad, servicio..." value="${state.projectSearch}">
-            </div>
-
-            <div class="field" style="max-width:260px;">
-              <label for="projectStatusFilter">Estado proyecto</label>
-              <select id="projectStatusFilter" class="control">
-                ${["Todos", "Por iniciar", "En ejecución", "Pendiente cliente", "En revisión", "Entregado", "Pausado"].map(status => `<option value="${status}" ${state.projectStatus === status ? "selected" : ""}>${status}</option>`).join("")}
-              </select>
-            </div>
-          </div>
-
-          ${
-            rows.length
-              ? `<div class="cards-grid">
-                  ${rows.map(project => {
-                    const contact = getContact(project.contactId);
-                    const opportunity = getOpportunity(project.opportunityId);
-                    const received = sumPaymentsForProject(project.id, true);
-                    const pending = pendingForProject(project);
-                    const progress = projectProgress(project.status);
-                    return `
-                      <div class="project-card">
-                        <div class="card-top">
-                          <div>
-                            <h3 class="card-title">${project.id}</h3>
-                            <div class="card-kicker">${project.service} · ${project.plan}</div>
-                          </div>
-                          <span class="badge ${statusTone("project", project.status)}">${project.status}</span>
-                        </div>
-
-                        <div class="meta-grid">
-                          <div class="meta-box">
-                            <div class="label">ID Contacto</div>
-                            <div class="value">${project.contactId}</div>
-                          </div>
-                          <div class="meta-box">
-                            <div class="label">ID Oportunidad</div>
-                            <div class="value">${project.opportunityId}</div>
-                          </div>
-                          <div class="meta-box">
-                            <div class="label">Valor vendido</div>
-                            <div class="value">${formatCurrency(project.soldValue)}</div>
-                          </div>
-                          <div class="meta-box">
-                            <div class="label">Saldo pendiente</div>
-                            <div class="value">${formatCurrency(pending)}</div>
-                          </div>
-                        </div>
-
-                        <div class="muted" style="font-size:.86rem;font-weight:700;">${contact?.name || "Contacto"} · ${contact?.city || ""}</div>
-                        <div class="progress-track">
-                          <div class="progress-fill" style="width:${progress}%"></div>
-                        </div>
-
-                        <div class="tag-row">
-                          <span class="tag">Recibido: ${formatCurrency(received)}</span>
-                          <span class="tag">Origen: ${opportunity?.plan || "—"}</span>
-                        </div>
-                      </div>
-                    `;
-                  }).join("")}
-                </div>`
-              : emptyState("No hay proyectos que coincidan con los filtros actuales.")
-          }
-        </div>
-      `;
-    }
-
-    /* =========================
-       RENDER: PAYMENTS
-    ========================== */
-    function renderPayments(){
-      const rows = filteredPayments();
-
-      return `
-        <div class="kpi-grid" style="margin-bottom:16px;">
-          <div class="card metric-card">
-            <div class="metric-head">
-              <span>Ingresos confirmados</span>
-              <div class="metric-icon">↗</div>
-            </div>
-            <p class="metric-value">${formatCurrency(getMetrics().totalReceived)}</p>
-            <div class="metric-foot">Suma de pagos confirmados.</div>
-          </div>
-
-          <div class="card metric-card">
-            <div class="metric-head">
-              <span>Pagos pendientes/programados</span>
-              <div class="metric-icon">◎</div>
-            </div>
-            <p class="metric-value">${formatCurrency(getPendingScheduledTotal())}</p>
-            <div class="metric-foot">Monto ya previsto pero aún no confirmado.</div>
-          </div>
-
-          <div class="card metric-card">
-            <div class="metric-head">
-              <span>Ticket promedio</span>
-              <div class="metric-icon">◍</div>
-            </div>
-            <p class="metric-value">${formatCurrency(getAverageTicket())}</p>
-            <div class="metric-foot">Promedio por pago confirmado registrado.</div>
-          </div>
-        </div>
-
-        <div class="section-card">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">Registro de pagos</h2>
-              <p class="section-subtitle">Una fila por pago, sin duplicar el valor total del proyecto.</p>
-            </div>
-          </div>
-
-          <div class="toolbar">
-            <div class="field">
-              <label for="paymentSearch">Buscar</label>
-              <input id="paymentSearch" class="control" type="text" placeholder="Pago, proyecto, contacto, método..." value="${state.paymentSearch}">
-            </div>
-
-            <div class="field" style="max-width:260px;">
-              <label for="paymentStatusFilter">Estado</label>
-              <select id="paymentStatusFilter" class="control">
-                ${["Todos", "Pagado", "Pendiente", "Abono parcial", "Vencido"].map(status => `<option value="${status}" ${state.paymentStatus === status ? "selected" : ""}>${status}</option>`).join("")}
-              </select>
-            </div>
-          </div>
-
-          ${
-            rows.length
-              ? `<div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>ID Pago</th>
-                        <th>ID Contacto</th>
-                        <th>ID Proyecto</th>
-                        <th>Tipo de pago</th>
-                        <th>Monto recibido</th>
-                        <th>Fecha pago</th>
-                        <th>Método</th>
-                        <th>Estado</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${rows.map(payment => {
-                        const contact = getContact(payment.contactId);
-                        return `
-                          <tr>
-                            <td><span class="cell-title">${payment.id}</span></td>
-                            <td>
-                              <div class="cell-title">${payment.contactId}</div>
-                              <div class="cell-sub">${contact?.name || ""}</div>
-                            </td>
-                            <td>${payment.projectId}</td>
-                            <td>${payment.type}</td>
-                            <td>${formatCurrency(payment.amount)}</td>
-                            <td>${formatDate(payment.date)}</td>
-                            <td>${payment.method}</td>
-                            <td><span class="badge ${statusTone("payment", payment.status)}">${payment.status}</span></td>
-                          </tr>
-                        `;
-                      }).join("")}
-                    </tbody>
-                  </table>
-                </div>`
-              : emptyState("No hay pagos que coincidan con los filtros actuales.")
-          }
-        </div>
-      `;
-    }
-
-    /* =========================
-       MODAL
-    ========================== */
-    function renderModal(){
-      const modal = document.getElementById("detailModal");
-      const content = document.getElementById("modalContent");
-
-      if (!state.modalContactId) {
-        modal.classList.remove("show");
-        content.innerHTML = "";
-        return;
-      }
-
-      const contact = getContact(state.modalContactId);
-      if (!contact) {
-        modal.classList.remove("show");
-        content.innerHTML = "";
-        return;
-      }
-
-      const relatedOpps = opportunities.filter(o => o.contactId === contact.id);
-      const relatedProjects = projects.filter(p => p.contactId === contact.id);
-      const relatedPayments = payments
-        .filter(p => p.contactId === contact.id)
-        .sort((a,b) => parseDate(b.date) - parseDate(a.date));
-
-      const wonValue = relatedOpps
-        .filter(o => o.status === "Ganada")
-        .reduce((sum, o) => sum + o.quotedValue, 0);
-
-      const received = relatedPayments
-        .filter(p => isReceivedPayment(p.status))
-        .reduce((sum, p) => sum + p.amount, 0);
-
-      content.innerHTML = `
-        <div class="modal-header">
-          <div>
-            <p class="eyebrow" style="margin-bottom:6px;">Detalle de contacto</p>
-            <h2 style="margin:0;color:var(--navy);font-size:1.4rem;letter-spacing:-.03em;">${contact.name}</h2>
-            <p class="section-subtitle" style="margin-top:8px;">${contact.specialty} · ${contact.city} · ${contact.channel}</p>
-          </div>
-          <button class="modal-close" data-close-modal>×</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="stats-grid">
-            <div class="section-card">
-              <div class="section-title" style="font-size:.88rem;margin-bottom:8px;">ID Contacto</div>
-              <div class="metric-value" style="font-size:1.3rem;">${contact.id}</div>
-            </div>
-            <div class="section-card">
-              <div class="section-title" style="font-size:.88rem;margin-bottom:8px;">Oportunidades</div>
-              <div class="metric-value" style="font-size:1.3rem;">${relatedOpps.length}</div>
-            </div>
-            <div class="section-card">
-              <div class="section-title" style="font-size:.88rem;margin-bottom:8px;">Valor ganado</div>
-              <div class="metric-value" style="font-size:1.3rem;">${formatCurrency(wonValue)}</div>
-            </div>
-            <div class="section-card">
-              <div class="section-title" style="font-size:.88rem;margin-bottom:8px;">Ingresos confirmados</div>
-              <div class="metric-value" style="font-size:1.3rem;">${formatCurrency(received)}</div>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <div class="section-head">
-              <div>
-                <h3 class="section-title">Oportunidades relacionadas</h3>
-                <p class="section-subtitle">Historial comercial del contacto.</p>
-              </div>
-            </div>
-            ${
-              relatedOpps.length
-                ? `<div class="list-stack">
-                    ${relatedOpps.map(opp => {
-                      const urgency = getOpportunityUrgency(opp);
-                      return `
-                        <div class="list-item">
-                          <div>
-                            <strong>${opp.id} · ${opp.service}</strong>
-                            <p>${opp.plan} · vence ${formatDate(opp.dueDate)}</p>
-                          </div>
-                          <div class="list-right">
-                            <strong>${formatCurrency(opp.quotedValue)}</strong>
-                            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-                              <span class="badge ${statusTone("opportunity", opp.status)}">${opp.status}</span>
-                              <span class="badge ${urgency.tone}">${urgency.label}</span>
-                            </div>
-                          </div>
-                        </div>
-                      `;
-                    }).join("")}
-                  </div>`
-                : emptyState("Este contacto aún no tiene oportunidades registradas.")
-            }
-          </div>
-
-          <div class="section-card">
-            <div class="section-head">
-              <div>
-                <h3 class="section-title">Proyectos</h3>
-                <p class="section-subtitle">Ejecución posterior al cierre comercial.</p>
-              </div>
-            </div>
-            ${
-              relatedProjects.length
-                ? `<div class="list-stack">
-                    ${relatedProjects.map(project => `
-                      <div class="list-item">
-                        <div>
-                          <strong>${project.id} · ${project.service}</strong>
-                          <p>${project.plan} · oportunidad ${project.opportunityId}</p>
-                        </div>
-                        <div class="list-right">
-                          <strong>${formatCurrency(project.soldValue)}</strong>
-                          <span class="badge ${statusTone("project", project.status)}">${project.status}</span>
-                        </div>
-                      </div>
-                    `).join("")}
-                  </div>`
-                : emptyState("Este contacto aún no tiene proyectos asociados.")
-            }
-          </div>
-
-          <div class="section-card">
-            <div class="section-head">
-              <div>
-                <h3 class="section-title">Pagos</h3>
-                <p class="section-subtitle">Movimientos financieros vinculados al contacto.</p>
-              </div>
-            </div>
-            ${
-              relatedPayments.length
-                ? `<div class="list-stack">
-                    ${relatedPayments.map(payment => `
-                      <div class="list-item">
-                        <div>
-                          <strong>${payment.id} · ${payment.projectId}</strong>
-                          <p>${payment.type} · ${payment.method} · ${formatDate(payment.date)}</p>
-                        </div>
-                        <div class="list-right">
-                          <strong>${formatCurrency(payment.amount)}</strong>
-                          <span class="badge ${statusTone("payment", payment.status)}">${payment.status}</span>
-                        </div>
-                      </div>
-                    `).join("")}
-                  </div>`
-                : emptyState("Este contacto aún no tiene pagos registrados.")
-            }
-          </div>
-        </div>
-      `;
-
-      modal.classList.add("show");
-    }
-
-    /* =========================
-       NAV / APP
-    ========================== */
-    function setActiveView(view){
-      state.activeView = view;
-      document.getElementById("viewTitle").textContent = viewTitles[view] || "Dashboard";
-
-      document.querySelectorAll("[data-view]").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.view === view);
-      });
-
-      document.querySelectorAll(".view").forEach(section => {
-        section.classList.toggle("active", section.id === `${view}View`);
-      });
-    }
-
-    function renderAll(){
-      document.getElementById("dashboardView").innerHTML = renderDashboard();
-      document.getElementById("contactsView").innerHTML = renderContacts();
-      document.getElementById("opportunitiesView").innerHTML = renderOpportunities();
-      document.getElementById("projectsView").innerHTML = renderProjects();
-      document.getElementById("paymentsView").innerHTML = renderPayments();
-      setActiveView(state.activeView);
-      renderModal();
-    }
-
-    function showToast(message){
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.classList.add("show");
-      clearTimeout(showToast._timer);
-      showToast._timer = setTimeout(() => {
-        toast.classList.remove("show");
-      }, 2200);
-    }
-
-    /* =========================
-       EVENTS
-    ========================== */
-    document.addEventListener("click", (e) => {
-      const nav = e.target.closest("[data-view]");
-      const detail = e.target.closest("[data-contact-id]");
-      const closeModalBtn = e.target.closest("[data-close-modal]");
-
-      if (nav) {
-        setActiveView(nav.dataset.view);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-
-      if (detail) {
-        state.modalContactId = detail.dataset.contactId;
-        renderModal();
-      }
-
-      if (closeModalBtn) {
-        state.modalContactId = null;
-        renderModal();
-      }
-
-      if (e.target.id === "detailModal") {
-        state.modalContactId = null;
-        renderModal();
-      }
-
-      if (e.target.id === "syncBtn") {
-        loadData(true).then(() => renderAll());
-      }
-    });
-
-    document.addEventListener("input", (e) => {
-      if (e.target.id === "contactSearch") {
-        state.contactSearch = e.target.value;
-        document.getElementById("contactsView").innerHTML = renderContacts();
-      }
-      if (e.target.id === "oppSearch") {
-        state.oppSearch = e.target.value;
-        document.getElementById("opportunitiesView").innerHTML = renderOpportunities();
-      }
-      if (e.target.id === "projectSearch") {
-        state.projectSearch = e.target.value;
-        document.getElementById("projectsView").innerHTML = renderProjects();
-      }
-      if (e.target.id === "paymentSearch") {
-        state.paymentSearch = e.target.value;
-        document.getElementById("paymentsView").innerHTML = renderPayments();
-      }
-    });
-
-    document.addEventListener("change", (e) => {
-      if (e.target.id === "contactCityFilter") {
-        state.contactCity = e.target.value;
-        document.getElementById("contactsView").innerHTML = renderContacts();
-      }
-      if (e.target.id === "contactChannelFilter") {
-        state.contactChannel = e.target.value;
-        document.getElementById("contactsView").innerHTML = renderContacts();
-      }
-      if (e.target.id === "oppStatusFilter") {
-        state.oppStatus = e.target.value;
-        document.getElementById("opportunitiesView").innerHTML = renderOpportunities();
-      }
-      if (e.target.id === "projectStatusFilter") {
-        state.projectStatus = e.target.value;
-        document.getElementById("projectsView").innerHTML = renderProjects();
-      }
-      if (e.target.id === "paymentStatusFilter") {
-        state.paymentStatus = e.target.value;
-        document.getElementById("paymentsView").innerHTML = renderPayments();
-      }
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        state.modalContactId = null;
-        renderModal();
-      }
-    });
-
-    /* =========================
-       INIT
-    ========================== */
-    async function initApp(){
-      document.getElementById("dateChip").textContent = dateFmt.format(today);
-      document.getElementById("dashboardView").innerHTML = emptyState("Cargando información desde Google Sheets...");
-      await loadData(false);
-      renderAll();
-      if (!contacts.length && !opportunities.length && !projects.length && !payments.length) {
-        showToast("Dashboard listo, pero no se encontraron registros.");
-      }
-    }
-
-    initApp();
-  </script>
+        ${estadoBadge(p["Estado proyecto"])}
+      </div>
+      <div style="display:flex;gap:12px;font-size:12px;margin-top:8px;flex-wrap:wrap">
+        <span>💰 ${fmt(valor)}</span>
+        <span style="color:${saldo>0?'var(--yellow)':'var(--green)'}">Saldo: ${fmt(Math.max(saldo,0))}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px">
+        📅 Inicio: ${p["Fecha inicio"]||"—"} | Entrega: ${p["Fecha entrega estimada"]||"—"}
+      </div>
+      ${p["Observaciones"]?`<div style="font-size:11px;color:var(--text-light);margin-top:4px;font-style:italic">${p["Observaciones"].substring(0,80)}...</div>`:""}
+    </div>`}).join("")}</div>`;
+}
+
+/* ═══════════════════════════════════════════
+   PAGOS
+   ═══════════════════════════════════════════ */
+function rPagos() {
+  const el=$("#content");
+  const data=[...D.pagos].sort((a,b)=>(b["Fecha pago"]||"").localeCompare(a["Fecha pago"]||""));
+  if(!data.length) { el.innerHTML='<div class="card empty-state">Sin pagos registrados.</div>'; return; }
+
+  el.innerHTML=`<div class="card" style="padding:0;overflow-x:auto">
+    <table class="table"><thead><tr>
+      <th>ID</th><th>Contacto</th><th>Proyecto</th><th>Tipo</th>
+      <th>Monto</th><th>Fecha</th><th>Método</th><th>Estado</th>
+    </tr></thead><tbody>
+    ${data.map(p=>`<tr class="clickable" onclick="openForm('pago','${p["ID Pago"]}')">
+      <td><span class="badge b-gray" style="font-size:9px">${p["ID Pago"]}</span></td>
+      <td style="font-weight:500">${p["Nombre contacto"]||getContactName(p["ID Contacto"])}</td>
+      <td><span class="badge b-gray" style="font-size:9px">${p["ID Proyecto"]||"—"}</span></td>
+      <td>${estadoBadge(p["Tipo"])}</td>
+      <td style="font-weight:600">${fmt(p["Monto recibido"])}</td>
+      <td>${p["Fecha pago"]||"—"}</td>
+      <td class="hide-m">${p["Método pago"]||"—"}</td>
+      <td>${estadoBadge(p["Estado pago"])}</td>
+    </tr>`).join("")}
+    </tbody></table></div>`;
+}
+
+/* ═══════════════════════════════════════════
+   DETAIL VIEW
+   ═══════════════════════════════════════════ */
+function viewDetail(type, id) {
+  if(type==="contacto") {
+    const c=D.contactos.find(x=>String(x["ID Contacto"])===String(id));
+    if(!c) return;
+    const ops=D.oportunidades.filter(o=>String(o["ID Contacto"])===String(id));
+    const prs=D.proyectos.filter(p=>String(p["ID Contacto"])===String(id));
+    const pgs=D.pagos.filter(p=>String(p["ID Contacto"])===String(id));
+    const totalRecibido=pgs.reduce((s,p)=>s+(Number(p["Monto recibido"])||0),0);
+
+    showModal(`
+      <div class="modal-head"><h2>${c["Nombre contacto"]}</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:14px">
+        <div>📱 ${c["WhatsApp"]||"—"}</div>
+        <div>📧 ${c["Email"]||"—"}</div>
+        <div>🏢 ${c["Negocio / Especialidad"]||"—"}</div>
+        <div>📍 ${c["Ciudad"]||"—"}</div>
+        <div>📅 ${c["Fecha contacto"]||"—"}</div>
+        <div>📡 ${c["Canal de ingreso lead"]||"—"}</div>
+        <div style="grid-column:1/-1">💰 Total recibido: <strong>${fmt(totalRecibido)}</strong></div>
+      </div>
+      ${c["Observaciones"]?`<div style="background:var(--bg);padding:10px;border-radius:8px;font-size:12px;margin-bottom:12px">${c["Observaciones"]}</div>`:""}
+      <h3 class="section-title" style="font-size:14px">Oportunidades (${ops.length})</h3>
+      ${ops.map(o=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between">
+        <span>${o["Servicio"]} — ${o["Plan"]||""}</span>
+        <span>${estadoBadge(o["Estado Oportunidad"])} ${fmt(o["Valor cotizado"])}</span>
+      </div>`).join("")||'<div style="font-size:12px;color:var(--text-muted)">Sin oportunidades</div>'}
+      <h3 class="section-title" style="font-size:14px;margin-top:12px">Proyectos (${prs.length})</h3>
+      ${prs.map(p=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between">
+        <span>${p["Servicio"]} — ${p["Plan contratado"]||""}</span>
+        <span>${estadoBadge(p["Estado proyecto"])} ${fmt(p["Valor vendido"])}</span>
+      </div>`).join("")||'<div style="font-size:12px;color:var(--text-muted)">Sin proyectos</div>'}
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="openForm('contacto','${id}');closeModal()">✏️ Editar</button>
+      </div>
+    `);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   FORMS
+   ═══════════════════════════════════════════ */
+function sel(name, options, selected) {
+  return `<select class="input" id="f-${name}">
+    <option value="">— Seleccionar —</option>
+    ${options.map(o=>`<option${o===selected?' selected':''}>${o}</option>`).join("")}
+  </select>`;
+}
+
+function openForm(type, editId) {
+  let html = "";
+
+  if(type==="contacto") {
+    const c = editId ? D.contactos.find(x=>String(x["ID Contacto"])===String(editId)) : null;
+    const v = c || {};
+    html=`
+      <div class="modal-head"><h2>${c?"Editar Contacto":"Nuevo Contacto"}</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="field"><label>ID Contacto *</label><input class="input" id="f-id" value="${v["ID Contacto"]||""}" ${c?'readonly style="background:#f1f5f9"':''}></div>
+      <div class="field-row">
+        <div class="field"><label>Nombre *</label><input class="input" id="f-nombre" value="${v["Nombre contacto"]||""}"></div>
+        <div class="field"><label>Negocio / Especialidad</label><input class="input" id="f-negocio" value="${v["Negocio / Especialidad"]||""}"></div>
+      </div>
+      <div class="field-row-3">
+        <div class="field"><label>Ciudad</label>${sel("ciudad", getCatList("Ciudad"), v["Ciudad"])}</div>
+        <div class="field"><label>WhatsApp *</label><input class="input" id="f-whatsapp" value="${v["WhatsApp"]||""}"></div>
+        <div class="field"><label>Email</label><input class="input" id="f-email" value="${v["Email"]||""}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Canal de ingreso</label>${sel("canal", getCatList("Canal"), v["Canal de ingreso lead"])}</div>
+        <div class="field"><label>Servicio de interés</label>${sel("servicio", getCatList("Servicio"), v["Servicio de Interés"]||v["Servicio interés"])}</div>
+      </div>
+      <div class="field"><label>Observaciones</label><textarea class="input" id="f-obs" rows="2" style="resize:vertical">${v["Observaciones"]||""}</textarea></div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveContacto('${editId||''}')">💾 Guardar</button>
+      </div>`;
+  }
+
+  if(type==="oportunidad") {
+    const o = editId ? D.oportunidades.find(x=>String(x["ID Oportunidad"])===String(editId)) : null;
+    const v = o || {};
+    html=`
+      <div class="modal-head"><h2>${o?"Editar Oportunidad":"Nueva Oportunidad"}</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="field-row">
+        <div class="field"><label>ID Oportunidad *</label><input class="input" id="f-id" value="${v["ID Oportunidad"]||""}" ${o?'readonly style="background:#f1f5f9"':''}></div>
+        <div class="field"><label>ID Contacto *</label><input class="input" id="f-contacto" value="${v["ID Contacto"]||""}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Servicio</label>${sel("servicio", getCatList("Servicio"), v["Servicio"])}</div>
+        <div class="field"><label>Plan</label>${sel("plan", getCatList("Plan"), v["Plan"])}</div>
+      </div>
+      <div class="field-row-3">
+        <div class="field"><label>Valor cotizado</label><input class="input" id="f-valor" type="number" value="${v["Valor cotizado"]||""}"></div>
+        <div class="field"><label>Fecha cotización</label><input class="input" id="f-fecha" type="date" value="${v["Fecha cotización"]||TODAY}"></div>
+        <div class="field"><label>Fecha límite</label><input class="input" id="f-limite" type="date" value="${v["Fecha límite"]||""}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Estado</label>${sel("estado", getCatList("Estado Oportunidad"), v["Estado Oportunidad"])}</div>
+        <div class="field"><label>Motivo de pérdida</label>${sel("motivo", getCatList("Motivo de Pérdida"), v["Motivo de la Pérdida"])}</div>
+      </div>
+      <div class="field"><label>Resumen</label><input class="input" id="f-resumen" value="${v["Resumen"]||""}"></div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveOportunidad('${editId||''}')">💾 Guardar</button>
+      </div>`;
+  }
+
+  if(type==="proyecto") {
+    const p = editId ? D.proyectos.find(x=>String(x["ID Proyecto"])===String(editId)) : null;
+    const v = p || {};
+    html=`
+      <div class="modal-head"><h2>${p?"Editar Proyecto":"Nuevo Proyecto"}</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="field-row-3">
+        <div class="field"><label>ID Proyecto *</label><input class="input" id="f-id" value="${v["ID Proyecto"]||""}" ${p?'readonly style="background:#f1f5f9"':''}></div>
+        <div class="field"><label>ID Contacto *</label><input class="input" id="f-contacto" value="${v["ID Contacto"]||""}"></div>
+        <div class="field"><label>ID Oportunidad</label><input class="input" id="f-oportunidad" value="${v["ID Oportunidad"]||""}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Servicio</label>${sel("servicio", getCatList("Servicio"), v["Servicio"])}</div>
+        <div class="field"><label>Plan contratado</label>${sel("plan", getCatList("Plan"), v["Plan contratado"])}</div>
+      </div>
+      <div class="field-row-3">
+        <div class="field"><label>Fecha inicio</label><input class="input" id="f-inicio" type="date" value="${v["Fecha inicio"]||TODAY}"></div>
+        <div class="field"><label>Entrega estimada</label><input class="input" id="f-entrega" type="date" value="${v["Fecha entrega estimada"]||""}"></div>
+        <div class="field"><label>Entrega real</label><input class="input" id="f-real" type="date" value="${v["Fecha entrega real"]||""}"></div>
+      </div>
+      <div class="field-row-3">
+        <div class="field"><label>Estado</label>${sel("estado", getCatList("Estado Proyecto"), v["Estado proyecto"])}</div>
+        <div class="field"><label>Responsable</label>${sel("responsable", getCatList("Responsable"), v["Responsable"])}</div>
+        <div class="field"><label>Referido por</label><input class="input" id="f-referido" value="${v["Referido por"]||""}"></div>
+      </div>
+      <div class="field"><label>Valor vendido</label><input class="input" id="f-valor" type="number" value="${v["Valor vendido"]||""}"></div>
+      <div class="field"><label>Link del proyecto</label><input class="input" id="f-link" value="${v["Link del proyecto"]||""}"></div>
+      <div class="field"><label>Observaciones</label><textarea class="input" id="f-obs" rows="2" style="resize:vertical">${v["Observaciones"]||""}</textarea></div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveProyecto('${editId||''}')">💾 Guardar</button>
+      </div>`;
+  }
+
+  if(type==="pago") {
+    const p = editId ? D.pagos.find(x=>String(x["ID Pago"])===String(editId)) : null;
+    const v = p || {};
+    html=`
+      <div class="modal-head"><h2>${p?"Editar Pago":"Nuevo Pago"}</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="field-row-3">
+        <div class="field"><label>ID Pago *</label><input class="input" id="f-id" value="${v["ID Pago"]||""}" ${p?'readonly style="background:#f1f5f9"':''}></div>
+        <div class="field"><label>ID Proyecto *</label><input class="input" id="f-proyecto" value="${v["ID Proyecto"]||""}"></div>
+        <div class="field"><label>ID Contacto *</label><input class="input" id="f-contacto" value="${v["ID Contacto"]||""}"></div>
+      </div>
+      <div class="field-row-3">
+        <div class="field"><label>Tipo</label>${sel("tipo", getCatList("Tipo de Pago"), v["Tipo"])}</div>
+        <div class="field"><label>Monto recibido *</label><input class="input" id="f-monto" type="number" value="${v["Monto recibido"]||""}"></div>
+        <div class="field"><label>Fecha pago</label><input class="input" id="f-fecha" type="date" value="${v["Fecha pago"]||TODAY}"></div>
+      </div>
+      <div class="field-row-3">
+        <div class="field"><label>Método pago</label>${sel("metodo", getCatList("Método de Pago"), v["Método pago"])}</div>
+        <div class="field"><label>Estado pago</label>${sel("estado", getCatList("Estado de Pago"), v["Estado pago"])}</div>
+        <div class="field"><label>Fecha compromiso saldo</label><input class="input" id="f-compromiso" type="date" value="${v["Fecha compromiso saldo"]||""}"></div>
+      </div>
+      <div class="field"><label>Observaciones</label><textarea class="input" id="f-obs" rows="2" style="resize:vertical">${v["Observaciones"]||""}</textarea></div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="savePago('${editId||''}')">💾 Guardar</button>
+      </div>`;
+  }
+
+  showModal(html);
+}
+
+/* ═══════════════════════════════════════════
+   SAVE FUNCTIONS
+   ═══════════════════════════════════════════ */
+function saveContacto(editId) {
+  const id = $("#f-id").value.trim();
+  const nombre = $("#f-nombre").value.trim();
+  if(!id||!nombre) return alert("ID y Nombre son obligatorios.");
+  const reg = {
+    "ID Contacto": id,
+    "Fecha contacto": editId ? (D.contactos.find(c=>c["ID Contacto"]===editId)||{})["Fecha contacto"]||TODAY : TODAY,
+    "Nombre contacto": nombre,
+    "Negocio / Especialidad": $("#f-negocio").value.trim(),
+    "Ciudad": $("#f-ciudad").value,
+    "WhatsApp": $("#f-whatsapp").value.trim(),
+    "Email": $("#f-email").value.trim(),
+    "Canal de ingreso lead": $("#f-canal").value,
+    "Servicio de Interés": $("#f-servicio").value,
+    "Observaciones": $("#f-obs").value.trim(),
+  };
+  if(editId) { const i=D.contactos.findIndex(c=>String(c["ID Contacto"])===String(editId)); if(i>=0) D.contactos[i]=reg; }
+  else D.contactos.push(reg);
+  apiSave("Contacto", reg);
+  saveLocal(); closeModal(); render();
+}
+
+function saveOportunidad(editId) {
+  const id = $("#f-id").value.trim();
+  if(!id) return alert("ID Oportunidad es obligatorio.");
+  const reg = {
+    "ID Oportunidad": id,
+    "ID Contacto": $("#f-contacto").value.trim(),
+    "Nombre contacto": getContactName($("#f-contacto").value.trim()),
+    "Servicio": $("#f-servicio").value,
+    "Plan": $("#f-plan").value,
+    "Valor cotizado": Number($("#f-valor").value)||0,
+    "Fecha cotización": $("#f-fecha").value,
+    "Fecha límite": $("#f-limite").value,
+    "Estado Oportunidad": $("#f-estado").value,
+    "Motivo de la Pérdida": $("#f-motivo").value,
+    "Resumen": $("#f-resumen").value.trim(),
+  };
+  if(editId) { const i=D.oportunidades.findIndex(o=>String(o["ID Oportunidad"])===String(editId)); if(i>=0) D.oportunidades[i]=reg; }
+  else D.oportunidades.push(reg);
+  apiSave("Oportunidades", reg);
+  saveLocal(); closeModal(); render();
+}
+
+function saveProyecto(editId) {
+  const id = $("#f-id").value.trim();
+  if(!id) return alert("ID Proyecto es obligatorio.");
+  const reg = {
+    "ID Proyecto": id,
+    "ID Contacto": $("#f-contacto").value.trim(),
+    "Nombre contacto": getContactName($("#f-contacto").value.trim()),
+    "ID Oportunidad": $("#f-oportunidad").value.trim(),
+    "Servicio": $("#f-servicio").value,
+    "Plan contratado": $("#f-plan").value,
+    "Fecha inicio": $("#f-inicio").value,
+    "Fecha entrega estimada": $("#f-entrega").value,
+    "Fecha entrega real": $("#f-real").value,
+    "Estado proyecto": $("#f-estado").value,
+    "Responsable": $("#f-responsable").value,
+    "Referido por": $("#f-referido").value.trim(),
+    "Valor vendido": Number($("#f-valor").value)||0,
+    "Saldo pendiente": "",
+    "Link del proyecto": $("#f-link").value.trim(),
+    "Observaciones": $("#f-obs").value.trim(),
+  };
+  if(editId) { const i=D.proyectos.findIndex(p=>String(p["ID Proyecto"])===String(editId)); if(i>=0) D.proyectos[i]=reg; }
+  else D.proyectos.push(reg);
+  apiSave("Proyectos", reg);
+  saveLocal(); closeModal(); render();
+}
+
+function savePago(editId) {
+  const id = $("#f-id").value.trim();
+  if(!id) return alert("ID Pago es obligatorio.");
+  const reg = {
+    "ID Pago": id,
+    "ID Proyecto": $("#f-proyecto").value.trim(),
+    "ID Contacto": $("#f-contacto").value.trim(),
+    "Nombre contacto": getContactName($("#f-contacto").value.trim()),
+    "Tipo": $("#f-tipo").value,
+    "Monto recibido": Number($("#f-monto").value)||0,
+    "Fecha pago": $("#f-fecha").value,
+    "Método pago": $("#f-metodo").value,
+    "Estado pago": $("#f-estado").value,
+    "Fecha compromiso saldo": $("#f-compromiso").value,
+    "Observaciones": $("#f-obs").value.trim(),
+  };
+  if(editId) { const i=D.pagos.findIndex(p=>String(p["ID Pago"])===String(editId)); if(i>=0) D.pagos[i]=reg; }
+  else D.pagos.push(reg);
+  apiSave("Pagos", reg);
+  saveLocal(); closeModal(); render();
+}
+
+/* ═══════════════════════════════════════════
+   MODAL UTILS
+   ═══════════════════════════════════════════ */
+function showModal(html) { $("#modal-root").innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">${html}</div></div>`; }
+function closeModal() { $("#modal-root").innerHTML=""; }
+
+/* ═══════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════ */
+async function init() {
+  $("#main").innerHTML=`<div style="display:flex;justify-content:center;align-items:center;min-height:60vh;flex-direction:column;gap:10px">
+    <div style="font-family:var(--font-display);font-size:24px;font-weight:600;color:var(--teal)">Step Up Business Solutions</div>
+    <div style="font-size:13px;color:var(--text-muted)">Conectando con Google Sheets...</div></div>`;
+  await loadData();
+  buildNav();
+  render();
+}
+init();
+</script>
 </body>
 </html>
